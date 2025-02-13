@@ -1,3 +1,11 @@
+USE master
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'TickItDB')
+BEGIN
+    CREATE DATABASE TickItDB;
+END
+
 USE TickItDB;
 GO
 
@@ -133,5 +141,3 @@ CREATE TABLE [dbo].[StatusTrack](
     CONSTRAINT [FK_StatusTrack_Tasks] FOREIGN KEY([TaskID]) REFERENCES [dbo].[Tasks]([ID]),
 );
 GO
-
-SELECT * FROM  [dbo].[StatusTrack]
