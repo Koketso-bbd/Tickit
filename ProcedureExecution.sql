@@ -9,3 +9,10 @@ EXEC sproc_CreateProject
 
 
 
+
+--- FOR ADDING USER TO PROJECT----
+
+EXEC sp_AddUserToProject
+    @UserID = 3,
+    @ProjectID = 2,
+    @RoleID = 2;

@@ -1,5 +1,5 @@
 
---- CREATING A PROJECT AND ASSIGNING A OWNER
+--- ------------------ CREATING A PROJECT AND ASSIGNING A OWNER --------------------------
 
 CREATE PROCEDURE sproc_CreateProject
     @ProjectName VARCHAR(100),
@@ -38,4 +38,41 @@ BEGIN
         ROLLBACK TRANSACTION;
     END CATCH;
 END;
+GO
 ------------------------------------------------------------------------------------------
+
+
+
+
+---------------------- Adding a User to a Project ---------------------------------------
+
+CREATE PROCEDURE sp_AddUserToProject
+    @UserID INT,
+    @ProjectID INT,
+    @RoleID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF NOT EXISTS (SELECT 1 FROM Projects WHERE ID = @ProjectID)
+        BEGIN
+            RAISERROR('Project does not exist', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        INSERT INTO UserProjects (UserID, ProjectID, RoleID, JoinedAt)
+        VALUES (@UserID, @ProjectID, @RoleID, GETDATE());
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH;
+END;
+GO;
+--------------------------------------------------------------------------
