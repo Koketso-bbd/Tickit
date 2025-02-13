@@ -121,4 +121,77 @@ BEGIN
         ROLLBACK TRANSACTION;
     END CATCH;
 END;
+GO;
 -----------------------------------------------------------------------------------------------------
+
+
+
+
+------------------Procedure for updating a task------------------------------------------------
+CREATE PROCEDURE sp_UpdateTaskStatus
+    @TaskID INT,
+    @NewStatusID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+
+        IF NOT EXISTS (SELECT 1 FROM Tasks WHERE ID = @TaskID)
+        BEGIN
+            RAISERROR('Task does not exist', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        UPDATE Tasks
+        SET StatusID = @NewStatusID
+        WHERE ID = @TaskID;
+
+        INSERT INTO StatusTrack (TaskID, StatusID, StartedAt)
+        VALUES (@TaskID, @NewStatusID, GETDATE());
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH;
+END;
+GO;
+--------------------------------------------------------------------------
+
+
+
+
+---------------------Procedure to mark a notification as being read---------------
+CREATE PROCEDURE sp_MarkNotificationAsRead
+    @NotificationID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF NOT EXISTS (SELECT 1 FROM Notifications WHERE ID = @NotificationID)
+        BEGIN
+            RAISERROR('Notification does not exist', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        UPDATE Notifications
+        SET IsRead = 1
+        WHERE ID = @NotificationID;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH;
+END;
+-------------------------------------------------------------------------------------------

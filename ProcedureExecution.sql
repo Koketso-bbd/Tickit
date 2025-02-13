@@ -30,3 +30,20 @@ EXEC sp_CreateTask
     @AssigneeID = 1,
     @StatusID = 1;
 ---------------------------------------
+
+
+
+
+--------------for updating a task-------------
+EXEC sp_UpdateTaskStatus
+    @TaskID = 1,
+    @NewStatusID = 2;
+---------------------------------------------
+
+
+
+
+------------------fOR marking notification as read---------------
+EXEC sp_MarkNotificationAsRead
+    @NotificationID = 2
+-----------------------------------------------------------------
