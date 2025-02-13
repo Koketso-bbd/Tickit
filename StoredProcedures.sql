@@ -76,3 +76,49 @@ BEGIN
 END;
 GO;
 --------------------------------------------------------------------------
+
+
+
+
+--------------------Procedure to create a task--------------------------
+
+CREATE PROCEDURE sp_CreateTask
+    @TaskName VARCHAR(255),
+    @TaskDescription NVARCHAR(1000),
+    @DueDate DATETIME,
+    @Priority TINYINT,
+    @ProjectID INT,
+    @AssigneeID INT NULL,
+    @StatusID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF @TaskName IS NULL OR LEN(@TaskName) = 0
+        BEGIN
+            RAISERROR('Task name cannot be empty', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+        
+        IF NOT EXISTS (SELECT 1 FROM Projects WHERE ID = @ProjectID)
+        BEGIN
+            RAISERROR('Project does not exist', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        INSERT INTO Tasks (TaskName, TaskDescription, DueDate, Priority, ProjectID, AssigneeID, StatusID, CreatedAt, ConfirmationDate)
+        VALUES (@TaskName, @TaskDescription, @DueDate, @Priority, @ProjectID, @AssigneeID, @StatusID, GETDATE(), GETDATE());
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH;
+END;
+-----------------------------------------------------------------------------------------------------
