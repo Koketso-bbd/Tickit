@@ -62,3 +62,25 @@ EXEC sp_RemoveUserFromProject
 EXEC sp_GetUserTasks
     @UserID = 4;
 ----------------------------------------------------------------
+
+
+
+--------------------FOR GETTING UNREAD NOTIFICATIONS------------
+EXEC sp_GetUserNotifications
+    @UserID = 3;
+----------------------------------------------------------------
+
+
+
+-----------------for creating a label-------------------------
+EXEC sp_CreateLabel
+    @LabelName = '',
+    @ProjectID = 3;
+--------------------------------------------------------------
+
+
+----------------------FOR ASSIGNING LABEL TO TASK---------------
+EXEC sp_AddLabelToTask
+    @TaskID = 2,
+    @LabelID = 1;
+----------------------------------------------------------------

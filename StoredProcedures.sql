@@ -254,3 +254,110 @@ BEGIN
 END;
 GO;
 ----------------------------------------------------------------------------------------------------
+
+
+
+
+
+----------------procedure to get unread notifications-----------------------------------------------
+CREATE PROCEDURE sp_GetUserNotifications
+    @UserID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        SELECT ID, Message, CreatedAt 
+        FROM Notifications 
+        WHERE UserID = @UserID AND IsRead = 0
+        ORDER BY CreatedAt DESC;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+    END CATCH;
+END;
+GO;
+----------------------------------------------------------------------------------------------
+
+
+
+
+
+------------------------proceduer for creating a label---------------------------------------
+CREATE PROCEDURE sp_CreateLabel
+    @LabelName VARCHAR(100),
+    @ProjectID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF @LabelName IS NULL OR LEN(@LabelName) = 0
+        BEGIN
+            RAISERROR('Label name cannot be empty', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        IF NOT EXISTS (SELECT 1 FROM Projects WHERE ID = @ProjectID)
+        BEGIN
+            RAISERROR('Project does not exist', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        INSERT INTO Labels (LabelName, ProjectID)
+        VALUES (@LabelName, @ProjectID);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH;
+END;
+GO;
+----------------------------------------------------------------------------------------------------
+
+
+
+
+--------------------PROCEDURE FOR ASSIGNING LABEL TO TASK-------------------------------------------
+CREATE PROCEDURE sp_AddLabelToTask
+    @TaskID INT,
+    @LabelID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF NOT EXISTS (SELECT 1 FROM Tasks WHERE ID = @TaskID)
+        BEGIN
+            RAISERROR('Task does not exist', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        IF NOT EXISTS (SELECT 1 FROM Labels WHERE ID = @LabelID)
+        BEGIN
+            RAISERROR('Label does not exist', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        INSERT INTO TaskLabels (TaskID, LabelID)
+        VALUES (@TaskID, @LabelID);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH;
+END;
+GO;
+----------------------------------------------------------------------------------------------
