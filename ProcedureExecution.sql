@@ -47,3 +47,18 @@ EXEC sp_UpdateTaskStatus
 EXEC sp_MarkNotificationAsRead
     @NotificationID = 2
 -----------------------------------------------------------------
+
+
+
+----------for removing user from a project-----------------------
+EXEC sp_RemoveUserFromProject
+    @UserID = 1,
+    @ProjectID = 3;
+-----------------------------------------------------------------
+
+
+
+---------------------FOR getting all users tasks----------------
+EXEC sp_GetUserTasks
+    @UserID = 4;
+----------------------------------------------------------------

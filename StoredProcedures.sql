@@ -194,4 +194,63 @@ BEGIN
         ROLLBACK TRANSACTION;
     END CATCH;
 END;
+GO;
 -------------------------------------------------------------------------------------------
+
+
+
+
+
+----------------------------Procedure to remove a user in a project--------------------------
+CREATE PROCEDURE sp_RemoveUserFromProject
+    @UserID INT,
+    @ProjectID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF NOT EXISTS (SELECT 1 FROM UserProjects WHERE UserID = @UserID AND ProjectID = @ProjectID)
+        BEGIN
+            RAISERROR('User is not part of the project', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        DELETE FROM UserProjects 
+        WHERE UserID = @UserID AND ProjectID = @ProjectID;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH;
+END;
+GO;
+--------------------------------------------------------------------------------------------
+
+
+
+
+-----------------------------Procedure to retrieve a users tasks----------------------------
+CREATE PROCEDURE sp_GetUserTasks
+    @UserID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        SELECT T.ID, T.TaskName, T.TaskDescription, T.DueDate, T.Priority, T.ProjectID, S.StatusName
+        FROM Tasks T
+        INNER JOIN Status S ON T.StatusID = S.ID
+        WHERE T.AssigneeID = @UserID;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+    END CATCH;
+END;
+GO;
+----------------------------------------------------------------------------------------------------
