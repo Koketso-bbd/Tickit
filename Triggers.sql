@@ -17,19 +17,6 @@ BEGIN
 END;
 GO
 
-CREATE TRIGGER [trg_LogStatusChange] ON [dbo].[Tasks]
-AFTER UPDATE
-
-AS
-BEGIN
-	IF UPDATE(StatusID)
-	BEGIN
-		INSERT INTO StatusTrack (StatusID, TaskID, StartedAt)
-		SELECT StatusID, ID, GETDATE() FROM inserted;
-	END
-END;
-GO
-
 CREATE TRIGGER [trg_InsertStatusTrack] ON [dbo].[Tasks]
 AFTER UPDATE
 
@@ -59,8 +46,7 @@ BEGIN
 END;
 GO
 
-CREATE TRIGGER trg_EnforceUniqueLabelWithinProject
-ON [dbo].[Labels]
+CREATE TRIGGER [trg_EnforceUniqueLabelWithinProject] ON [dbo].[Labels]
 AFTER INSERT, UPDATE
 AS
 BEGIN
