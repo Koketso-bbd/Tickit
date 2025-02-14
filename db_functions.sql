@@ -26,3 +26,19 @@ GO
 
 -- SELECT dbo.fn_IsUserInProject(2,1);
 -- GO
+
+CREATE FUNCTION fn_GetUserRoleInProject(@UserID INT, @ProjectID INT)
+RETURNS VARCHAR(30)
+AS
+BEGIN
+    DECLARE @RoleName VARCHAR(30);
+    SELECT @RoleName = r.RoleName
+    FROM UserProjects up
+    JOIN Roles r ON up.RoleID = r.ID
+    WHERE up.UserID = @UserID AND up.ProjectID = @ProjectID;
+    RETURN @RoleName;
+END;
+GO
+
+-- SELECT dbo.fn_GetUserRoleInProject(5,3);
+-- GO
