@@ -30,46 +30,50 @@ BEGIN
 END;
 GO
 
-CREATE TRIGGER [trg_NotifiyOverdueTask] ON Tasks
+CREATE TRIGGER [trg_InsertStatusTrack] ON [dbo].[Tasks]
 AFTER UPDATE
 
 AS
 BEGIN
-    IF UPDATE(DueDate)
+	IF UPDATE(StatusID)
+	BEGIN
+		INSERT INTO [dbo].[StatusTrack] (StatusID, TaskID, StartedAt)
+		SELECT StatusID, ID, GETDATE() FROM inserted;
+	END
+END;
+GO
+
+CREATE TRIGGER [trg_UpdateCompletionDate] ON [dbo].[Tasks]
+AFTER UPDATE
+
+AS
+BEGIN
+    IF UPDATE(StatusID)
     BEGIN
-        INSERT INTO Notifications (UserID, ProjectID, TaskID, NotificationTypeID, Message, IsRead, CreatedAt)
-        SELECT 
-            t.AssigneeID,
-            t.ProjectID,
-            t.ID,
-            (SELECT ID FROM NotificationTypes WHERE Notification = 'Task Overdue'),
-            CONCAT('Task "', t.TaskName, '" is overdue!'),
-            0,
-            GETDATE()
-        FROM Tasks t
-        JOIN inserted i ON t.ID = i.ID
-        JOIN Status s ON t.StatusID = s.ID
-        WHERE t.DueDate < GETDATE() AND s.StatusName != 'Completed';
+        UPDATE t
+        SET t.CompleitionDate = GETDATE()
+        FROM [dbo].[Tasks] t
+        INNER JOIN inserted i on t.ID = i.ID
+        WHERE i.StatusID = 4  AND t.CompleitionDate IS NULL;
     END
 END;
 GO
 
-CREATE TRIGGER [trg_DeleteNotificationOfDeletedTask] ON [dbo].[Tasks]
-AFTER DELETE
-
+CREATE TRIGGER trg_EnforceUniqueLabelWithinProject
+ON [dbo].[Labels]
+AFTER INSERT, UPDATE
 AS
 BEGIN
-	DELETE FROM [dbo].[Notifications] WHERE TaskID IN (SELECT ID FROM deleted);
+    IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        JOIN [dbo].[Labels] l
+        ON i.ProjectID = l.ProjectID AND i.LabelName = l.LabelName
+        WHERE i.ID <> l.ID
+    )
+    BEGIN
+        RAISERROR('Label name must be unique within a project.', 16, 1);
+        ROLLBACK TRANSACTION;
+    END
 END;
 GO
-
---CREATE TRIGGER [trg_DefaultTaskStatus] ON [dbo].[Tasks]
---AFTER INSERT
-
---AS
---BEGIN
-	--UPDATE [dbo].[Tasks]
-	--SET StatusID = (SELECT ID FROM [dbo].[Status] WHERE StatusName = 'To Do')
-	--WHERE StatusID IS NULL;
---END;
---GO
