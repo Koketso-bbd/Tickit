@@ -42,3 +42,15 @@ GO
 
 -- SELECT dbo.fn_GetUserRoleInProject(5,3);
 -- GO
+
+CREATE FUNCTION fn_GetOverdueTasks()
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT * FROM Tasks WHERE DueDate < GETDATE() AND StatusID != (SELECT ID FROM Status WHERE StatusName = 'Completed')
+);
+GO
+
+-- SELECT * FROM dbo.fn_GetOverdueTasks();
+-- GO
