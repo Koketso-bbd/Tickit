@@ -48,9 +48,31 @@ RETURNS TABLE
 AS
 RETURN
 (
-    SELECT * FROM Tasks WHERE DueDate < GETDATE() AND StatusID != (SELECT ID FROM Status WHERE StatusName = 'Completed')
+    SELECT * 
+    FROM Tasks 
+    WHERE DueDate < GETDATE() AND StatusID != (SELECT ID FROM Status WHERE StatusName = 'Completed')
 );
 GO
 
 -- SELECT * FROM dbo.fn_GetOverdueTasks();
+-- GO
+
+CREATE FUNCTION fn_GetUserTasksInProgressInProject(@UserID INT, @ProjectID INT)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT * 
+    FROM Tasks t
+    WHERE 
+    (
+        DueDate > GETDATE() AND 
+        StatusID != (SELECT ID FROM Status WHERE StatusName = 'Completed') AND
+        t.AssigneeID = @UserID AND 
+        t.ProjectID = @ProjectID
+    )
+);
+GO
+
+-- SELECT * FROM dbo.fn_GetUserTasksInProgressInProject(2,1);
 -- GO
