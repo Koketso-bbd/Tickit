@@ -76,3 +76,22 @@ GO
 
 -- SELECT * FROM dbo.fn_GetUserTasksInProgressInProject(2,1);
 -- GO
+
+CREATE FUNCTION fn_GetUserTasksInProgress(@UserID INT)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT * 
+    FROM Tasks t
+    WHERE 
+    (
+        DueDate > GETDATE() AND 
+        StatusID != (SELECT ID FROM Status WHERE StatusName = 'Completed') AND
+        t.AssigneeID = @UserID
+    )
+);
+GO
+
+-- SELECT * FROM dbo.fn_GetUserTasksInProgress(2);
+-- GO
