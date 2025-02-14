@@ -1,3 +1,12 @@
+USE master
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'TickItDB')
+BEGIN
+    CREATE DATABASE TickItDB;
+END
+GO
+
 USE TickItDB;
 GO
 
