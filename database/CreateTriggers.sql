@@ -3,7 +3,6 @@ GO
 
 CREATE TRIGGER [trg_NotifyUserOnTaskAssignment] ON [dbo].[Tasks]
 AFTER INSERT
-
 AS
 BEGIN
     INSERT INTO [dbo].[Notifications] 
@@ -19,7 +18,6 @@ GO
 
 CREATE TRIGGER [trg_InsertStatusTrack] ON [dbo].[Tasks]
 AFTER UPDATE
-
 AS
 BEGIN
 	IF UPDATE(StatusID)
@@ -33,7 +31,6 @@ GO
 
 CREATE TRIGGER [trg_PreventStatusDowngrade] ON [dbo].[Tasks]
 AFTER UPDATE
-
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -52,9 +49,8 @@ BEGIN
 END;
 GO
 
-CREATE TRIGGER [trg_PreventDuplicatUserInProject] on [dbo].[UserProjects]
+CREATE TRIGGER [trg_PreventDuplicatUserInProject]ON [dbo].[UserProjects]
 INSTEAD OF INSERT
-
 AS
 BEGIN
 	IF EXISTS (SELECT 1 FROM [dbo].[UserProjects] up JOIN inserted i
@@ -74,7 +70,6 @@ GO
 
 CREATE TRIGGER [trg_PreventDuplicateUserOnTask] ON [dbo].[Tasks]
 INSTEAD OF INSERT
-
 AS
 BEGIN
 	IF EXISTS (SELECT 1 FROM [dbo].[Tasks] t JOIN inserted i
@@ -95,7 +90,6 @@ GO
 
 CREATE TRIGGER [trg_NotifyUserOnProjectAdded] ON [dbo].[UserProjects]
 AFTER INSERT
-
 AS
 BEGIN
 	SET NOCOUNT ON;

@@ -8,9 +8,6 @@ BEGIN
 END;
 GO
 
--- SELECT dbo.fn_GetTaskCount(2);
--- GO
-
 CREATE FUNCTION dbo.fn_IsUserInProject(@UserID INT, @ProjectID INT)
 RETURNS BIT
 AS
@@ -23,9 +20,6 @@ BEGIN
     RETURN @Exists;
 END;
 GO
-
--- SELECT dbo.fn_IsUserInProject(2,1);
--- GO
 
 CREATE FUNCTION fn_GetUserRoleInProject(@UserID INT, @ProjectID INT)
 RETURNS VARCHAR(30)
@@ -40,9 +34,6 @@ BEGIN
 END;
 GO
 
--- SELECT dbo.fn_GetUserRoleInProject(5,3);
--- GO
-
 CREATE FUNCTION fn_GetOverdueTasks()
 RETURNS TABLE
 AS
@@ -53,9 +44,6 @@ RETURN
     WHERE DueDate < GETDATE() AND StatusID != (SELECT ID FROM Status WHERE StatusName = 'Completed')
 );
 GO
-
--- SELECT * FROM dbo.fn_GetOverdueTasks();
--- GO
 
 CREATE FUNCTION fn_GetUserTasksInProgressInProject(@UserID INT, @ProjectID INT)
 RETURNS TABLE
@@ -74,9 +62,6 @@ RETURN
 );
 GO
 
--- SELECT * FROM dbo.fn_GetUserTasksInProgressInProject(2,1);
--- GO
-
 CREATE FUNCTION fn_GetUserTasksInProgress(@UserID INT)
 RETURNS TABLE
 AS
@@ -92,6 +77,3 @@ RETURN
     )
 );
 GO
-
--- SELECT * FROM dbo.fn_GetUserTasksInProgress(2);
--- GO
