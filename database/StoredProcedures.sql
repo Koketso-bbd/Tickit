@@ -1,11 +1,8 @@
-
---- ------------------ CREATING A PROJECT AND ASSIGNING A OWNER --------------------------
-
+-- CREATING A PROJECT AND ASSIGNING A OWNER
 CREATE PROCEDURE sproc_CreateProject
     @ProjectName VARCHAR(100),
     @ProjectDescription NVARCHAR(1500),
     @UserID INT
-
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -21,13 +18,9 @@ BEGIN
             RETURN;
         END
 
-
         INSERT INTO Projects (ProjectName, ProjectDescription, UserID, CreatedAt)
         VALUEs (@ProjectName, @ProjectDescription, @UserID, GETDATE());
-
         SET @ProjectID = SCOPE_IDENTITY();
-
-
         INSERT INTO UserProjects (ProjectID, UserID, RoleID, JoinedAt)
         VALUES (@ProjectID, @UserID, 1, GETDATE());
 
@@ -39,13 +32,7 @@ BEGIN
     END CATCH;
 END;
 GO
-------------------------------------------------------------------------------------------
-
-
-
-
----------------------- Adding a User to a Project ---------------------------------------
-
+-- Adding a User to a Project
 CREATE PROCEDURE sp_AddUserToProject
     @UserID INT,
     @ProjectID INT,
@@ -75,13 +62,8 @@ BEGIN
     END CATCH;
 END;
 GO
---------------------------------------------------------------------------
 
-
-
-
---------------------Procedure to create a task--------------------------
-
+--Procedure to create a task
 CREATE PROCEDURE sp_CreateTask
     @TaskName VARCHAR(255),
     @TaskDescription NVARCHAR(1000),
@@ -122,12 +104,8 @@ BEGIN
     END CATCH;
 END;
 GO
------------------------------------------------------------------------------------------------------
 
-
-
-
-------------------Procedure for updating a task------------------------------------------------
+--Procedure for updating a task
 CREATE PROCEDURE sp_UpdateTaskStatus
     @TaskID INT,
     @NewStatusID INT
@@ -137,7 +115,6 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
-
 
         IF NOT EXISTS (SELECT 1 FROM Tasks WHERE ID = @TaskID)
         BEGIN
@@ -149,7 +126,6 @@ BEGIN
         UPDATE Tasks
         SET StatusID = @NewStatusID
         WHERE ID = @TaskID;
-
         INSERT INTO StatusTrack (TaskID, StatusID, StartedAt)
         VALUES (@TaskID, @NewStatusID, GETDATE());
 
@@ -161,12 +137,8 @@ BEGIN
     END CATCH;
 END;
 GO
---------------------------------------------------------------------------
 
-
-
-
----------------------Procedure to mark a notification as being read---------------
+-- Procedure to mark a notification as being read
 CREATE PROCEDURE sp_MarkNotificationAsRead
     @NotificationID INT
 AS
@@ -195,13 +167,8 @@ BEGIN
     END CATCH;
 END;
 GO
--------------------------------------------------------------------------------------------
 
-
-
-
-
-----------------------------Procedure to remove a user in a project--------------------------
+-- Procedure to remove a user in a project
 CREATE PROCEDURE sp_RemoveUserFromProject
     @UserID INT,
     @ProjectID INT
@@ -230,12 +197,8 @@ BEGIN
     END CATCH;
 END;
 GO
---------------------------------------------------------------------------------------------
 
-
-
-
------------------------------Procedure to retrieve a users tasks----------------------------
+-- Procedure to retrieve a users tasks
 CREATE PROCEDURE sp_GetUserTasks
     @UserID INT
 AS
@@ -253,13 +216,8 @@ BEGIN
     END CATCH;
 END;
 GO
-----------------------------------------------------------------------------------------------------
 
-
-
-
-
-----------------procedure to get unread notifications-----------------------------------------------
+-- procedure to get unread notifications
 CREATE PROCEDURE sp_GetUserNotifications
     @UserID INT
 AS
@@ -277,13 +235,8 @@ BEGIN
     END CATCH;
 END;
 GO
-----------------------------------------------------------------------------------------------
 
-
-
-
-
-------------------------proceduer for creating a label---------------------------------------
+-- proceduer for creating a label
 CREATE PROCEDURE sp_CreateLabel
     @LabelName VARCHAR(100),
     @ProjectID INT
@@ -319,12 +272,8 @@ BEGIN
     END CATCH;
 END;
 GO
-----------------------------------------------------------------------------------------------------
 
-
-
-
---------------------PROCEDURE FOR ASSIGNING LABEL TO TASK-------------------------------------------
+-- PROCEDURE FOR ASSIGNING LABEL TO TASK
 CREATE PROCEDURE sp_AddLabelToTask
     @TaskID INT,
     @LabelID INT
@@ -360,4 +309,3 @@ BEGIN
     END CATCH;
 END;
 GO
-----------------------------------------------------------------------------------------------
