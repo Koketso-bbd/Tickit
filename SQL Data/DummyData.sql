@@ -37,7 +37,7 @@ INSERT INTO [dbo].[NotificationTypes]
 VALUES
 	('Task Assigned'),
 	('Task Completed'),
-	('New Project Added');
+	('Added to Project');
 GO
 
 INSERT INTO [dbo].[Users]
