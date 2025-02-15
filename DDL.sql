@@ -34,7 +34,8 @@ CREATE TABLE [dbo].[Roles] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [RoleName] VARCHAR(30) NOT NULL,
 
-    CONSTRAINT [PK_Roles] PRIMARY KEY ([ID])
+    CONSTRAINT [PK_Roles] PRIMARY KEY ([ID]),
+	CONSTRAINT [UQ_RoleName] UNIQUE ([RoleName])
 );
 GO
 
@@ -66,7 +67,8 @@ CREATE TABLE [dbo].[ProjectLabels] (
 
     CONSTRAINT [PK_ProjectLabels] PRIMARY KEY ([ID]),
     CONSTRAINT [FK_ProjectLabels_Project] FOREIGN KEY ([ProjectID]) REFERENCES [dbo].[Projects]([ID]),
-    CONSTRAINT [FK_ProjectLabels_Label] FOREIGN KEY ([LabelID]) REFERENCES [dbo].[Labels]([ID])
+    CONSTRAINT [FK_ProjectLabels_Label] FOREIGN KEY ([LabelID]) REFERENCES [dbo].[Labels]([ID]),
+	CONSTRAINT [UQ_ProjectLabel] UNIQUE (ProjectID, LabelID)
 );
 GO
 
@@ -74,7 +76,8 @@ CREATE TABLE [dbo].[Priority] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [PriorityLevel] VARCHAR(40) NOT NULL,
 
-    CONSTRAINT [PK_Priority] PRIMARY KEY ([ID])
+    CONSTRAINT [PK_Priority] PRIMARY KEY ([ID]),
+	CONSTRAINT [UQ_PriorityLevel] UNIQUE ([PriorityLevel])
 );
 GO
 
@@ -82,7 +85,8 @@ CREATE TABLE [dbo].[Status] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [StatusName] VARCHAR(30) NOT NULL,
 
-    CONSTRAINT [PK_Status] PRIMARY KEY ([ID])
+    CONSTRAINT [PK_Status] PRIMARY KEY ([ID]),
+	CONSTRAINT [UQ_StatusName] UNIQUE ([StatusName])
 );
 GO
 
@@ -107,11 +111,12 @@ GO
 CREATE TABLE [dbo].[TaskLabels] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [TaskID] INT NOT NULL,
-    [LabelID] INT NOT NULL,
+    [ProjectLabelID] INT NOT NULL,
 
     CONSTRAINT [PK_TaskLabels] PRIMARY KEY ([ID]),
     CONSTRAINT [FK_TaskLabels_Tasks] FOREIGN KEY ([TaskID]) REFERENCES [dbo].[Tasks]([ID]),
-    CONSTRAINT [FK_TaskLabels_Labels] FOREIGN KEY ([LabelID]) REFERENCES [dbo].[Labels]([ID])
+    CONSTRAINT [FK_TaskLabels_Labels] FOREIGN KEY ([ProjectLabelID]) REFERENCES [dbo].[ProjectLabels]([ID]),
+	CONSTRAINT [UQ_TaskLabels] UNIQUE (TaskID, ProjectLabelID)
 );
 GO
 
@@ -119,7 +124,8 @@ CREATE TABLE [dbo].[NotificationTypes] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [NotificationName] VARCHAR(50) NOT NULL,
 
-    CONSTRAINT [PK_NotificationTypes] PRIMARY KEY ([ID])
+    CONSTRAINT [PK_NotificationTypes] PRIMARY KEY ([ID]),
+	CONSTRAINT [UQ_NotificationName] UNIQUE ([NotificationName])
 );
 GO
 
