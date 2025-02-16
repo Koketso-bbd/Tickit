@@ -209,3 +209,15 @@ RETURN
     WHERE DATEDIFF(day, DueDate, GETDATE()) = 0
 );
 GO
+
+CREATE FUNCTION dbo.fn_DaysUntilDue(@TaskID INT)
+RETURNS INT
+AS 
+BEGIN
+DECLARE @DaysUntillDueDate INT;
+    SELECT @DaysUntillDueDate = DATEDIFF(day, GETDATE(), DueDate)
+    FROM Tasks 
+    WHERE ID = @TaskID;
+    RETURN @DaysUntillDueDate;
+END;
+GO
