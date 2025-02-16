@@ -237,10 +237,9 @@ BEGIN
 END;
 GO
 
--- proceduer for creating a label
-CREATE PROCEDURE sp_CreateLabel
-    @LabelName VARCHAR(100),
-    @ProjectID INT
+-- Procedure for creating a label
+CREATE PROCEDURE [sp_CreateLabel]
+    @LabelName VARCHAR(100)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -255,15 +254,15 @@ BEGIN
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Projects WHERE ID = @ProjectID)
+        IF EXISTS (SELECT 1 FROM Labels WHERE LabelName = @LabelName)
         BEGIN
-            RAISERROR('Project does not exist', 16, 1);
+            RAISERROR('Label already exists', 16, 1);
             ROLLBACK TRANSACTION;
             RETURN;
         END
 
-        INSERT INTO Labels (LabelName, ProjectID)
-        VALUES (@LabelName, @ProjectID);
+        INSERT INTO Labels (LabelName)
+        VALUES (@LabelName);
 
         COMMIT TRANSACTION;
     END TRY
