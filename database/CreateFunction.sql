@@ -78,7 +78,7 @@ RETURN
 );
 GO
 
-CREATE FUNCTION dbo.fn_IsUserExists(@UserID int)
+CREATE FUNCTION dbo.fn_IsUserExists(@UserID INT)
 RETURNS BIT
 AS 
 BEGIN
@@ -87,6 +87,16 @@ BEGIN
         SET @Exists = 1;
     ELSE 
         SET @Exists = 0;
-    RETURN @Exists
+    RETURN @Exists;
+END;
+GO
+
+CREATE FUNCTION dbo.fn_GetUserProjectsCount(@UserID INT)
+RETURNS INT
+AS 
+BEGIN 
+    DECLARE @UserProjectsCount INT;
+    SELECT @UserProjectsCount = COUNT(*) FROM UserProjects WHERE MemberID = @UserID;
+    RETURN @UserProjectsCount;
 END;
 GO
