@@ -77,3 +77,16 @@ RETURN
     )
 );
 GO
+
+CREATE FUNCTION dbo.fn_IsUserExists(@UserID int)
+RETURNS BIT
+AS 
+BEGIN
+    DECLARE @Exists BIT;
+    IF EXISTS (SELECT 1 FROM Users WHERE UserID = @UserID)
+        SET @Exists = 1;
+    ELSE 
+        SET @Exists = 0;
+    RETURN @Exists
+END;
+GO
