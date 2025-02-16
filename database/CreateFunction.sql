@@ -250,3 +250,16 @@ BEGIN
     RETURN @StatusChangeCount;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_GetTaskPriorityName(@TaskID INT)
+RETURNS VARCHAR(30)
+AS 
+BEGIN
+    DECLARE @PriorityName VARCHAR(30);
+    SELECT @PriorityName = p.PriorityLevel
+    FROM Tasks t 
+    JOIN Priority p ON t.PriorityID = p.ID
+    WHERE t.ID = @TaskID;
+    RETURN @PriorityName;
+END;
+GO
