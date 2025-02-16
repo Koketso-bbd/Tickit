@@ -230,3 +230,13 @@ RETURNS TABLE
 AS 
 RETURN SELECT * FROM Notifications WHERE UserID = @UserID AND IsRead = 0;
 GO
+
+CREATE FUNCTION dbo.fn_GetNotificationMessage(@NotificationID INT)
+RETURNS NVARCHAR(255)
+AS 
+BEGIN
+    DECLARE @NotificationMessage NVARCHAR(255);
+    SELECT @NotificationMessage = Message FROM Notifications WHERE ID = @NotificationID;
+    RETURN @NotificationMessage
+END;
+GO
