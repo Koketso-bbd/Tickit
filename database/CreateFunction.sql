@@ -198,3 +198,14 @@ RETURN
     DATEDIFF(day, DueDate, GETDATE()) = 0
 );
 GO
+
+CREATE FUNCTION dbo.fn_GetTasksDueToday()
+RETURNS TABLE
+AS 
+RETURN 
+(
+    SELECT * 
+    FROM Tasks 
+    WHERE DATEDIFF(day, DueDate, GETDATE()) = 0
+);
+GO
