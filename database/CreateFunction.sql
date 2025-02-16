@@ -1,3 +1,6 @@
+Use TaskItDB; 
+GO
+
 CREATE FUNCTION dbo.fn_GetTaskCount(@ProjectID INT) 
 RETURNS INT
 AS

@@ -1,3 +1,6 @@
+Use TaskItDB; 
+GO
+
 -- CREATING A PROJECT AND ASSIGNING A OWNER
 CREATE PROCEDURE [sp_CreateProject]
     @ProjectName VARCHAR(100),
