@@ -13,7 +13,7 @@ RETURNS BIT
 AS
 BEGIN
     DECLARE @Exists BIT;
-    IF EXISTS (SELECT 1 FROM UserProjects WHERE UserID = @UserID AND ProjectID = @ProjectID)
+    IF EXISTS (SELECT 1 FROM UserProjects WHERE MemberID = @UserID AND ProjectID = @ProjectID)
         SET @Exists = 1;
     ELSE
         SET @Exists = 0;
@@ -29,7 +29,7 @@ BEGIN
     SELECT @RoleName = r.RoleName
     FROM UserProjects up
     JOIN Roles r ON up.RoleID = r.ID
-    WHERE up.UserID = @UserID AND up.ProjectID = @ProjectID;
+    WHERE up.MemberID = @UserID AND up.ProjectID = @ProjectID;
     RETURN @RoleName;
 END;
 GO
@@ -83,7 +83,7 @@ RETURNS BIT
 AS 
 BEGIN
     DECLARE @Exists BIT;
-    IF EXISTS (SELECT 1 FROM Users WHERE UserID = @UserID)
+    IF EXISTS (SELECT 1 FROM Users WHERE ID = @UserID)
         SET @Exists = 1;
     ELSE 
         SET @Exists = 0;
@@ -173,7 +173,7 @@ AS
 BEGIN
     DECLARE @TaskStatus VARCHAR;
     SELECT @TaskStatus = s.StatusName FROM Tasks t 
-    JOIN Status s ON t.StatusID = s.ID WHERE ID = @TaskID;
+    JOIN Status s ON t.StatusID = s.ID WHERE t.ID = @TaskID;
     RETURN @TaskStatus;
 END;
 GO
@@ -187,5 +187,11 @@ GO
 CREATE FUNCTION dbo.fn_GetTasksDueToday(@ProjectID INT)
 RETURNS TABLE
 AS 
-RETURN SELECT * FROM Tasks WHERE DATEDIFF(day, DueDate, GETDATE()) = 0;
+RETURN 
+(
+    SELECT * 
+    FROM Tasks 
+    WHERE @ProjectID = ProjectID AND 
+    DATEDIFF(day, DueDate, GETDATE()) = 0
+);
 GO
