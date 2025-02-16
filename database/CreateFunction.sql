@@ -21,7 +21,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION fn_GetUserRoleInProject(@UserID INT, @ProjectID INT)
+CREATE FUNCTION dbo.fn_GetUserRoleInProject(@UserID INT, @ProjectID INT)
 RETURNS VARCHAR(30)
 AS
 BEGIN
@@ -34,7 +34,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION fn_GetOverdueTasks()
+CREATE FUNCTION dbo.fn_GetOverdueTasks()
 RETURNS TABLE
 AS
 RETURN
@@ -45,7 +45,7 @@ RETURN
 );
 GO
 
-CREATE FUNCTION fn_GetUserTasksInProgressInProject(@UserID INT, @ProjectID INT)
+CREATE FUNCTION dbo.fn_GetUserTasksInProgressInProject(@UserID INT, @ProjectID INT)
 RETURNS TABLE
 AS
 RETURN
@@ -62,7 +62,7 @@ RETURN
 );
 GO
 
-CREATE FUNCTION fn_GetUserTasksInProgress(@UserID INT)
+CREATE FUNCTION dbo.fn_GetUserTasksInProgress(@UserID INT)
 RETURNS TABLE
 AS
 RETURN
