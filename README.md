@@ -1,4 +1,4 @@
-# Tickit
+# TickIt
 
 **A task management system.**
 
