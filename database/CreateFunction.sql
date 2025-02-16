@@ -146,3 +146,13 @@ BEGIN
     RETURN @Exists;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_GetProjectOwner(@ProjectID INT)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @OwnerID ID;
+    SELECT @OwnerID = OwnerID FROM Projects WHERE ID = @ProjectID;
+    RETURN @OwnerID;
+END;
+GO
