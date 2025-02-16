@@ -273,33 +273,65 @@ BEGIN
 END;
 GO
 
--- PROCEDURE FOR ASSIGNING LABEL TO TASK
-CREATE PROCEDURE sp_AddLabelToTask
-    @TaskID INT,
-    @LabelID INT
+-- PROCEDURE FOR ASSIGNING LABEL TO PROJECT
+CREATE PROCEDURE [sp_AddLabelToProject]
+    @ProjectID INT,
+    @LabelName VARCHAR(30)
 AS
 BEGIN
     SET NOCOUNT ON;
     
+    DECLARE @LabelID INT;
+    DECLARE @ProjectLabelID INT;
+
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        IF NOT EXISTS (SELECT 1 FROM Tasks WHERE ID = @TaskID)
+        SELECT @LabelID = ID FROM Labels WHERE LabelName = @LabelName;
+
+        IF @LabelID IS NULL
         BEGIN
-            RAISERROR('Task does not exist', 16, 1);
+            INSERT INTO Labels (LabelName) VALUES (@LabelName);
+            SET @LabelID = SCOPE_IDENTITY();
+        END
+
+        SELECT @ProjectLabelID = ID FROM ProjectLabels 
+        WHERE ProjectID = @ProjectID AND LabelID = @LabelID;
+
+        IF @ProjectLabelID IS NULL
+        BEGIN
+            INSERT INTO ProjectLabels (ProjectID, LabelID)
+            VALUES (@ProjectID, @LabelID);
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH;
+END;
+GO
+
+CREATE PROCEDURE [sp_AddLabelToTask]
+    @TaskID INT,
+    @ProjectLabelID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF NOT EXISTS (SELECT 1 FROM ProjectLabels WHERE ID = @ProjectLabelID)
+        BEGIN
+            RAISERROR('Invalid ProjectLabelID.', 16, 1);
             ROLLBACK TRANSACTION;
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Labels WHERE ID = @LabelID)
-        BEGIN
-            RAISERROR('Label does not exist', 16, 1);
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
-
-        INSERT INTO TaskLabels (TaskID, LabelID)
-        VALUES (@TaskID, @LabelID);
+        INSERT INTO TaskLabels (TaskID, ProjectLabelID)
+        VALUES (@TaskID, @ProjectLabelID);
 
         COMMIT TRANSACTION;
     END TRY
