@@ -101,4 +101,20 @@ BEGIN
 		0, GETDATE()
 	FROM inserted i JOIN [dbo].[NotificationTypes] nt ON nt.NotificationName = 'Added to Project';
 END;
-GO 
+GO
+
+CREATE TRIGGER [trg_DueDateCantBeSetInThePast] ON [dbo].[Tasks]
+AFTER INSERT, UPDATE
+
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM inserted WHERE DueDate < CAST(GETDATE() AS DATE))
+
+    BEGIN
+        RAISERROR('Due date cannot be set in the past.', 16, 1);
+        ROLLBACK TRANSACTION;
+    END
+END;
+GO
