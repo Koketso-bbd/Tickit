@@ -123,3 +123,13 @@ BEGIN
     RETURN @ProjectMemberCOunt;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_GetProjectDescription(@ProjectID INT)
+RETURNS NVARCHAR
+AS
+BEGIN
+    DECLARE @ProjectDescription NVARCHAR;
+    SELECT @ProjectDescription = ProjectDescription FROM Projects WHERE ID = @ProjectID;
+    RETURN @ProjectDescription;
+END;
+GO
