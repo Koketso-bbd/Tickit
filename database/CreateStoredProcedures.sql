@@ -35,7 +35,7 @@ END;
 GO
 
 -- Adding a User to a Project
-CREATE PROCEDURE sp_AddUserToProject
+CREATE PROCEDURE [sp_AddUserToProject]
     @UserID INT,
     @ProjectID INT,
     @RoleID INT
@@ -53,8 +53,8 @@ BEGIN
             RETURN;
         END
 
-        INSERT INTO UserProjects (UserID, ProjectID, RoleID, JoinedAt)
-        VALUES (@UserID, @ProjectID, @RoleID, GETDATE());
+        INSERT INTO UserProjects (ProjectID, MemberID, RoleID)
+			VALUES (@ProjectID, @UserID, @RoleID);
 
         COMMIT TRANSACTION;
     END TRY
