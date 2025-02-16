@@ -9,6 +9,7 @@ SELECT
 	p.ProjectDescription,
 	u.GitHubID AS OwnerID,
 	p.CreatedAt
+    
 FROM Projects p
 JOIN Users u ON p.UserID = u.ID;
 GO
