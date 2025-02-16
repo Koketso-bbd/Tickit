@@ -11,7 +11,7 @@ SELECT
 	u.GitHubID AS OwnerID
 
 FROM Projects p
-JOIN Users u ON p.OwnerID = u.ID;
+JOIN Users u ON p.OwnerID= u.ID;
 GO
 
 
@@ -82,7 +82,7 @@ JOIN NotificationTypes nt ON n.NotificationTypeID = nt.ID
 WHERE n.IsRead = 0;
 GO
 
-CREATE VIEW [dbo].[vw_TaskStatusHistory] 
+CREATE VIEW [dbo].[vw_TaskCurrentStatus] 
 AS
 SELECT 
     st.TaskID,
