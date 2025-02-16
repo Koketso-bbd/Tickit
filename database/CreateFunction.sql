@@ -96,7 +96,10 @@ RETURNS INT
 AS 
 BEGIN 
     DECLARE @UserProjectsCount INT;
-    SELECT @UserProjectsCount = COUNT(*) FROM UserProjects WHERE MemberID = @UserID;
+    SELECT @UserProjectsCount = COUNT(*) 
+    FROM UserProjects up 
+    JOIN Projects p ON up.ProjectID = p.ID 
+    WHERE up.MemberID = @UserID OR p.OwnerID = @UserID;
     RETURN @UserProjectsCount;
 END;
 GO
