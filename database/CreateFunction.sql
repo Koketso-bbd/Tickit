@@ -133,3 +133,16 @@ BEGIN
     RETURN @ProjectDescription;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_IsTaskExists(@TaskID INT)
+RETURNS BIT
+AS
+BEGIN
+    DECLARE @Exists BIT;
+    IF EXISTS (SELECT 1 FROM Tasks WHERE ID = @TaskID)
+        SET @Exists = 1;
+    ELSE 
+        SET @Exists = 0;
+    RETURN @Exists;
+END;
+GO
