@@ -66,14 +66,15 @@ END;
 GO
 
 --Procedure to create a task
-CREATE PROCEDURE sp_CreateTask
-    @TaskName VARCHAR(255),
-    @TaskDescription NVARCHAR(1000),
-    @DueDate DATETIME,
-    @Priority TINYINT,
-    @ProjectID INT,
-    @AssigneeID INT NULL,
-    @StatusID INT
+CREATE PROCEDURE [sp_CreateTask]
+	@AssigneeID INT,
+	@TaskName VARCHAR(255),
+	@TaskDescription NVARCHAR(1000),
+	@DueDate DATETIME,
+	@PriorityID INT,
+	@ProjectID INT,
+	@StatusID INT
+
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -95,8 +96,8 @@ BEGIN
             RETURN;
         END
 
-        INSERT INTO Tasks (TaskName, TaskDescription, DueDate, Priority, ProjectID, AssigneeID, StatusID, CreatedAt, ConfirmationDate)
-        VALUES (@TaskName, @TaskDescription, @DueDate, @Priority, @ProjectID, @AssigneeID, @StatusID, GETDATE(), GETDATE());
+        INSERT INTO Tasks (AssigneeID, TaskName, TaskDescription, DueDate, PriorityID, ProjectID, StatusID)
+        VALUES (@AssigneeID, @TaskName, @TaskDescription, @DueDate, @PriorityID, @ProjectID, @StatusID);
 
         COMMIT TRANSACTION;
     END TRY
