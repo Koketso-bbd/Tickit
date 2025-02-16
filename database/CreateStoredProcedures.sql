@@ -1,5 +1,5 @@
 -- CREATING A PROJECT AND ASSIGNING A OWNER
-CREATE PROCEDURE sproc_CreateProject
+CREATE PROCEDURE [sp_CreateProject]
     @ProjectName VARCHAR(100),
     @ProjectDescription NVARCHAR(1500),
     @UserID INT
@@ -18,11 +18,12 @@ BEGIN
             RETURN;
         END
 
-        INSERT INTO Projects (ProjectName, ProjectDescription, UserID, CreatedAt)
-        VALUEs (@ProjectName, @ProjectDescription, @UserID, GETDATE());
+        INSERT INTO Projects (ProjectName, ProjectDescription, OwnerID)
+			VALUES (@ProjectName, @ProjectDescription, @UserID);
         SET @ProjectID = SCOPE_IDENTITY();
-        INSERT INTO UserProjects (ProjectID, UserID, RoleID, JoinedAt)
-        VALUES (@ProjectID, @UserID, 1, GETDATE());
+
+        INSERT INTO UserProjects (ProjectID, MemberID, RoleID)
+			VALUES (@ProjectID, @UserID, 1);
 
         COMMIT TRANSACTION;
     END TRY
@@ -32,6 +33,7 @@ BEGIN
     END CATCH;
 END;
 GO
+
 -- Adding a User to a Project
 CREATE PROCEDURE sp_AddUserToProject
     @UserID INT,
