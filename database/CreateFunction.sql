@@ -240,3 +240,13 @@ BEGIN
     RETURN @NotificationMessage
 END;
 GO
+
+CREATE FUNCTION dbo.fn_GetStatusTrackChangesCount(@TaskID INT)
+RETURNS INT
+AS 
+BEGIN
+    DECLARE @StatusChangeCount INT;
+    SELECT @StatusChangeCount = COUNT(*) FROM StatusTrack WHERE TaskID = @TaskID
+    RETURN @StatusChangeCount;
+END;
+GO
