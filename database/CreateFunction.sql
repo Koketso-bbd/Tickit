@@ -177,3 +177,9 @@ BEGIN
     RETURN @TaskStatus;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_GetTasksByPriority(@PriorityID INT)
+RETURNS TABLE
+AS 
+RETURN SELECT * FROM Tasks WHERE PriorityID = @PriorityID;
+GO
