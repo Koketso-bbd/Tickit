@@ -187,7 +187,7 @@ AS
 RETURN SELECT * FROM Tasks WHERE PriorityID = @PriorityID;
 GO
 
-CREATE FUNCTION dbo.fn_GetTasksDueToday(@ProjectID INT)
+CREATE FUNCTION dbo.fn_GetTasksDueTodayInProject(@ProjectID INT)
 RETURNS TABLE
 AS 
 RETURN 
