@@ -109,9 +109,10 @@ END;
 GO
 
 --Procedure for updating a task
-CREATE PROCEDURE sp_UpdateTaskStatus
-    @TaskID INT,
-    @NewStatusID INT
+CREATE PROCEDURE [sp_UpdateTaskStatus]
+    @NewStatusID INT,
+    @TaskID INT
+
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -129,9 +130,6 @@ BEGIN
         UPDATE Tasks
         SET StatusID = @NewStatusID
         WHERE ID = @TaskID;
-        INSERT INTO StatusTrack (TaskID, StatusID, StartedAt)
-        VALUES (@TaskID, @NewStatusID, GETDATE());
-
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
