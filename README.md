@@ -22,17 +22,26 @@ Run the following scripts **in sequence**:
 1. Create The Database
     ```bash
     CreateDatabase.sql
+    ```
+
 2. Create The Triggers
     ```bash
     CreateTriggers.sql
+    ```
+
 3. Create The Stored Procedures
     ```bash
     CreateStoredProcedures.sql
+    ```
+    
 4. Create The Functions
     ```bash
     CreateFunctions.sql
+    ```
+
 5. Create The Views
     ```bash
     CreateViews.sql
+    ```
 
 The TickIt Database should be set up after this :). 
