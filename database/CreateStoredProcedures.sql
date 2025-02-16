@@ -140,7 +140,7 @@ END;
 GO
 
 -- Procedure to mark a notification as being read
-CREATE PROCEDURE sp_MarkNotificationAsRead
+CREATE PROCEDURE [sp_MarkNotificationAsRead]
     @NotificationID INT
 AS
 BEGIN
@@ -170,7 +170,7 @@ END;
 GO
 
 -- Procedure to remove a user in a project
-CREATE PROCEDURE sp_RemoveUserFromProject
+CREATE PROCEDURE [sp_RemoveUserFromProject]
     @UserID INT,
     @ProjectID INT
 AS
@@ -180,7 +180,7 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        IF NOT EXISTS (SELECT 1 FROM UserProjects WHERE UserID = @UserID AND ProjectID = @ProjectID)
+        IF NOT EXISTS (SELECT 1 FROM UserProjects WHERE MemberID = @UserID AND ProjectID = @ProjectID)
         BEGIN
             RAISERROR('User is not part of the project', 16, 1);
             ROLLBACK TRANSACTION;
@@ -188,7 +188,7 @@ BEGIN
         END
 
         DELETE FROM UserProjects 
-        WHERE UserID = @UserID AND ProjectID = @ProjectID;
+        WHERE MemberID = @UserID AND ProjectID = @ProjectID;
 
         COMMIT TRANSACTION;
     END TRY
