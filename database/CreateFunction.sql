@@ -166,3 +166,14 @@ BEGIN
     RETURN @TaskAssignee;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_GetTaskStatus(@TaskID INT)
+RETURNS VARCHAR
+AS
+BEGIN
+    DECLARE @TaskStatus VARCHAR;
+    SELECT @TaskStatus = s.StatusName FROM Tasks t 
+    JOIN Status s ON t.StatusID = s.ID WHERE ID = @TaskID;
+    RETURN @TaskStatus;
+END;
+GO
