@@ -200,14 +200,14 @@ END;
 GO
 
 -- Procedure to retrieve a users tasks
-CREATE PROCEDURE sp_GetUserTasks
+CREATE PROCEDURE [sp_GetUserTasks]
     @UserID INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        SELECT T.ID, T.TaskName, T.TaskDescription, T.DueDate, T.Priority, T.ProjectID, S.StatusName
+        SELECT T.ID, T.TaskName, T.TaskDescription, T.DueDate, T.PriorityID, T.ProjectID, S.StatusName
         FROM Tasks T
         INNER JOIN Status S ON T.StatusID = S.ID
         WHERE T.AssigneeID = @UserID;
@@ -219,7 +219,7 @@ END;
 GO
 
 -- procedure to get unread notifications
-CREATE PROCEDURE sp_GetUserNotifications
+CREATE PROCEDURE [sp_GetUnreadUserNotifications]
     @UserID INT
 AS
 BEGIN
