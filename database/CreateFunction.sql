@@ -100,3 +100,16 @@ BEGIN
     RETURN @UserProjectsCount;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_IsProjectExists(@ProjectID INT)
+RETURNS BIT 
+AS 
+BEGIN 
+    DECLARE @Exists BIT;
+    IF EXISTS (SELECT 1 FROM Projects WHERE ID = @ProjectID)
+        SET @Exists = 1;
+    ELSE 
+        SET @Exists = 0;
+    RETURN @Exists;
+END;
+GO
