@@ -1,5 +1,5 @@
 -- CREATING A PROJECT AND ASSIGNING A OWNER
-CREATE PROCEDURE sproc_CreateProject
+CREATE PROCEDURE [sp_CreateProject]
     @ProjectName VARCHAR(100),
     @ProjectDescription NVARCHAR(1500),
     @UserID INT
@@ -18,11 +18,12 @@ BEGIN
             RETURN;
         END
 
-        INSERT INTO Projects (ProjectName, ProjectDescription, UserID, CreatedAt)
-        VALUEs (@ProjectName, @ProjectDescription, @UserID, GETDATE());
+        INSERT INTO Projects (ProjectName, ProjectDescription, OwnerID)
+			VALUES (@ProjectName, @ProjectDescription, @UserID);
         SET @ProjectID = SCOPE_IDENTITY();
-        INSERT INTO UserProjects (ProjectID, UserID, RoleID, JoinedAt)
-        VALUES (@ProjectID, @UserID, 1, GETDATE());
+
+        INSERT INTO UserProjects (ProjectID, MemberID, RoleID)
+			VALUES (@ProjectID, @UserID, 1);
 
         COMMIT TRANSACTION;
     END TRY
@@ -32,8 +33,9 @@ BEGIN
     END CATCH;
 END;
 GO
+
 -- Adding a User to a Project
-CREATE PROCEDURE sp_AddUserToProject
+CREATE PROCEDURE [sp_AddUserToProject]
     @UserID INT,
     @ProjectID INT,
     @RoleID INT
@@ -51,8 +53,8 @@ BEGIN
             RETURN;
         END
 
-        INSERT INTO UserProjects (UserID, ProjectID, RoleID, JoinedAt)
-        VALUES (@UserID, @ProjectID, @RoleID, GETDATE());
+        INSERT INTO UserProjects (ProjectID, MemberID, RoleID)
+			VALUES (@ProjectID, @UserID, @RoleID);
 
         COMMIT TRANSACTION;
     END TRY
@@ -64,14 +66,15 @@ END;
 GO
 
 --Procedure to create a task
-CREATE PROCEDURE sp_CreateTask
-    @TaskName VARCHAR(255),
-    @TaskDescription NVARCHAR(1000),
-    @DueDate DATETIME,
-    @Priority TINYINT,
-    @ProjectID INT,
-    @AssigneeID INT NULL,
-    @StatusID INT
+CREATE PROCEDURE [sp_CreateTask]
+	@AssigneeID INT,
+	@TaskName VARCHAR(255),
+	@TaskDescription NVARCHAR(1000),
+	@DueDate DATETIME,
+	@PriorityID INT,
+	@ProjectID INT,
+	@StatusID INT
+
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -93,8 +96,8 @@ BEGIN
             RETURN;
         END
 
-        INSERT INTO Tasks (TaskName, TaskDescription, DueDate, Priority, ProjectID, AssigneeID, StatusID, CreatedAt, ConfirmationDate)
-        VALUES (@TaskName, @TaskDescription, @DueDate, @Priority, @ProjectID, @AssigneeID, @StatusID, GETDATE(), GETDATE());
+        INSERT INTO Tasks (AssigneeID, TaskName, TaskDescription, DueDate, PriorityID, ProjectID, StatusID)
+        VALUES (@AssigneeID, @TaskName, @TaskDescription, @DueDate, @PriorityID, @ProjectID, @StatusID);
 
         COMMIT TRANSACTION;
     END TRY
@@ -106,9 +109,10 @@ END;
 GO
 
 --Procedure for updating a task
-CREATE PROCEDURE sp_UpdateTaskStatus
-    @TaskID INT,
-    @NewStatusID INT
+CREATE PROCEDURE [sp_UpdateTaskStatus]
+    @NewStatusID INT,
+    @TaskID INT
+
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -126,9 +130,6 @@ BEGIN
         UPDATE Tasks
         SET StatusID = @NewStatusID
         WHERE ID = @TaskID;
-        INSERT INTO StatusTrack (TaskID, StatusID, StartedAt)
-        VALUES (@TaskID, @NewStatusID, GETDATE());
-
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
@@ -139,7 +140,7 @@ END;
 GO
 
 -- Procedure to mark a notification as being read
-CREATE PROCEDURE sp_MarkNotificationAsRead
+CREATE PROCEDURE [sp_MarkNotificationAsRead]
     @NotificationID INT
 AS
 BEGIN
@@ -169,7 +170,7 @@ END;
 GO
 
 -- Procedure to remove a user in a project
-CREATE PROCEDURE sp_RemoveUserFromProject
+CREATE PROCEDURE [sp_RemoveUserFromProject]
     @UserID INT,
     @ProjectID INT
 AS
@@ -179,7 +180,7 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        IF NOT EXISTS (SELECT 1 FROM UserProjects WHERE UserID = @UserID AND ProjectID = @ProjectID)
+        IF NOT EXISTS (SELECT 1 FROM UserProjects WHERE MemberID = @UserID AND ProjectID = @ProjectID)
         BEGIN
             RAISERROR('User is not part of the project', 16, 1);
             ROLLBACK TRANSACTION;
@@ -187,7 +188,7 @@ BEGIN
         END
 
         DELETE FROM UserProjects 
-        WHERE UserID = @UserID AND ProjectID = @ProjectID;
+        WHERE MemberID = @UserID AND ProjectID = @ProjectID;
 
         COMMIT TRANSACTION;
     END TRY
@@ -199,14 +200,14 @@ END;
 GO
 
 -- Procedure to retrieve a users tasks
-CREATE PROCEDURE sp_GetUserTasks
+CREATE PROCEDURE [sp_GetUserTasks]
     @UserID INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        SELECT T.ID, T.TaskName, T.TaskDescription, T.DueDate, T.Priority, T.ProjectID, S.StatusName
+        SELECT T.ID, T.TaskName, T.TaskDescription, T.DueDate, T.PriorityID, T.ProjectID, S.StatusName
         FROM Tasks T
         INNER JOIN Status S ON T.StatusID = S.ID
         WHERE T.AssigneeID = @UserID;
@@ -218,7 +219,7 @@ END;
 GO
 
 -- procedure to get unread notifications
-CREATE PROCEDURE sp_GetUserNotifications
+CREATE PROCEDURE [sp_GetUnreadUserNotifications]
     @UserID INT
 AS
 BEGIN
@@ -236,10 +237,9 @@ BEGIN
 END;
 GO
 
--- proceduer for creating a label
-CREATE PROCEDURE sp_CreateLabel
-    @LabelName VARCHAR(100),
-    @ProjectID INT
+-- Procedure for creating a label
+CREATE PROCEDURE [sp_CreateLabel]
+    @LabelName VARCHAR(100)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -254,15 +254,15 @@ BEGIN
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Projects WHERE ID = @ProjectID)
+        IF EXISTS (SELECT 1 FROM Labels WHERE LabelName = @LabelName)
         BEGIN
-            RAISERROR('Project does not exist', 16, 1);
+            RAISERROR('Label already exists', 16, 1);
             ROLLBACK TRANSACTION;
             RETURN;
         END
 
-        INSERT INTO Labels (LabelName, ProjectID)
-        VALUES (@LabelName, @ProjectID);
+        INSERT INTO Labels (LabelName)
+        VALUES (@LabelName);
 
         COMMIT TRANSACTION;
     END TRY
@@ -273,33 +273,65 @@ BEGIN
 END;
 GO
 
--- PROCEDURE FOR ASSIGNING LABEL TO TASK
-CREATE PROCEDURE sp_AddLabelToTask
-    @TaskID INT,
-    @LabelID INT
+-- PROCEDURE FOR ASSIGNING LABEL TO PROJECT
+CREATE PROCEDURE [sp_AddLabelToProject]
+    @ProjectID INT,
+    @LabelName VARCHAR(30)
 AS
 BEGIN
     SET NOCOUNT ON;
     
+    DECLARE @LabelID INT;
+    DECLARE @ProjectLabelID INT;
+
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        IF NOT EXISTS (SELECT 1 FROM Tasks WHERE ID = @TaskID)
+        SELECT @LabelID = ID FROM Labels WHERE LabelName = @LabelName;
+
+        IF @LabelID IS NULL
         BEGIN
-            RAISERROR('Task does not exist', 16, 1);
+            INSERT INTO Labels (LabelName) VALUES (@LabelName);
+            SET @LabelID = SCOPE_IDENTITY();
+        END
+
+        SELECT @ProjectLabelID = ID FROM ProjectLabels 
+        WHERE ProjectID = @ProjectID AND LabelID = @LabelID;
+
+        IF @ProjectLabelID IS NULL
+        BEGIN
+            INSERT INTO ProjectLabels (ProjectID, LabelID)
+            VALUES (@ProjectID, @LabelID);
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH;
+END;
+GO
+
+CREATE PROCEDURE [sp_AddLabelToTask]
+    @TaskID INT,
+    @ProjectLabelID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF NOT EXISTS (SELECT 1 FROM ProjectLabels WHERE ID = @ProjectLabelID)
+        BEGIN
+            RAISERROR('Invalid ProjectLabelID.', 16, 1);
             ROLLBACK TRANSACTION;
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Labels WHERE ID = @LabelID)
-        BEGIN
-            RAISERROR('Label does not exist', 16, 1);
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
-
-        INSERT INTO TaskLabels (TaskID, LabelID)
-        VALUES (@TaskID, @LabelID);
+        INSERT INTO TaskLabels (TaskID, ProjectLabelID)
+        VALUES (@TaskID, @ProjectLabelID);
 
         COMMIT TRANSACTION;
     END TRY
