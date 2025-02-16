@@ -128,10 +128,10 @@ END;
 GO
 
 CREATE FUNCTION dbo.fn_GetProjectDescription(@ProjectID INT)
-RETURNS NVARCHAR
+RETURNS NVARCHAR(1500)
 AS
 BEGIN
-    DECLARE @ProjectDescription NVARCHAR;
+    DECLARE @ProjectDescription NVARCHAR(1500);
     SELECT @ProjectDescription = ProjectDescription FROM Projects WHERE ID = @ProjectID;
     RETURN @ProjectDescription;
 END;
@@ -171,10 +171,10 @@ END;
 GO
 
 CREATE FUNCTION dbo.fn_GetTaskStatus(@TaskID INT)
-RETURNS VARCHAR
+RETURNS VARCHAR(20)
 AS
 BEGIN
-    DECLARE @TaskStatus VARCHAR;
+    DECLARE @TaskStatus VARCHAR(20);
     SELECT @TaskStatus = s.StatusName FROM Tasks t 
     JOIN Status s ON t.StatusID = s.ID WHERE t.ID = @TaskID;
     RETURN @TaskStatus;
