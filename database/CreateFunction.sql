@@ -113,3 +113,13 @@ BEGIN
     RETURN @Exists;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_GetProjectMemberCount(@ProjectID INT)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @ProjectMemberCOunt INT;
+    SELECT @ProjectMemberCOunt = COUNT(*) FROM UserProjects WHERE ProjectID = @ProjectID;
+    RETURN @ProjectMemberCOunt;
+END;
+GO
