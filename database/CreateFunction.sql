@@ -224,3 +224,9 @@ DECLARE @DaysUntillDueDate INT;
     RETURN @DaysUntillDueDate;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_GetUnreadNotificationsCount(@UserID INT)
+RETURNS TABLE
+AS 
+RETURN SELECT * FROM Notifications WHERE UserID = @UserID AND IsRead = 0;
+GO
