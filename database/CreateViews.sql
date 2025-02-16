@@ -41,7 +41,7 @@ SELECT
     t.Priority,
     t.CreatedAt
 FROM Tasks t
-LEFT JOIN Users u ON t.AssigneeID = u.ID
+JOIN Users u ON t.AssigneeID = u.ID
 JOIN Projects p ON t.ProjectID = p.ID
 JOIN Status s ON t.StatusID = s.ID;
 GO
@@ -80,7 +80,7 @@ JOIN NotificationTypes nt ON n.NotificationTypeID = nt.ID
 WHERE n.IsRead = 0;
 GO
 
-CREATE VIEW [dbo].[vw_TaskStatusHistory] 
+CREATE VIEW [dbo].[vw_TaskCurrentStatus] 
 AS
 SELECT 
     st.TaskID,
