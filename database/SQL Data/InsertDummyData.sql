@@ -127,3 +127,13 @@ INSERT INTO [dbo].[TaskLabels]
 VALUES (1, 1),
        (1, 2),
        (2, 3);
+
+
+INSERT INTO [dbo].[StatusTrack]
+	(StatusID,TaskID,UpdatedAt)
+
+VALUES
+	(1,1,NULL),
+	(2,2,'2025-02-16'),
+	(3,3,GETDATE()),
+	(4,4,NULL)
