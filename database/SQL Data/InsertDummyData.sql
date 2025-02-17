@@ -1,7 +1,7 @@
 ﻿USE TickItDB;
 GO
 
-INSERT INTO [dbo].[Priority]
+INSERT INTO [tickit].[Priority]
 	(PriorityLevel)
 
 VALUES
@@ -12,7 +12,7 @@ VALUES
 GO
 
 
-INSERT INTO [dbo].[Roles]
+INSERT INTO [tickit].[Roles]
 	(RoleName)
 
 VALUES
@@ -21,7 +21,7 @@ VALUES
 	('Viewer');
 GO
 
-INSERT INTO [dbo].[Status]
+INSERT INTO [tickit].[Status]
 	(StatusName)
 
 VALUES
@@ -31,7 +31,7 @@ VALUES
 	('Completed');
 GO
 
-INSERT INTO [dbo].[NotificationTypes]
+INSERT INTO [tickit].[NotificationTypes]
 	(NotificationName)
 
 VALUES
@@ -40,7 +40,7 @@ VALUES
 	('Added to Project');
 GO
 
-INSERT INTO [dbo].[Users]
+INSERT INTO [tickit].[Users]
 	(GitHubID)
 VALUES
 	('BradleyR-BBD'),
@@ -61,7 +61,7 @@ VALUES
 	('AzaelL-BBD');
 GO
 
-INSERT INTO [dbo].[Projects]
+INSERT INTO [tickit].[Projects]
 	(ProjectName, ProjectDescription, OwnerID)
 
 VALUES
@@ -73,7 +73,7 @@ VALUES
 	('House Check List', 'What is it that I need to do?', 1);
 GO
 
-INSERT INTO [dbo].[UserProjects]
+INSERT INTO [tickit].[UserProjects]
 	(ProjectID, MemberID, RoleID)
 
 VALUES
@@ -91,7 +91,7 @@ VALUES
 	(3, 10, 2);
 GO
 
-INSERT INTO [dbo].[Tasks]
+INSERT INTO [tickit].[Tasks]
 	(AssigneeID, TaskName, TaskDescription, DueDate, PriorityID, ProjectID, StatusID)
 
 VALUES
@@ -122,7 +122,7 @@ VALUES
 	(1, 3),
 	(2, 1);
 
-INSERT INTO [dbo].[TaskLabels] 
+INSERT INTO [tickit].[TaskLabels] 
 	(TaskID, ProjectLabelID)
 VALUES (1, 1),
        (1, 2),

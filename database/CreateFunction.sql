@@ -1,7 +1,7 @@
 Use TaskItDB; 
 GO
 
-CREATE FUNCTION dbo.fn_GetTaskCount(@ProjectID INT) 
+CREATE FUNCTION tickit.fn_GetTaskCount(@ProjectID INT) 
 RETURNS INT
 AS
 BEGIN
@@ -11,7 +11,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_IsUserInProject(@UserID INT, @ProjectID INT)
+CREATE FUNCTION tickit.fn_IsUserInProject(@UserID INT, @ProjectID INT)
 RETURNS BIT
 AS
 BEGIN
@@ -24,7 +24,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetUserRoleInProject(@UserID INT, @ProjectID INT)
+CREATE FUNCTION tickit.fn_GetUserRoleInProject(@UserID INT, @ProjectID INT)
 RETURNS VARCHAR(30)
 AS
 BEGIN
@@ -37,7 +37,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetOverdueTasks()
+CREATE FUNCTION tickit.fn_GetOverdueTasks()
 RETURNS TABLE
 AS
 RETURN
@@ -48,7 +48,7 @@ RETURN
 );
 GO
 
-CREATE FUNCTION dbo.fn_GetUserTasksInProgressInProject(@UserID INT, @ProjectID INT)
+CREATE FUNCTION tickit.fn_GetUserTasksInProgressInProject(@UserID INT, @ProjectID INT)
 RETURNS TABLE
 AS
 RETURN
@@ -65,7 +65,7 @@ RETURN
 );
 GO
 
-CREATE FUNCTION dbo.fn_GetUserTasksInProgress(@UserID INT)
+CREATE FUNCTION tickit.fn_GetUserTasksInProgress(@UserID INT)
 RETURNS TABLE
 AS
 RETURN
@@ -81,7 +81,7 @@ RETURN
 );
 GO
 
-CREATE FUNCTION dbo.fn_IsUserExists(@UserID INT)
+CREATE FUNCTION tickit.fn_IsUserExists(@UserID INT)
 RETURNS BIT
 AS 
 BEGIN
@@ -94,7 +94,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetUserProjectsCount(@UserID INT)
+CREATE FUNCTION tickit.fn_GetUserProjectsCount(@UserID INT)
 RETURNS INT
 AS 
 BEGIN 
@@ -107,7 +107,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_IsProjectExists(@ProjectID INT)
+CREATE FUNCTION tickit.fn_IsProjectExists(@ProjectID INT)
 RETURNS BIT 
 AS 
 BEGIN 
@@ -120,7 +120,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetProjectMemberCount(@ProjectID INT)
+CREATE FUNCTION tickit.fn_GetProjectMemberCount(@ProjectID INT)
 RETURNS INT
 AS
 BEGIN
@@ -130,7 +130,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetProjectDescription(@ProjectID INT)
+CREATE FUNCTION tickit.fn_GetProjectDescription(@ProjectID INT)
 RETURNS NVARCHAR(1500)
 AS
 BEGIN
@@ -140,7 +140,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_IsTaskExists(@TaskID INT)
+CREATE FUNCTION tickit.fn_IsTaskExists(@TaskID INT)
 RETURNS BIT
 AS
 BEGIN
@@ -153,7 +153,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetProjectOwner(@ProjectID INT)
+CREATE FUNCTION tickit.fn_GetProjectOwner(@ProjectID INT)
 RETURNS INT
 AS
 BEGIN
@@ -163,7 +163,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetTaskAssignee(@TaskID INT)
+CREATE FUNCTION tickit.fn_GetTaskAssignee(@TaskID INT)
 RETURNS INT
 AS
 BEGIN
@@ -173,7 +173,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetTaskStatus(@TaskID INT)
+CREATE FUNCTION tickit.fn_GetTaskStatus(@TaskID INT)
 RETURNS VARCHAR(20)
 AS
 BEGIN
@@ -184,13 +184,13 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetTasksByPriority(@PriorityID INT)
+CREATE FUNCTION tickit.fn_GetTasksByPriority(@PriorityID INT)
 RETURNS TABLE
 AS 
 RETURN SELECT * FROM Tasks WHERE PriorityID = @PriorityID;
 GO
 
-CREATE FUNCTION dbo.fn_GetTasksDueTodayInProject(@ProjectID INT)
+CREATE FUNCTION tickit.fn_GetTasksDueTodayInProject(@ProjectID INT)
 RETURNS TABLE
 AS 
 RETURN 
@@ -202,7 +202,7 @@ RETURN
 );
 GO
 
-CREATE FUNCTION dbo.fn_GetTasksDueToday()
+CREATE FUNCTION tickit.fn_GetTasksDueToday()
 RETURNS TABLE
 AS 
 RETURN 
@@ -213,7 +213,7 @@ RETURN
 );
 GO
 
-CREATE FUNCTION dbo.fn_DaysUntilDue(@TaskID INT)
+CREATE FUNCTION tickit.fn_DaysUntilDue(@TaskID INT)
 RETURNS INT
 AS 
 BEGIN
@@ -225,13 +225,13 @@ DECLARE @DaysUntillDueDate INT;
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetUnreadNotificationsCount(@UserID INT)
+CREATE FUNCTION tickit.fn_GetUnreadNotificationsCount(@UserID INT)
 RETURNS TABLE
 AS 
 RETURN SELECT * FROM Notifications WHERE UserID = @UserID AND IsRead = 0;
 GO
 
-CREATE FUNCTION dbo.fn_GetNotificationMessage(@NotificationID INT)
+CREATE FUNCTION tickit.fn_GetNotificationMessage(@NotificationID INT)
 RETURNS NVARCHAR(255)
 AS 
 BEGIN
@@ -241,7 +241,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetStatusTrackChangesCount(@TaskID INT)
+CREATE FUNCTION tickit.fn_GetStatusTrackChangesCount(@TaskID INT)
 RETURNS INT
 AS 
 BEGIN
@@ -251,7 +251,7 @@ BEGIN
 END;
 GO
 
-CREATE FUNCTION dbo.fn_GetTaskPriorityName(@TaskID INT)
+CREATE FUNCTION tickit.fn_GetTaskPriorityName(@TaskID INT)
 RETURNS VARCHAR(30)
 AS 
 BEGIN

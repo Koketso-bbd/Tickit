@@ -1,7 +1,7 @@
 USE TickItDB;
 GO
 
-CREATE VIEW [dbo].[vw_ProjectWithOwners]
+CREATE VIEW [tickit].[vw_ProjectWithOwners]
 
 AS
 SELECT 
@@ -15,7 +15,7 @@ JOIN Users u ON p.OwnerID = u.ID;
 GO
 
 
-CREATE VIEW [dbo].[vw_UserProjectRoles]
+CREATE VIEW [tickit].[vw_UserProjectRoles]
 
 AS
 SELECT
@@ -31,7 +31,7 @@ JOIN Projects p ON up.ProjectID = p.ID
 JOIN Users u ON up.MemberID = u.ID;
 GO
 
-CREATE VIEW [dbo].[vw_TasksWithAssignees]
+CREATE VIEW [tickit].[vw_TasksWithAssignees]
 AS 
 SELECT
     t.ID AS TaskID,
@@ -48,7 +48,7 @@ JOIN Projects p ON t.ProjectID = p.ID
 JOIN Status s ON t.StatusID = s.ID;
 GO
 
-CREATE VIEW [dbo].[vw_OverdueTasks]
+CREATE VIEW [tickit].[vw_OverdueTasks]
 AS
 SELECT
     t.ID AS TaskID,
@@ -64,7 +64,7 @@ JOIN Status s ON t.StatusID = s.ID
 WHERE t.DueDate < GETDATE() AND s.StatusName != 'Completed';
 GO
 
-CREATE VIEW [dbo].[vw_UnreadNotifications] 
+CREATE VIEW [tickit].[vw_UnreadNotifications] 
 AS
 SELECT 
     n.ID AS NotificationID,
@@ -82,7 +82,7 @@ JOIN NotificationTypes nt ON n.NotificationTypeID = nt.ID
 WHERE n.IsRead = 0;
 GO
 
-CREATE VIEW [dbo].[vw_TaskStatusHistory] 
+CREATE VIEW [tickit].[vw_TaskStatusHistory] 
 AS
 SELECT 
     st.TaskID,
