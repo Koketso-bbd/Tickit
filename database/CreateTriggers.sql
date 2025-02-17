@@ -1,11 +1,11 @@
 USE TickItDB;
 GO
 
-CREATE TRIGGER [trg_NotifyUserOnTaskAssignment] ON [dbo].[Tasks]
+CREATE TRIGGER [trg_NotifyUserOnTaskAssignment] ON [tickit].[Tasks]
 AFTER INSERT
 AS
 BEGIN
-    INSERT INTO [dbo].[Notifications] 
+    INSERT INTO [tickit].[Notifications] 
 		(UserID, ProjectID, TaskID, NotificationTypeID, Message, IsRead, CreatedAt)
     SELECT i.AssigneeID, i.ProjectID, i.ID, 
            (SELECT ID FROM NotificationTypes WHERE NotificationName = 'Task Assigned'),
@@ -16,20 +16,20 @@ BEGIN
 END;
 GO
 
-CREATE TRIGGER [trg_InsertStatusTrack] ON [dbo].[Tasks]
+CREATE TRIGGER [trg_InsertStatusTrack] ON [tickit].[Tasks]
 AFTER UPDATE
 AS
 BEGIN
 	IF UPDATE(StatusID)
 	BEGIN
-		INSERT INTO [dbo].[StatusTrack]
+		INSERT INTO [tickit].[StatusTrack]
 			(StatusID, TaskID, UpdatedAt)
 		SELECT StatusID, ID, GETDATE() FROM inserted
 	END
 END;
 GO
 
-CREATE TRIGGER [trg_PreventStatusDowngrade] ON [dbo].[Tasks]
+CREATE TRIGGER [trg_PreventStatusDowngrade] ON [tickit].[Tasks]
 AFTER UPDATE
 AS
 BEGIN
@@ -49,11 +49,11 @@ BEGIN
 END;
 GO
 
-CREATE TRIGGER [trg_PreventDuplicatUserInProject]ON [dbo].[UserProjects]
+CREATE TRIGGER [trg_PreventDuplicatUserInProject]ON [tickit].[UserProjects]
 INSTEAD OF INSERT
 AS
 BEGIN
-	IF EXISTS (SELECT 1 FROM [dbo].[UserProjects] up JOIN inserted i
+	IF EXISTS (SELECT 1 FROM [tickit].[UserProjects] up JOIN inserted i
 		ON up.ProjectID = i.ProjectID AND up.MemberID = i.MemberID)
 	
 	BEGIN
@@ -61,18 +61,18 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-		INSERT INTO [dbo].[UserProjects]
+		INSERT INTO [tickit].[UserProjects]
 			(ProjectID, MemberID, RoleID)
 		SELECT ProjectID, MemberID, RoleID FROM inserted;
 	END
 END;
 GO
 
-CREATE TRIGGER [trg_PreventDuplicateUserOnTask] ON [dbo].[Tasks]
+CREATE TRIGGER [trg_PreventDuplicateUserOnTask] ON [tickit].[Tasks]
 INSTEAD OF INSERT
 AS
 BEGIN
-	IF EXISTS (SELECT 1 FROM [dbo].[Tasks] t JOIN inserted i
+	IF EXISTS (SELECT 1 FROM [tickit].[Tasks] t JOIN inserted i
 		ON t.ID = i.ID AND t.AssigneeID = i.AssigneeID)
 
 	BEGIN
@@ -81,29 +81,29 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-		INSERT INTO [dbo].[Tasks]
+		INSERT INTO [tickit].[Tasks]
 			(AssigneeID, TaskName, TaskDescription, DueDate, PriorityID, ProjectID, StatusID)
 		SELECT AssigneeID, TaskName, TaskDescription, DueDate, PriorityID, ProjectID, StatusID FROM inserted;
 	END
 END;
 GO
 
-CREATE TRIGGER [trg_NotifyUserOnProjectAdded] ON [dbo].[UserProjects]
+CREATE TRIGGER [trg_NotifyUserOnProjectAdded] ON [tickit].[UserProjects]
 AFTER INSERT
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	INSERT INTO [dbo].[Notifications]
+	INSERT INTO [tickit].[Notifications]
 		(UserID, ProjectID, TaskID, NotificationTypeID, Message, IsRead, CreatedAt)
 	SELECT
 		i.MemberID, i.ProjectID, NULL, nt.ID, CONCAT('You have been added to Project ', i.ProjectID),
 		0, GETDATE()
-	FROM inserted i JOIN [dbo].[NotificationTypes] nt ON nt.NotificationName = 'Added to Project';
+	FROM inserted i JOIN [tickit].[NotificationTypes] nt ON nt.NotificationName = 'Added to Project';
 END;
 GO
 
-CREATE TRIGGER [trg_DueDateCantBeSetInThePast] ON [dbo].[Tasks]
+CREATE TRIGGER [trg_DueDateCantBeSetInThePast] ON [tickit].[Tasks]
 AFTER INSERT, UPDATE
 
 AS

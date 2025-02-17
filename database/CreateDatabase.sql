@@ -10,7 +10,7 @@ GO
 USE TickItDB;
 GO
 
-CREATE TABLE [dbo].[Users] (
+CREATE TABLE [tickit].[Users] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [GitHubID] VARCHAR(39) NOT NULL,
 
@@ -19,18 +19,18 @@ CREATE TABLE [dbo].[Users] (
 );
 GO
 
-CREATE TABLE [dbo].[Projects] (
+CREATE TABLE [tickit].[Projects] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [ProjectName] VARCHAR(100) NOT NULL,
     [ProjectDescription] NVARCHAR(1500) NULL,
     [OwnerID] INT NOT NULL,
 
     CONSTRAINT [PK_Projects] PRIMARY KEY ([ID]),
-    CONSTRAINT [FK_Project_Users] FOREIGN KEY ([OwnerID]) REFERENCES [dbo].[Users]([ID])
+    CONSTRAINT [FK_Project_Users] FOREIGN KEY ([OwnerID]) REFERENCES [tickit].[Users]([ID])
 );
 GO
 
-CREATE TABLE [dbo].[Roles] (
+CREATE TABLE [tickit].[Roles] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [RoleName] VARCHAR(30) NOT NULL,
 
@@ -39,20 +39,20 @@ CREATE TABLE [dbo].[Roles] (
 );
 GO
 
-CREATE TABLE [dbo].[UserProjects] (
+CREATE TABLE [tickit].[UserProjects] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [ProjectID] INT NOT NULL,
     [MemberID] INT NOT NULL,
     [RoleID] INT NOT NULL,
 
     CONSTRAINT [PK_UserProjects] PRIMARY KEY ([ID]),
-    CONSTRAINT [FK_UserProjects_Project] FOREIGN KEY ([ProjectID]) REFERENCES [dbo].[Projects]([ID]),
-    CONSTRAINT [FK_UserProjects_Users] FOREIGN KEY ([MemberID]) REFERENCES [dbo].[Users]([ID]),
-    CONSTRAINT [FK_UserProjects_Roles] FOREIGN KEY ([RoleID]) REFERENCES [dbo].[Roles]([ID])
+    CONSTRAINT [FK_UserProjects_Project] FOREIGN KEY ([ProjectID]) REFERENCES [tickit].[Projects]([ID]),
+    CONSTRAINT [FK_UserProjects_Users] FOREIGN KEY ([MemberID]) REFERENCES [tickit].[Users]([ID]),
+    CONSTRAINT [FK_UserProjects_Roles] FOREIGN KEY ([RoleID]) REFERENCES [tickit].[Roles]([ID])
 );
 GO
 
-CREATE TABLE [dbo].[Labels] (
+CREATE TABLE [tickit].[Labels] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [LabelName] VARCHAR(30) NOT NULL,
     
@@ -60,19 +60,19 @@ CREATE TABLE [dbo].[Labels] (
 );
 GO
 
-CREATE TABLE [dbo].[ProjectLabels] (
+CREATE TABLE [tickit].[ProjectLabels] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [ProjectID] INT NOT NULL,
     [LabelID] INT NOT NULL,
 
     CONSTRAINT [PK_ProjectLabels] PRIMARY KEY ([ID]),
-    CONSTRAINT [FK_ProjectLabels_Project] FOREIGN KEY ([ProjectID]) REFERENCES [dbo].[Projects]([ID]),
-    CONSTRAINT [FK_ProjectLabels_Label] FOREIGN KEY ([LabelID]) REFERENCES [dbo].[Labels]([ID]),
+    CONSTRAINT [FK_ProjectLabels_Project] FOREIGN KEY ([ProjectID]) REFERENCES [tickit].[Projects]([ID]),
+    CONSTRAINT [FK_ProjectLabels_Label] FOREIGN KEY ([LabelID]) REFERENCES [tickit].[Labels]([ID]),
 	CONSTRAINT [UQ_ProjectLabel] UNIQUE (ProjectID, LabelID)
 );
 GO
 
-CREATE TABLE [dbo].[Priority] (
+CREATE TABLE [tickit].[Priority] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [PriorityLevel] VARCHAR(40) NOT NULL,
 
@@ -81,7 +81,7 @@ CREATE TABLE [dbo].[Priority] (
 );
 GO
 
-CREATE TABLE [dbo].[Status] (
+CREATE TABLE [tickit].[Status] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [StatusName] VARCHAR(30) NOT NULL,
 
@@ -90,7 +90,7 @@ CREATE TABLE [dbo].[Status] (
 );
 GO
 
-CREATE TABLE [dbo].[Tasks] (
+CREATE TABLE [tickit].[Tasks] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [AssigneeID] INT NOT NULL,
     [TaskName] VARCHAR(255) NOT NULL,
@@ -101,26 +101,26 @@ CREATE TABLE [dbo].[Tasks] (
     [StatusID] INT NOT NULL,
 
     CONSTRAINT [PK_Tasks] PRIMARY KEY ([ID]),
-    CONSTRAINT [FK_Tasks_Users] FOREIGN KEY ([AssigneeID]) REFERENCES [dbo].[Users]([ID]),
-    CONSTRAINT [FK_Tasks_Priority] FOREIGN KEY ([PriorityID]) REFERENCES [dbo].[Priority]([ID]),
-    CONSTRAINT [FK_Tasks_Project] FOREIGN KEY ([ProjectID]) REFERENCES [dbo].[Projects]([ID]),
-    CONSTRAINT [FK_Tasks_Status] FOREIGN KEY ([StatusID]) REFERENCES [dbo].[Status]([ID])
+    CONSTRAINT [FK_Tasks_Users] FOREIGN KEY ([AssigneeID]) REFERENCES [tickit].[Users]([ID]),
+    CONSTRAINT [FK_Tasks_Priority] FOREIGN KEY ([PriorityID]) REFERENCES [tickit].[Priority]([ID]),
+    CONSTRAINT [FK_Tasks_Project] FOREIGN KEY ([ProjectID]) REFERENCES [tickit].[Projects]([ID]),
+    CONSTRAINT [FK_Tasks_Status] FOREIGN KEY ([StatusID]) REFERENCES [tickit].[Status]([ID])
 );
 GO
 
-CREATE TABLE [dbo].[TaskLabels] (
+CREATE TABLE [tickit].[TaskLabels] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [TaskID] INT NOT NULL,
     [ProjectLabelID] INT NOT NULL,
 
     CONSTRAINT [PK_TaskLabels] PRIMARY KEY ([ID]),
-    CONSTRAINT [FK_TaskLabels_Tasks] FOREIGN KEY ([TaskID]) REFERENCES [dbo].[Tasks]([ID]),
-    CONSTRAINT [FK_TaskLabels_Labels] FOREIGN KEY ([ProjectLabelID]) REFERENCES [dbo].[ProjectLabels]([ID]),
+    CONSTRAINT [FK_TaskLabels_Tasks] FOREIGN KEY ([TaskID]) REFERENCES [tickit].[Tasks]([ID]),
+    CONSTRAINT [FK_TaskLabels_Labels] FOREIGN KEY ([ProjectLabelID]) REFERENCES [tickit].[ProjectLabels]([ID]),
 	CONSTRAINT [UQ_TaskLabels] UNIQUE (TaskID, ProjectLabelID)
 );
 GO
 
-CREATE TABLE [dbo].[NotificationTypes] (
+CREATE TABLE [tickit].[NotificationTypes] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [NotificationName] VARCHAR(50) NOT NULL,
 
@@ -129,7 +129,7 @@ CREATE TABLE [dbo].[NotificationTypes] (
 );
 GO
 
-CREATE TABLE [dbo].[Notifications] (
+CREATE TABLE [tickit].[Notifications] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [UserID] INT NOT NULL,
     [ProjectID] INT NOT NULL,
@@ -140,21 +140,21 @@ CREATE TABLE [dbo].[Notifications] (
     [CreatedAt] DATETIME NOT NULL,
 
     CONSTRAINT [PK_Notifications] PRIMARY KEY ([ID]),
-    CONSTRAINT [FK_Notifications_Users] FOREIGN KEY ([UserID]) REFERENCES [dbo].[Users]([ID]),
-    CONSTRAINT [FK_Notifications_Projects] FOREIGN KEY ([ProjectID]) REFERENCES [dbo].[Projects]([ID]),
-    CONSTRAINT [FK_Notifications_Tasks] FOREIGN KEY ([TaskID]) REFERENCES [dbo].[Tasks]([ID]),
-    CONSTRAINT [FK_Notifications_NotificationTypes] FOREIGN KEY ([NotificationTypeID]) REFERENCES [dbo].[NotificationTypes]([ID])
+    CONSTRAINT [FK_Notifications_Users] FOREIGN KEY ([UserID]) REFERENCES [tickit].[Users]([ID]),
+    CONSTRAINT [FK_Notifications_Projects] FOREIGN KEY ([ProjectID]) REFERENCES [tickit].[Projects]([ID]),
+    CONSTRAINT [FK_Notifications_Tasks] FOREIGN KEY ([TaskID]) REFERENCES [tickit].[Tasks]([ID]),
+    CONSTRAINT [FK_Notifications_NotificationTypes] FOREIGN KEY ([NotificationTypeID]) REFERENCES [tickit].[NotificationTypes]([ID])
 );
 GO
 
-CREATE TABLE [dbo].[StatusTrack] (
+CREATE TABLE [tickit].[StatusTrack] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [StatusID] INT NOT NULL,
     [TaskID] INT NOT NULL,
     [UpdatedAt] DATETIME NULL
 
     CONSTRAINT [PK_StatusTrack] PRIMARY KEY ([ID]),
-    CONSTRAINT [FK_StatusTrack_Status] FOREIGN KEY ([StatusID]) REFERENCES [dbo].[Status]([ID]),
-    CONSTRAINT [FK_StatusTrack_Task] FOREIGN KEY ([TaskID]) REFERENCES [dbo].[Tasks]([ID]),
+    CONSTRAINT [FK_StatusTrack_Status] FOREIGN KEY ([StatusID]) REFERENCES [tickit].[Status]([ID]),
+    CONSTRAINT [FK_StatusTrack_Task] FOREIGN KEY ([TaskID]) REFERENCES [tickit].[Tasks]([ID]),
 );
 GO
