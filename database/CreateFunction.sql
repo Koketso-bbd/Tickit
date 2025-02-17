@@ -224,3 +224,42 @@ DECLARE @DaysUntillDueDate INT;
     RETURN @DaysUntillDueDate;
 END;
 GO
+
+CREATE FUNCTION dbo.fn_GetUnreadNotificationsCount(@UserID INT)
+RETURNS TABLE
+AS 
+RETURN SELECT * FROM Notifications WHERE UserID = @UserID AND IsRead = 0;
+GO
+
+CREATE FUNCTION dbo.fn_GetNotificationMessage(@NotificationID INT)
+RETURNS NVARCHAR(255)
+AS 
+BEGIN
+    DECLARE @NotificationMessage NVARCHAR(255);
+    SELECT @NotificationMessage = Message FROM Notifications WHERE ID = @NotificationID;
+    RETURN @NotificationMessage
+END;
+GO
+
+CREATE FUNCTION dbo.fn_GetStatusTrackChangesCount(@TaskID INT)
+RETURNS INT
+AS 
+BEGIN
+    DECLARE @StatusChangeCount INT;
+    SELECT @StatusChangeCount = COUNT(*) FROM StatusTrack WHERE TaskID = @TaskID
+    RETURN @StatusChangeCount;
+END;
+GO
+
+CREATE FUNCTION dbo.fn_GetTaskPriorityName(@TaskID INT)
+RETURNS VARCHAR(30)
+AS 
+BEGIN
+    DECLARE @PriorityName VARCHAR(30);
+    SELECT @PriorityName = p.PriorityLevel
+    FROM Tasks t 
+    JOIN Priority p ON t.PriorityID = p.ID
+    WHERE t.ID = @TaskID;
+    RETURN @PriorityName;
+END;
+GO
