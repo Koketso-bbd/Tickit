@@ -43,22 +43,22 @@ GO
 INSERT INTO [tickit].[Users]
 	(GitHubID)
 VALUES
-	('BradleyR-BBD'),
-	('Scelo-Khoza-BBD'),
-	('Andy-Nkumane-BDD'),
-	('Koketso-BBD'),
-	('TadimaM-BBD'),
-	('BBDBhembe'),
-	('LiamH-BBD'),
-	('AndreB-BBD'),
-	('MaseloS-BBD'),
-	('MduD-BBD'),
-	('MiaD-BBD'),
-	('SpheM-BBD'),
-	('NadrianP-BBD'),
-	('TshilidziM-BBD'),
-	('KamoT-BBD'),
-	('AzaelL-BBD');
+    ('DummyUser1'),
+    ('CodeMaster23'),
+    ('TechieGuy99'),
+    ('DevWizardX'),
+    ('PseudoCoder'),
+    ('TestUserABC'),
+    ('JaneDoeDev'),
+    ('JohnSmith42'),
+    ('RandomCoder777'),
+    ('ScriptJunkieX'),
+    ('BitFlipper99'),
+    ('StackOverflowed'),
+    ('NullPointerX'),
+    ('CloudNinja24'),
+    ('AI_Explorer'),
+    ('CyberSamurai88');
 GO
 
 INSERT INTO [tickit].[Projects]
@@ -66,11 +66,11 @@ INSERT INTO [tickit].[Projects]
 
 VALUES
 	('TaskIT Planning', 'We will be planning the Database of our project guys 😊🤙', 1),
-	('GrabIT API Work', 'Let us work on the API', 5),
-	('Wriggle Deployment', 'Steps to take to deploy wriggle', 8),
-	('Listify Front End', 'I think we need to make it pretty ❤️', 11),
-	('My Personal Task List', NULL, 6),
-	('House Check List', 'What is it that I need to do?', 1);
+	('GruveIT API Work', 'Let us work on the API', 5),
+	('Woggle Deployment', 'Steps to take to deploy wriggle', 8),
+	('Dustify Front End', 'I think we need to make it pretty ❤️', 11),
+	('My Personal Blah List', NULL, 6),
+	('Blah Check List', 'What is it that I need to do?', 1);
 GO
 
 INSERT INTO [tickit].[UserProjects]
