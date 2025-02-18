@@ -1,7 +1,4 @@
-﻿USE TickItDB;
-GO
-
-INSERT INTO [tickit].[Priority]
+﻿INSERT INTO [tickit].[Priority]
 	(PriorityLevel)
 
 VALUES

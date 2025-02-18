@@ -1,6 +1,3 @@
-USE TickItDB;
-GO
-
 CREATE TRIGGER [trg_NotifyUserOnTaskAssignment] ON [tickit].[Tasks]
 AFTER INSERT
 AS

@@ -1,6 +1,3 @@
-Use TaskItDB; 
-GO
-
 CREATE FUNCTION tickit.fn_GetTaskCount(@ProjectID INT) 
 RETURNS INT
 AS
