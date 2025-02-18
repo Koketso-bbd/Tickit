@@ -1,4 +1,4 @@
-﻿MERGE INTO [dbo].[Priority] AS target
+﻿MERGE INTO [tickit].[Priority] AS target
 USING (VALUES 
     ('Low'), 
     ('Medium'), 
@@ -9,7 +9,7 @@ ON target.PriorityLevel = source.PriorityLevel
 WHEN NOT MATCHED THEN 
     INSERT (PriorityLevel) VALUES (source.PriorityLevel);
 
-MERGE INTO [dbo].[Roles] AS target
+MERGE INTO [tickit].[Roles] AS target
 USING (VALUES 
     ('Admin'), 
     ('Contributor'), 
@@ -19,7 +19,7 @@ ON target.RoleName = source.RoleName
 WHEN NOT MATCHED THEN 
     INSERT (RoleName) VALUES (source.RoleName);
 
-MERGE INTO [dbo].[Status] AS target
+MERGE INTO [tickit].[Status] AS target
 USING (VALUES 
     ('Unconfirmed'), 
     ('To Do'), 
@@ -30,7 +30,7 @@ ON target.StatusName = source.StatusName
 WHEN NOT MATCHED THEN 
     INSERT (StatusName) VALUES (source.StatusName);
 
-MERGE INTO [dbo].[NotificationTypes] AS target
+MERGE INTO [tickit].[NotificationTypes] AS target
 USING (VALUES 
     ('Task Assigned'), 
     ('Task Completed'), 
@@ -40,7 +40,7 @@ ON target.NotificationName = source.NotificationName
 WHEN NOT MATCHED THEN 
     INSERT (NotificationName) VALUES (source.NotificationName);
 
-MERGE INTO [dbo].[Users] AS target
+MERGE INTO [tickit].[Users] AS target
 USING (VALUES 
     ('DummyUser1'), ('CodeMaster23'), ('TechieGuy99'), ('DevWizardX'), 
     ('PseudoCoder'), ('TestUserABC'), ('JaneDoeDev'), ('JohnSmith42'), 
@@ -51,7 +51,7 @@ ON target.GitHubID = source.GitHubID
 WHEN NOT MATCHED THEN 
     INSERT (GitHubID) VALUES (source.GitHubID);
 
-MERGE INTO [dbo].[Projects] AS target
+MERGE INTO [tickit].[Projects] AS target
 USING (VALUES 
     ('TaskIT Planning', 'We will be planning the Database of our project guys 😊🤙', 1),
     ('GruveIT API Work', 'Let us work on the API', 5),
@@ -65,7 +65,7 @@ WHEN NOT MATCHED THEN
     INSERT (ProjectName, ProjectDescription, OwnerID) 
     VALUES (source.ProjectName, source.ProjectDescription, source.OwnerID);
 
-MERGE INTO [dbo].[UserProjects] AS target
+MERGE INTO [tickit].[UserProjects] AS target
 USING (VALUES 
     (1, 2, 1), (1, 3, 1), (1, 4, 1), (1, 6, 3), 
     (2, 5, 1), (2, 7, 2), (2, 14, 2), (2, 12, 2), 
@@ -76,7 +76,7 @@ WHEN NOT MATCHED THEN
     INSERT (ProjectID, MemberID, RoleID) 
     VALUES (source.ProjectID, source.MemberID, source.RoleID);
 
-MERGE INTO [dbo].[Tasks] AS target
+MERGE INTO [tickit].[Tasks] AS target
 USING (VALUES 
     (2, 'Research Stored Procedures', 'Deep dive into stored procedures for us', GETDATE(), 3, 1, 2),
     (3, 'Research UDFs', 'Please read more about UDFs', GETDATE(), 3, 1, 2),
@@ -95,19 +95,19 @@ WHEN NOT MATCHED THEN
     INSERT (AssigneeID, TaskName, TaskDescription, DueDate, PriorityID, ProjectID, StatusID)
     VALUES (source.AssigneeID, source.TaskName, source.TaskDescription, source.DueDate, source.PriorityID, source.ProjectID, source.StatusID);
 
-MERGE INTO [dbo].[Labels] AS target
+MERGE INTO [tickit].[Labels] AS target
 USING (VALUES ('Bug'), ('Feature'), ('Urgent'), ('UI'), ('Backend'), ('Enhancement')) AS source (LabelName)
 ON target.LabelName = source.LabelName
 WHEN NOT MATCHED THEN 
     INSERT (LabelName) VALUES (source.LabelName);
 
-MERGE INTO [dbo].[ProjectLabels] AS target
+MERGE INTO [tickit].[ProjectLabels] AS target
 USING (VALUES (1, 2), (1, 3), (2, 1)) AS source (ProjectID, LabelID)
 ON target.ProjectID = source.ProjectID AND target.LabelID = source.LabelID
 WHEN NOT MATCHED THEN 
     INSERT (ProjectID, LabelID) VALUES (source.ProjectID, source.LabelID);
 
-MERGE INTO [dbo].[TaskLabels] AS target
+MERGE INTO [tickit].[TaskLabels] AS target
 USING (VALUES (1, 1), (1, 2), (2, 3)) AS source (TaskID, ProjectLabelID)
 ON target.TaskID = source.TaskID AND target.ProjectLabelID = source.ProjectLabelID
 WHEN NOT MATCHED THEN 
