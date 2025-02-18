@@ -92,17 +92,17 @@ INSERT INTO [tickit].[Tasks]
 	(AssigneeID, TaskName, TaskDescription, DueDate, PriorityID, ProjectID, StatusID)
 
 VALUES
-	(2, 'Research Stored Procedures', 'Deep dive into stored procedures for us', '2025-02-14', 3, 1, 2),
-	(3, 'Research UDFs', 'Please read more about UDFs', '2025-02-14', 3, 1, 2),
-	(3, 'Implement UDFs', 'Deep dive into stored procedures for us', '2025-02-14', 3, 1, 2),
-	(4, 'Research and Implement Views', 'Please implement views for our database', '2025-02-14', 3, 1, 2),
-	(5, 'Implement API Endpoints', NULL, '2025-02-23', 3, 2, 1),
-	(14, 'Write tests for the API', 'Make sure there is high test coverage for our APIs', '2025-02-25', 4, 2, 1),
-	(12, 'Implement Dark Mode Toggle', 'Allow users to switch themes', '2025-02-26', 3, 4, 1),
-    (9, 'Enhance Mobile Responsiveness', 'Make UI fully adaptive to mobile devices', '2025-02-27', 3, 4, 2),
-	(1, 'Fix Plumbing Issue', 'Check and repair leaking taps in the kitchen', '2025-02-15', 3, 6, 2),
-    (1, 'Buy Groceries', 'Get weekly groceries for the house', '2025-02-16', 1, 6, 2),
-    (1, 'Schedule Cleaning Service', 'Book a cleaning company for deep cleaning', '2025-02-17', 2, 6, 1);
+	(2, 'Research Stored Procedures', 'Deep dive into stored procedures for us', GETDATE(), 3, 1, 2),
+	(3, 'Research UDFs', 'Please read more about UDFs', GETDATE(), 3, 1, 2),
+	(3, 'Implement UDFs', 'Deep dive into stored procedures for us', GETDATE(), 3, 1, 2),
+	(4, 'Research and Implement Views', 'Please implement views for our database', GETDATE(), 3, 1, 2),
+	(5, 'Implement API Endpoints', NULL, GETDATE(), 3, 2, 1),
+	(14, 'Write tests for the API', 'Make sure there is high test coverage for our APIs', GETDATE(), 4, 2, 1),
+	(12, 'Implement Dark Mode Toggle', 'Allow users to switch themes', GETDATE(), 3, 4, 1),
+    (9, 'Enhance Mobile Responsiveness', 'Make UI fully adaptive to mobile devices', GETDATE(), 3, 4, 2),
+	(1, 'Fix Plumbing Issue', 'Check and repair leaking taps in the kitchen', GETDATE(), 3, 6, 2),
+    (1, 'Buy Groceries', 'Get weekly groceries for the house', GETDATE(), 1, 6, 2),
+    (1, 'Schedule Cleaning Service', 'Book a cleaning company for deep cleaning', GETDATE(), 2, 6, 1);
 
 
 INSERT INTO Labels 
