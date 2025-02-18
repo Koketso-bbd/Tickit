@@ -1,15 +1,3 @@
-USE master
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'TickItDB')
-BEGIN
-    CREATE DATABASE TickItDB;
-END
-GO
-
-USE TickItDB;
-GO
-
 CREATE TABLE [tickit].[Users] (
     [ID] INT IDENTITY(1, 1) NOT NULL,
     [GitHubID] VARCHAR(39) NOT NULL,

@@ -1,8 +1,4 @@
-USE TickItDB;
-GO
-
 CREATE VIEW [tickit].[vw_ProjectWithOwners]
-
 AS
 SELECT 
 	p.ID AS ProjectID,
@@ -14,9 +10,7 @@ FROM Projects p
 JOIN Users u ON p.OwnerID = u.ID;
 GO
 
-
 CREATE VIEW [tickit].[vw_UserProjectRoles]
-
 AS
 SELECT
 	up.ID AS UserProjectID,
