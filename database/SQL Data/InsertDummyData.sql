@@ -108,7 +108,7 @@ WHEN NOT MATCHED THEN
     INSERT (ProjectID, LabelID) VALUES (source.ProjectID, source.LabelID);
 
 MERGE INTO [tickit].[TaskLabels] AS target
-USING (VALUES (1, 1), (1, 2), (2, 3)) AS source (TaskID, ProjectLabelID)
+USING (VALUES (12, 1), (12, 2), (13, 3)) AS source (TaskID, ProjectLabelID)
 ON target.TaskID = source.TaskID AND target.ProjectLabelID = source.ProjectLabelID
 WHEN NOT MATCHED THEN 
     INSERT (TaskID, ProjectLabelID) VALUES (source.TaskID, source.ProjectLabelID);
