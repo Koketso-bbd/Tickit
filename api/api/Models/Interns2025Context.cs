@@ -53,9 +53,10 @@ public partial class Interns2025Context : DbContext
 
     public virtual DbSet<VwUserProjectRole> VwUserProjectRoles { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=bbdinterns2025.database.windows.net;Database=interns2025;User Id=tickituser;Password=heEz1BKOq2%s4KohI9oDS;TrustServerCertificate=True;");
+// Uncomment this when environmental variables are set to be used on the connection string
+//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//         => optionsBuilder.UseSqlServer("Server=<sever_name>;Database=<db_name>;User Id=<username>;Password=<password>;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
