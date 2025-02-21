@@ -5,6 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// Add User secrets
+builder.Configuration.AddUserSecrets<Program>();
+
 /*
  * This code here establishes a connection to our database "DefaultConnection" in appsettings.json team ;)
  */
