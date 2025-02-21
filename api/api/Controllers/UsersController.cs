@@ -21,7 +21,7 @@ namespace api.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<User>> GetUsers()
         {
-            return _context.users.ToList();
+            return _context.Users.ToList();
         }
     }
 }
