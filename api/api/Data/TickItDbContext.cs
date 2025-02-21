@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using api.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace api.Models;
+namespace api.Data;
 
-public partial class Interns2025Context : DbContext
+public partial class TickItDbContext : DbContext
 {
-    public Interns2025Context()
+    public TickItDbContext()
     {
     }
 
-    public Interns2025Context(DbContextOptions<Interns2025Context> options)
+    public TickItDbContext(DbContextOptions<TickItDbContext> options)
         : base(options)
     {
     }
@@ -33,7 +34,7 @@ public partial class Interns2025Context : DbContext
 
     public virtual DbSet<StatusTrack> StatusTracks { get; set; }
 
-    public virtual DbSet<Task> Tasks { get; set; }
+    public virtual DbSet<Models.Task> Tasks { get; set; }
 
     public virtual DbSet<TaskLabel> TaskLabels { get; set; }
 
@@ -198,7 +199,7 @@ public partial class Interns2025Context : DbContext
                 .HasConstraintName("FK_StatusTrack_Task");
         });
 
-        modelBuilder.Entity<Task>(entity =>
+        modelBuilder.Entity<Models.Task>(entity =>
         {
             entity.ToTable(tb =>
                 {
