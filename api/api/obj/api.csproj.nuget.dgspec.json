@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\bbdnet3392\\Documents\\Tickit\\api\\api\\api.csproj": {}
+    "C:\\Users\\bbdnet3397\\Desktop\\bbd-projects\\Tickit\\api\\api\\api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\bbdnet3392\\Documents\\Tickit\\api\\api\\api.csproj": {
+    "C:\\Users\\bbdnet3397\\Desktop\\bbd-projects\\Tickit\\api\\api\\api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bbdnet3392\\Documents\\Tickit\\api\\api\\api.csproj",
+        "projectUniqueName": "C:\\Users\\bbdnet3397\\Desktop\\bbd-projects\\Tickit\\api\\api\\api.csproj",
         "projectName": "api",
-        "projectPath": "C:\\Users\\bbdnet3392\\Documents\\Tickit\\api\\api\\api.csproj",
-        "packagesPath": "C:\\Users\\bbdnet3392\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bbdnet3392\\Documents\\Tickit\\api\\api\\obj\\",
+        "projectPath": "C:\\Users\\bbdnet3397\\Desktop\\bbd-projects\\Tickit\\api\\api\\api.csproj",
+        "packagesPath": "C:\\Users\\bbdnet3397\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\bbdnet3397\\Desktop\\bbd-projects\\Tickit\\api\\api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\bbdnet3392\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\bbdnet3397\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
