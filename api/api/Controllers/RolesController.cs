@@ -44,7 +44,7 @@ namespace api.Controllers
             _context.Roles.Add(role);
             _context.SaveChanges();
 
-            return CreatedAtRoute("GetRole",new{id=role.Id},role);
+            return CreatedAtRoute(new{id=role.Id},role);
         }
     }
 }
