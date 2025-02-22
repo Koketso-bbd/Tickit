@@ -23,5 +23,15 @@ namespace api.Controllers
         {
             return _context.Roles.ToList();
         }
+
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id){
+            var role = _context.Roles.FirstOrDefault(r => r.Id == id);
+            if(role == null)
+            {
+                return NotFound();
+            }
+            return new ObjectResult(role);
+        }
     }
 }
