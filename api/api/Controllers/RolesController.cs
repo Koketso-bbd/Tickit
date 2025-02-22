@@ -11,9 +11,9 @@ namespace api.Controllers
     public class RolesController : ControllerBase
     {
         private readonly TickItDbContext _context;
-        private readonly ILogger<UsersController> _logger;
+        private readonly ILogger<RolesController> _logger;
 
-        public RolesController(TickItDbContext context, ILogger<UsersController> logger)
+        public RolesController(TickItDbContext context, ILogger<RolesController> logger)
         {
             _context = context;
             _logger = logger;
