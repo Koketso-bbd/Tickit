@@ -3,6 +3,7 @@ using api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace api.Controllers
 {
@@ -22,25 +23,52 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
         {
-            return await  _context.Roles.ToListAsync();
+            try
+            {
+                var roles = await  _context.Roles.ToListAsync();
+
+                if(roles.IsNullOrEmpty()){
+                    _logger.LogWarning("oOps No roles found");
+                    return NotFound("No roles found");
+                }
+
+                return Ok(roles);
+            }
+            catch(Exception)
+            {
+                _logger.LogError("Error occured while fetching roles.");
+                return StatusCode(500,"Internal Error");
+            }
         }
 
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Role>>GetRole(int id){
-            
-            var role = await _context.Roles.FindAsync(id);
-            if(role == null)
+        public async Task<ActionResult<Role>>GetRole(int id)
+        {   
+            try
             {
-                return NotFound();
+                var roles = await _context.Roles.FindAsync(id);
+                if(roles == null)
+                {   
+
+                    _logger.LogWarning($"No roles found with Id: {id}.");
+                    return NotFound("No role found with that Id, try again.");
+                }
+                
+                return Ok(roles);
+
             }
-            return role;
+            catch(Exception)
+            {
+                _logger.LogError("Error occured while fetching a role with that specific Id.");
+                return StatusCode(500,"Internal Error");
+            }
         }
 
 
         [HttpPost]
         public async Task<ActionResult<Role>> PostRole(Role role)
-        {
+        {   
             _context.Roles.Add(role);
             await _context.SaveChangesAsync();
 
