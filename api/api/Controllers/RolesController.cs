@@ -2,6 +2,7 @@ using api.Data;
 using api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers
 {
@@ -19,32 +20,85 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Role>> GetRoles()
+        public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
         {
-            return _context.Roles.ToList();
+            return await  _context.Roles.ToListAsync();
         }
 
+
         [HttpGet("{id}")]
-        public ActionResult GetById(int id){
-            var role = _context.Roles.FirstOrDefault(r => r.Id == id);
+        public async Task<ActionResult<Role>>GetRole(int id){
+            
+            var role = await _context.Roles.FindAsync(id);
             if(role == null)
             {
                 return NotFound();
             }
-            return new ObjectResult(role);
+            return role;
         }
+
 
         [HttpPost]
-        public object Create([FromBody] Role role)
+        public async Task<ActionResult<Role>> PostRole(Role role)
         {
-            if(role == null)
-            {
-                return BadRequest();
-            }
             _context.Roles.Add(role);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return CreatedAtRoute(new{id=role.Id},role);
+            return CreatedAtAction(nameof(GetRole),new {id = role.Id},role);
         }
+
+
+        // [HttpPut("{id}")]
+        // public async Task<ActionResult> PutRole(int id, Role role)
+        // {
+        //     if (id != role.Id)
+        //     {
+        //         return BadRequest();
+        //     }
+
+        //     var existingRole = await _context.Roles.FindAsync(id);
+
+        //     if (existingRole == null)
+        //     {
+        //         return NotFound();
+        //     }
+
+           
+        //     _context.Entry(existingRole).CurrentValues.SetValues(role);
+
+        //     try
+        //     {
+        //         await _context.SaveChangesAsync();
+        //         return NoContent();
+        //     }
+        //     catch (DbUpdateConcurrencyException ex)
+        //     {
+               
+        //         Console.WriteLine("Concurrency exception occurred.");
+        //         return StatusCode(500); 
+                
+        //     }
+        //     catch (Exception ex) when (!(ex is DbUpdateConcurrencyException))
+        //     {
+        //         Console.WriteLine($"An error occurred: {ex.Message}");
+        //         return StatusCode(500); 
+        // }
+
+
+        // [HttpDelete("{id}")]
+        // public async Task<ActionResult>DeleteRole(int id)
+        // {
+        //     var role = await _context.Roles.FindAsync(id);
+        //     if(role == null)
+        //     {
+        //         return NotFound();
+        //     }
+
+        //     _context.Roles.Remove(role);
+        //     await _context.SaveChangesAsync();
+
+        //     return NoContent();
+        // }
+
     }
 }
