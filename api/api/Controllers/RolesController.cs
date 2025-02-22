@@ -25,13 +25,26 @@ namespace api.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id){
+        public ActionResult GetById(int id){
             var role = _context.Roles.FirstOrDefault(r => r.Id == id);
             if(role == null)
             {
                 return NotFound();
             }
             return new ObjectResult(role);
+        }
+
+        [HttpPost]
+        public object Create([FromBody] Role role)
+        {
+            if(role == null)
+            {
+                return BadRequest();
+            }
+            _context.Roles.Add(role);
+            _context.SaveChanges();
+
+            return CreatedAtRoute("GetRole",new{id=role.Id},role);
         }
     }
 }
