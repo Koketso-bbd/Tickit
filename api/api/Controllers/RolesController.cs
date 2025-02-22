@@ -43,7 +43,7 @@ namespace api.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Role>>GetRole(int id)
+        public async Task<ActionResult<Role>>GetRoleById(int id)
         {   
             try
             {
@@ -72,7 +72,8 @@ namespace api.Controllers
             _context.Roles.Add(role);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetRole),new {id = role.Id},role);
+            return CreatedAtAction(nameof(GetRoleById),new {id = role.Id},role);
+
         }
 
 
