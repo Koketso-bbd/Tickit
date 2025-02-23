@@ -121,5 +121,30 @@ namespace api.Controllers
 
             return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, projectDto);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProject(int id)
+        {
+            try
+            {
+                var project = await _context.Projects.FindAsync(id);
+
+                if (project == null)
+                {
+                    _logger.LogWarning($"Project with ID {id} not found.");
+                    return NotFound($"Project with {id} not found");
+                }
+
+                _context.Projects.Remove(project);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting this project.");
+                return StatusCode(500, "Internal Service Error");
+            }
+        }
     }
 }
