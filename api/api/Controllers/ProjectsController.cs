@@ -136,8 +136,9 @@ namespace api.Controllers
                 }
 
                 bool projectHasTasks = _context.Tasks.Any(t => t.ProjectId == id);
+                bool projectHasUsers = _context.UserProjects.Any(up => up.ProjectId == id);
 
-                if (projectHasTasks)
+                if (projectHasTasks || projectHasUsers)
                 {
                     return BadRequest("Cannot delete project because it has tasks or users.");
                 }
