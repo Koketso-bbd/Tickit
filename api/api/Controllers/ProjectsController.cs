@@ -99,6 +99,14 @@ namespace api.Controllers
                 return BadRequest("Project data is null.");
             }
 
+            bool projectExists = await _context.Projects
+                .AnyAsync(p => p.ProjectName == projectDto.ProjectName && p.OwnerId == projectDto.OwnerID);
+
+            if (projectExists)
+            {
+                return Conflict("A project with this name already exists for this owner");
+            }
+
             var project = new Project
             {
                 ProjectName = projectDto.ProjectName,
