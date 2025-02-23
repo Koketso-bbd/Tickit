@@ -90,5 +90,28 @@ namespace api.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+        [HttpPost]
+        public async Task<ActionResult<ProjectDTO>> AddProject(ProjectDTO projectDto)
+        {
+            if (projectDto == null)
+            {
+                return BadRequest("Project data is null.");
+            }
+
+            var project = new Project
+            {
+                ProjectName = projectDto.ProjectName,
+                ProjectDescription = projectDto.ProjectDescription,
+                OwnerId = projectDto.OwnerID
+            };
+
+            _context.Projects.Add(project);
+            await _context.SaveChangesAsync();
+
+            projectDto.ID = project.Id;
+
+            return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, projectDto);
+        }
     }
 }
