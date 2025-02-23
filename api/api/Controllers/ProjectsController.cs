@@ -54,5 +54,41 @@ namespace api.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ProjectDTO>> GetProjectById(int id)
+        {
+            try
+            {
+                var project = await _context.Projects
+                    .Where(p => p.Id == id)
+                    .Select(p => new ProjectDTO
+                    {
+                        ID = p.Id,
+                        ProjectName = p.ProjectName,
+                        ProjectDescription = p.ProjectDescription,
+                        OwnerID = p.OwnerId,
+                        Owner = new UserDTO { ID = p.Owner.Id, GitHubID = p.Owner.GitHubId },
+                        AssignedUsers = p.UserProjects
+                            .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
+                            .ToList()
+
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (project == null)
+                {
+                    _logger.LogWarning("Project with ID {id} not found.", id);
+                    return NotFound($"Project with ID {id} not found");
+                }
+
+                return Ok(project);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occured when fetching the project.");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
     }
 }
