@@ -40,6 +40,12 @@ namespace api.Controllers
                     })
                     .ToListAsync();
 
+                if (projects == null || !projects.Any())
+                {
+                    _logger.LogWarning("No projects have been found");
+                    return NotFound("No projects found");
+                }
+
                 return Ok(projects);
             }
             catch (Exception ex)
