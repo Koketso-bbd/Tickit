@@ -52,11 +52,7 @@ namespace api.Controllers
             {
                 var user = await _context.Users
                     .Where(u => u.GitHubId == githubId)
-                    .Select(u => new UserDTO
-                    {
-                        ID = u.Id,
-                        GitHubID = u.GitHubId
-                    })
+                    .Select(u => new UserDTO { ID = u.Id, GitHubID = u.GitHubId })
                     .FirstOrDefaultAsync();
 
                 if (user == null)
