@@ -135,6 +135,13 @@ namespace api.Controllers
                     return NotFound($"Project with {id} not found");
                 }
 
+                bool projectHasTasks = _context.Tasks.Any(t => t.ProjectId == id);
+
+                if (projectHasTasks)
+                {
+                    return BadRequest("Cannot delete project because it has tasks or users.");
+                }
+
                 _context.Projects.Remove(project);
                 await _context.SaveChangesAsync();
 
