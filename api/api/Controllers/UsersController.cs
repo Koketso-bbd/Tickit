@@ -1,4 +1,5 @@
 using api.Data;
+using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,14 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
         {
             try
             {
-                var users = await _context.Users.ToListAsync();
+                //var users = await _context.Users.ToListAsync();
+                var users = await _context.Users
+                    .Select(u => new UserDTO { ID = u.Id, GitHubID = u.GitHubId })
+                    .ToListAsync();
 
                 if (users == null || !users.Any())
                 {
@@ -41,24 +45,32 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUserById(int id)
+        [HttpGet("{githubId}")]
+        public async Task<IActionResult> GetUserByGitHubId(string githubId)
         {
             try
             {
-                var user = await _context.Users.FindAsync(id);
+                var user = await _context.Users
+                    .Where(u => u.GitHubId == githubId)
+                    .Select(u => new UserDTO
+                    {
+                        ID = u.Id,
+                        GitHubID = u.GitHubId
+                    })
+                    .FirstOrDefaultAsync();
 
                 if (user == null)
                 {
-                    _logger.LogWarning($"User with ID {id} not found");
-                    return NotFound($"User with {id} not found.");
+                    _logger.LogWarning("User has not been found or doesn't exist");
+                    return NotFound("User not found");
                 }
 
                 return Ok(user);
+
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error fetching user with ID {id}");
+                _logger.LogError(ex, "An error occured while fetching user");
                 return StatusCode(500, "Internal Error");
             }
         }
