@@ -25,13 +25,13 @@ namespace api.Controllers
             {
                 var labels = await _context.Labels
                     .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName })
-                    .ToListAsync();
-                
+                    .ToListAsync();                
                 
                 if (labels == null || !labels.Any())
                 {
-                    _logger.LogWarning("No labels have been found.");
-                    return NotFound("No labels found.");
+                    var message = "No labels found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
                 return Ok(labels);
             }
