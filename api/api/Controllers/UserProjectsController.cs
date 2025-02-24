@@ -19,10 +19,7 @@ namespace api.Controllers
             _logger = logger;
         }
 
-        /*
-         * This is experimental, I want to ask Rudolph or Thabang if this is an advisible way of
-         * executing our prepared statements.
-         */
+
         [HttpPost]
         public async Task<ActionResult> AddUserToProject(int userId, int projectId,  int roleId)
         {
