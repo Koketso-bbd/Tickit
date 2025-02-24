@@ -1,6 +1,5 @@
 using api.Data;
 using api.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,30 +36,6 @@ namespace api.Controllers
             catch(Exception)
             {
                 _logger.LogError("Error occured while fetching roles.");
-                return StatusCode(500,"Internal Error");
-            }
-        }
-
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Role>>GetRoleById(int id)
-        {   
-            try
-            {
-                var roles = await _context.Roles.FindAsync(id);
-                if(roles == null)
-                {   
-
-                    _logger.LogWarning($"No roles found with Id: {id}.");
-                    return NotFound("No role found with that Id, try again.");
-                }
-                
-                return Ok(roles);
-
-            }
-            catch(Exception)
-            {
-                _logger.LogError("Error occured while fetching a role with that specific Id.");
                 return StatusCode(500,"Internal Error");
             }
         }
