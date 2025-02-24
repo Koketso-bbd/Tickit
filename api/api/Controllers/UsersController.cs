@@ -25,7 +25,6 @@ namespace api.Controllers
         {
             try
             {
-                //var users = await _context.Users.ToListAsync();
                 var users = await _context.Users
                     .Select(u => new UserDTO { ID = u.Id, GitHubID = u.GitHubId })
                     .ToListAsync();
@@ -45,13 +44,13 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("{githubId}")]
-        public async Task<IActionResult> GetUserByGitHubId(string githubId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(int id)
         {
             try
             {
                 var user = await _context.Users
-                    .Where(u => u.GitHubId == githubId)
+                    .Where(u => u.Id == id)
                     .Select(u => new UserDTO { ID = u.Id, GitHubID = u.GitHubId })
                     .FirstOrDefaultAsync();
 
