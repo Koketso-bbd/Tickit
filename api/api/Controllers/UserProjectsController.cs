@@ -28,23 +28,17 @@ namespace api.Controllers
         [HttpPost]
         public async Task<ActionResult> AddUserToProject(int userId, int projectId,  int roleId)
         {
-            if (userId <= 0)
-            {
-                _logger.LogWarning("UserID not entered.");
-                return BadRequest("UserID is required.");
-            }
+            if (userId <= 0) return BadRequest("UserID is required.");
+            if (projectId <= 0) return BadRequest("ProjectID is required.");
+            if (roleId <= 0) return BadRequest("RoleID is required.");
 
-            if (projectId <= 0)
-            {
-                _logger.LogWarning("ProjectID not entered.");
-                return BadRequest("ProjectID is required.");
-            }
+            var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+            var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
+            var roleExists = await _context.Roles.AnyAsync(r => r.Id == roleId);
 
-            if (roleId <= 0)
-            {
-                _logger.LogWarning("RoleID not entered.");
-                return BadRequest("RoleID is required.");
-            }
+            if (!userExists) return BadRequest("User does not exist");
+            if (!projectExists) return BadRequest("Project does not exist");
+            if (!roleExists) return BadRequest("Role does not exist");
 
             try
             {
@@ -62,14 +56,48 @@ namespace api.Controllers
                     userId, projectId, roleId
                 );
 
+                _logger.LogInformation("Hello");
                 return Ok("User added to project successfully");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding user to a project");
-                return StatusCode(500, "Internal Service Error.");
+                return StatusCode(500, "Internal Server Error.");
             }
         }
-        
+
+        [HttpDelete]
+        public async Task<ActionResult> RemoveUserFromProject(int userId, int projectId)
+        {
+            if (userId <= 0) return BadRequest("UserID is required.");
+            if (projectId <= 0) return BadRequest("ProjectID is required.");
+
+            var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+            var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
+
+            if (!userExists) return BadRequest("User does not exist");
+            if (!projectExists) return BadRequest("Project does not exist");
+
+            try
+            {
+                var userProject = await _context.UserProjects
+                    .FirstOrDefaultAsync(up => up.MemberId == userId && up.ProjectId == projectId);
+
+                if (userProject == null) return BadRequest("User not found in the specific project");
+
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC sp_RemoveUserFromProject @p0, @p1",
+                    userId, projectId
+                    );
+
+                return Ok("User successfully removed from project");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing user from project");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
     }
 }
