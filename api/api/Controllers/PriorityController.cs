@@ -66,69 +66,6 @@ namespace api.Controllers
         }
 
 
-        [HttpPost]
-        public async Task<ActionResult<Priority>> PostRole(Priority priority)
-        {   
-            _context.Priorities.Add(priority);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetPriorityById),new {id = priority.Id},priority);
-
-        }
-
-
-        // [HttpPut("{id}")]
-        // public async Task<ActionResult> PutRole(int id, Priority priority)
-        // {
-        //     if (id != priority.Id)
-        //     {
-        //         return BadRequest();
-        //     }
-
-        //     var existingRole = await _context.Priorities.FindAsync(id);
-
-        //     if (existingRole == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-           
-        //     _context.Entry(existingRole).CurrentValues.SetValues(priority);
-
-        //     try
-        //     {
-        //         await _context.SaveChangesAsync();
-        //         return NoContent();
-        //     }
-        //     catch (DbUpdateConcurrencyException ex)
-        //     {
-               
-        //         Console.WriteLine("Concurrency exception occurred.");
-        //         return StatusCode(500); 
-                
-        //     }
-        //     catch (Exception ex) when (!(ex is DbUpdateConcurrencyException))
-        //     {
-        //         Console.WriteLine($"An error occurred: {ex.Message}");
-        //         return StatusCode(500); 
-        // }
-
-
-        // [HttpDelete("{id}")]
-        // public async Task<ActionResult>DeleteRole(int id)
-        // {
-        //     var role = await _context.Priority.FindAsync(id);
-        //     if(role == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     _context.Priority.Remove(role);
-        //     await _context.SaveChangesAsync();
-
-        //     return NoContent();
-        // }
-
     }
     
 }
