@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using api.DTOs;
 
 namespace api.Controllers
 {
@@ -48,5 +50,32 @@ namespace api.Controllers
 
             return Ok(task);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
+        {
+            if (taskDto == null || string.IsNullOrWhiteSpace(taskDto.TaskName))
+            {
+                return BadRequest("Invalid task data.");
+            }
+
+            try
+            {
+                int result = await _context.CreateTaskAsync(
+                    taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription,
+                    taskDto.DueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
+
+                if (result == 0)
+                    return StatusCode(500, "Task creation failed.");
+
+                return CreatedAtAction(nameof(GetTask), new { id = taskDto.Id }, taskDto);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error: {ex.Message}");
+            }
+        }
+
     }
 }
