@@ -84,6 +84,30 @@ namespace api.Controllers
            return CreatedAtAction(nameof(GetTaskLabelById),new{id = tasklabel.Id},taskLabelDTO);
         }
 
-    }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult>DeleteTaskLabel(int id)
+        {
+            try
+            {
+                var taskLabel = await _context.TaskLabels.FindAsync(id);
+
+                if(taskLabel == null)
+                {
+                    return NotFound("Task Label does not exist");
+                }
+
+                _context.TaskLabels.Remove(taskLabel);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Task {id} successfully deleted");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting this project.");
+                return StatusCode(500, "Internal Service Error");
+            }
+        }
+    }
 }
