@@ -7,3 +7,16 @@ Accept: application/json
 
 GET {{api_HostAddress}}/api/Users/
 Accept: application/json
+###
+
+GET {{api_HostAddress}}/api/Users/DummyUser1
+Accept: application/json
+###
+
+GET {{api_HostAddress}}/api/Projects/
+Accept: application/json
+###
+
+GET {{api_HostAddress}}/api/Projects/1
+Accept: application/json
+###
