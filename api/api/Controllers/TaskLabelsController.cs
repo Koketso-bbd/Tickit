@@ -40,7 +40,7 @@ namespace api.Controllers
                 if (taskLabel == null)
                 {
                     _logger.LogWarning("Task Label with ID {id} not found.", id);
-                    return NotFound($"Task Label with ID {id} not found");
+                    return NotFound("Task Label not found");
                 }
 
                 return Ok(taskLabel);
@@ -66,14 +66,14 @@ namespace api.Controllers
 
            if(taskLabelExists)
            {
-            return Conflict("A task with this name already exists");
+                return Conflict("A task with this name already exists");
            }
            
            var tasklabel = new TaskLabel
            {
-            Id = taskLabelDTO.ID,
-            TaskId = taskLabelDTO.TaskId,
-            ProjectLabelId = taskLabelDTO.ProjectLabelId,
+                Id = taskLabelDTO.ID,
+                TaskId = taskLabelDTO.TaskId,
+                ProjectLabelId = taskLabelDTO.ProjectLabelId,
            };
 
            _context.TaskLabels.Add(tasklabel);
