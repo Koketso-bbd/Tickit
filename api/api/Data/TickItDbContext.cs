@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using api.Models;
+﻿using api.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,7 +50,7 @@ public partial class TickItDbContext : DbContext
             new SqlParameter("@StatusID", statusID),
         };
 
-        return await this.Database.ExecuteSqlRawAsync("EXEC sp_CreateTask @AssigneeID, @TaskName, @TaskDescription, @DueDate, @PriorityID, @ProjectID, @StatusID", parameters);
+        return await Database.ExecuteSqlRawAsync("EXEC sp_CreateTask @AssigneeID, @TaskName, @TaskDescription, @DueDate, @PriorityID, @ProjectID, @StatusID", parameters);
     }
 
     public virtual DbSet<TaskLabel> TaskLabels { get; set; }

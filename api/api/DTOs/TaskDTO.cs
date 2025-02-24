@@ -1,5 +1,4 @@
-using System;
-using System.ComponentModel.DataAnnotations;
+
 
 namespace api.DTOs
 {
@@ -7,24 +6,18 @@ namespace api.DTOs
     {
         public int Id { get; set; }
 
-        [Required]
-        public int AssigneeId { get; set; }
+        public required int AssigneeId { get; set; }
 
-        [Required]
-        public string TaskName { get; set; }
+        public required string TaskName { get; set; }
 
         public string? TaskDescription { get; set; }
 
-        [Required]
-        public DateTime DueDate { get; set; }
+        public required DateTime DueDate { get; set; }
 
-        [Required]
-        public int PriorityId { get; set; }
+        public required int PriorityId { get; set; }
 
-        [Required]
-        public int ProjectId { get; set; }
+        public required int ProjectId { get; set; }
 
-        [Required]
-        public int StatusId { get; set; }
+        public required int StatusId { get; set; }
     }
 }

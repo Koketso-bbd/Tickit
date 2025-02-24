@@ -1,12 +1,8 @@
 using api.Data;
-using api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using api.DTOs;
+
 
 namespace api.Controllers
 {
@@ -37,19 +33,22 @@ namespace api.Controllers
             return Ok(tasks);
         }
 
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Models.Task>> GetTask(int id)
         {
             var task = await _context.Tasks.FindAsync(id);
+            string warnMessage = $"Task with ID {id} not found.";
 
             if (task == null)
             {
-                _logger.LogWarning("Task with ID {Id} not found.", id);
-                return NotFound($"Task with ID {id} not found.");
+                _logger.LogWarning(warnMessage);
+                return NotFound(warnMessage);
             }
 
             return Ok(task);
         }
+        
 
         [HttpPost]
         public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
@@ -71,11 +70,10 @@ namespace api.Controllers
                 return CreatedAtAction(nameof(GetTask), new { id = taskDto.Id }, taskDto);
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, $"Error: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
             }
         }
-
     }
 }
