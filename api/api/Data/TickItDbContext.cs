@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using api.Models;
+﻿using api.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Data;
@@ -35,6 +34,24 @@ public partial class TickItDbContext : DbContext
     public virtual DbSet<StatusTrack> StatusTracks { get; set; }
 
     public virtual DbSet<Models.Task> Tasks { get; set; }
+
+    public async Task<int> CreateTaskAsync(
+        int? assigneeID, string taskName, string? taskDescription, DateTime? dueDate,
+        int priorityID, int projectID, int statusID)
+    {
+        var parameters = new[]
+        {
+            new SqlParameter("@AssigneeID", assigneeID ?? (object)DBNull.Value),
+            new SqlParameter("@TaskName", taskName),
+            new SqlParameter("@TaskDescription", taskDescription ?? (object)DBNull.Value),
+            new SqlParameter("@DueDate", dueDate ?? (object)DBNull.Value),
+            new SqlParameter("@PriorityID", priorityID),
+            new SqlParameter("@ProjectID", projectID),
+            new SqlParameter("@StatusID", statusID),
+        };
+
+        return await Database.ExecuteSqlRawAsync("EXEC sp_CreateTask @AssigneeID, @TaskName, @TaskDescription, @DueDate, @PriorityID, @ProjectID, @StatusID", parameters);
+    }
 
     public virtual DbSet<TaskLabel> TaskLabels { get; set; }
 
