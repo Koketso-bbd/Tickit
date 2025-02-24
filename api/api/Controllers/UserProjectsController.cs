@@ -56,7 +56,7 @@ namespace api.Controllers
                     userId, projectId, roleId
                 );
 
-                _logger.LogInformation("Hello");
+                _logger.LogInformation($"{userId} added to Project: {projectId} with Role: {roleId}");
                 return Ok("User added to project successfully");
             }
             catch (Exception ex)
@@ -90,11 +90,47 @@ namespace api.Controllers
                     userId, projectId
                     );
 
+                _logger.LogInformation($"{userId} removed from Project: {projectId}");
                 return Ok("User successfully removed from project");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error removing user from project");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateUserRole(int userId, int projectId, int newRoleId)
+        {
+            if (userId <= 0) return BadRequest("UserID is required");
+            if (projectId <= 0) return BadRequest("ProjectID is required");
+            if (newRoleId <= 0) return BadRequest("RoleID is required");
+
+            var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+            var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
+            var roleExists = await _context.Roles.AnyAsync(r => r.Id == newRoleId);
+
+            if (!userExists) return BadRequest("User does not exist");
+            if (!projectExists) return BadRequest("Project does not exist");
+            if (!roleExists) return BadRequest("Role does not exist");
+
+            try
+            {
+                var userProject = await _context.UserProjects
+                    .FirstOrDefaultAsync(up => up.MemberId == userId && up.ProjectId == projectId);
+
+                if (userProject == null) return BadRequest("User not found in this project");
+
+                userProject.RoleId = newRoleId;
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Role: {newRoleId} applied to User: {userId} in Project {projectId}");
+                return Ok("User role updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating user's role");
                 return StatusCode(500, "Internal Server Error");
             }
         }
