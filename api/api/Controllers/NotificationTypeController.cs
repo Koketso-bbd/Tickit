@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 
-
 namespace api.Controllers
 {
     [Route("api/[controller]")]
@@ -32,8 +31,7 @@ namespace api.Controllers
             .ToListAsync();
         }
 
-       
-       
+             
         [HttpGet("{id}")]
         public async Task<ActionResult<NotificationTypeDTO>> GetNotificationTypeById(int id)
         {
