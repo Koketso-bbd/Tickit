@@ -78,5 +78,39 @@ namespace api.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTask(int id, TaskDTO taskDto)
+        {
+            if (taskDto==null || id != taskDto.Id)
+            {
+                return BadRequest("Invalid task data");
+            }
+
+            var existingTask = await _context.Tasks.FindAsync(id);
+            if (existingTask==null)
+            {
+                return NotFound($"Task with ID {id} not found.");
+            }
+
+            existingTask.AssigneeId = taskDto.AssigneeId;
+            existingTask.TaskName = taskDto.TaskName;
+            existingTask.TaskDescription = taskDto.TaskDescription;
+            existingTask.DueDate = taskDto.DueDate;
+            existingTask.PriorityId = taskDto.PriorityId;
+            existingTask.StatusId = taskDto.StatusId;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
     }
 }
