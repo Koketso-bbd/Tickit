@@ -2,6 +2,7 @@ using api.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.DTOs;
+using api.Helpers;
 
 namespace api.Controllers
 {
@@ -21,16 +22,24 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasks()
         {
-            var tasks = await _context.Tasks.ToListAsync();
-
-            if (tasks == null || tasks.Count == 0)
+            try
             {
-                var message = "No tasks found.";
-                _logger.LogWarning(message);
-                return NotFound(message);
-            }
+                var tasks = await _context.Tasks.ToListAsync();
 
-            return Ok(tasks);
+                if (tasks == null || tasks.Count == 0)
+                {
+                    var message = "No tasks found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
+                }
+
+                return Ok(tasks);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("tasks", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
         }
 
         [HttpGet("{id}")]

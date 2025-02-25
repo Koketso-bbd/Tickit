@@ -1,5 +1,6 @@
 using api.Data;
 using api.DTOs;
+using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -51,8 +52,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred when fetching projects.");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("projects", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
@@ -88,8 +89,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured when fetching the project.");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("project", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 

@@ -1,5 +1,6 @@
 using api.Data;
 using api.DTOs;
+using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,8 +38,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured while fetching labels.");
-                return StatusCode(500, "Internal Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("labels", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
@@ -67,8 +68,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured while fetching label.");
-                return StatusCode(500, "Internal Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("label", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using api.DTOs;
 using Microsoft.EntityFrameworkCore;
 using api.Models;
+using api.Helpers;
 
 namespace api.Controllers
 {    
@@ -46,8 +47,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured when fetching the project.");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("task label", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 

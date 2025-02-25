@@ -1,5 +1,6 @@
 using api.Data;
 using api.DTOs;
+using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,13 +22,21 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StatusDTO>>> GetStatuses()
         {
-            return await _context.Statuses
-               .Select(s => new StatusDTO
-               {
-                   Id = s.Id,
-                   StatusName = s.StatusName,
-               })
-               .ToListAsync();
+            try
+            {
+                return await _context.Statuses
+                       .Select(s => new StatusDTO
+                       {
+                           Id = s.Id,
+                           StatusName = s.StatusName,
+                       })
+                       .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("statuses", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
         }        
     }
 }

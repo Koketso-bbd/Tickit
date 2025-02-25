@@ -1,5 +1,6 @@
 using api.Data;
 using api.DTOs;
+using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,8 +39,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured while fetching users");
-                return StatusCode(500, "Internal Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("users", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
@@ -64,8 +65,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured while fetching user");
-                return StatusCode(500, "Internal Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("user", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }

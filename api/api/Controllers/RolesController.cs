@@ -1,4 +1,5 @@
 using api.Data;
+using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,10 +35,10 @@ namespace api.Controllers
 
                 return Ok(roles);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
-                _logger.LogError("Error occured while fetching roles.");
-                return StatusCode(500,"Internal Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("roles", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }
