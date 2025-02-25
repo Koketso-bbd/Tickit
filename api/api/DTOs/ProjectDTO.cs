@@ -14,4 +14,13 @@
 
         public List<UserDTO> AssignedUsers { get; set; } = new();
     }
+
+    public class ProjectLabelDTO
+    {
+        public int ID { get; set; }
+
+        public string ProjectName { get; set; }
+
+        public List<LabelDTO> Labels { get; set; } = new();
+    }
 }
