@@ -1,5 +1,6 @@
 using api.Data;
 using api.DTOs;
+using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -42,16 +43,17 @@ namespace api.Controllers
 
                 if (projects == null || !projects.Any())
                 {
-                    _logger.LogWarning("No projects have been found");
-                    return NotFound("No projects found");
+                    var message = "No projects found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred when fetching projects.");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("projects", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
@@ -78,16 +80,17 @@ namespace api.Controllers
 
                 if (project == null)
                 {
-                    _logger.LogWarning("Project with ID {id} not found.", id);
-                    return NotFound($"Project with ID {id} not found");
+                    var message = $"Project with ID {id} not found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(project);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured when fetching the project.");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("project", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
@@ -131,8 +134,9 @@ namespace api.Controllers
 
                 if (project == null)
                 {
-                    _logger.LogWarning($"Project with ID {id} not found.");
-                    return NotFound($"Project with {id} not found");
+                    var message = $"Project with ID {id} not found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 bool projectHasTasks = _context.Tasks.Any(t => t.ProjectId == id);
@@ -150,8 +154,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting this project.");
-                return StatusCode(500, "Internal Service Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("project", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }

@@ -1,5 +1,3 @@
-
-
 namespace api.DTOs
 {
     public class TaskDTO

@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using api.DTOs;
 using Microsoft.EntityFrameworkCore;
 using api.Models;
+using api.Helpers;
 
 namespace api.Controllers
-{
-    
+{    
     [Route("api/[controller]")]
     [ApiController]
     public class TaskLabelsController : ControllerBase
@@ -19,7 +19,6 @@ namespace api.Controllers
             _context = context;
             _logger = logger;
         }
-
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskLabelDTO>> GetTaskLabelById(int id)
@@ -39,19 +38,19 @@ namespace api.Controllers
 
                 if (taskLabel == null)
                 {
-                    _logger.LogWarning("Task Label with ID {id} not found.", id);
-                    return NotFound("Task Label not found");
+                    var message = $"Task Label with ID {id} not found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(taskLabel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured when fetching the project.");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("task label", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> PostTaskLabels(TaskLabelDTO taskLabelDTO)
@@ -105,8 +104,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting this project.");
-                return StatusCode(500, "Internal Service Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("task label", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }
