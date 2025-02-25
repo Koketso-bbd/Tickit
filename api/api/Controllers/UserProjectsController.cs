@@ -125,8 +125,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating user's role");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPut("user's role", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }
