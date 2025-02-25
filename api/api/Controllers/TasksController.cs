@@ -41,10 +41,10 @@ namespace api.Controllers
         public async Task<ActionResult<Models.Task>> GetTask(int id)
         {
             var task = await _context.Tasks.FindAsync(id);
-            string warnMessage = $"Task with ID {id} not found.";
 
             if (task == null)
             {
+                string warnMessage = $"Task with ID {id} not found.";
                 _logger.LogWarning(warnMessage);
                 return NotFound(warnMessage);
             }
@@ -53,8 +53,8 @@ namespace api.Controllers
         }
         
 
-        [HttpPost]
-        public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
+        [HttpPost("/projects/{projectId}/tasks")]
+        public async Task<IActionResult> CreateTask(int projectId, [FromBody] TaskDTO taskDto)
         {
             if (taskDto == null || string.IsNullOrWhiteSpace(taskDto.TaskName))
             {
@@ -65,7 +65,7 @@ namespace api.Controllers
             {
                 int result = await _context.CreateTaskAsync(
                     taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription,
-                    taskDto.DueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
+                    taskDto.DueDate, taskDto.PriorityId, projectId, taskDto.StatusId);
 
                 if (result == 0)
                     return StatusCode(500, "Task creation failed.");
