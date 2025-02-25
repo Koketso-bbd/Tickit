@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using api.Models;
 
 namespace api.Controllers
-{
-    
+{    
     [Route("api/[controller]")]
     [ApiController]
     public class TaskLabelsController : ControllerBase
@@ -19,7 +18,6 @@ namespace api.Controllers
             _context = context;
             _logger = logger;
         }
-
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskLabelDTO>> GetTaskLabelById(int id)
@@ -51,7 +49,6 @@ namespace api.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> PostTaskLabels(TaskLabelDTO taskLabelDTO)

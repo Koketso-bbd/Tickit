@@ -61,7 +61,6 @@ namespace api.Controllers
                 }
 
                 return Ok(user);
-
             }
             catch (Exception ex)
             {

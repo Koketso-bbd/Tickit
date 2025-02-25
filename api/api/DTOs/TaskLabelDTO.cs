@@ -1,4 +1,3 @@
-
 namespace api.DTOs;
 
 public partial class TaskLabelDTO

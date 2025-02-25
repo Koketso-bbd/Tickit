@@ -19,7 +19,6 @@ namespace api.Controllers
             _logger = logger;
         }
 
-
         [HttpPost]
         public async Task<ActionResult> AddUserToProject(int userId, int projectId,  int roleId)
         {
@@ -129,6 +128,5 @@ namespace api.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
-
     }
 }

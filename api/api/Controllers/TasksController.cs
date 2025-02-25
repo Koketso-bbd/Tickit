@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.DTOs;
 
-
 namespace api.Controllers
 {
     [Route("api/[controller]")]
@@ -33,7 +32,6 @@ namespace api.Controllers
             return Ok(tasks);
         }
 
-
         [HttpGet("{id}")]
         public async Task<ActionResult<Models.Task>> GetTask(int id)
         {
@@ -49,7 +47,6 @@ namespace api.Controllers
             return Ok(task);
         }
         
-
         [HttpPost]
         public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
         {

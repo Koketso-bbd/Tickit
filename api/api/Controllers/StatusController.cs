@@ -3,8 +3,6 @@ using api.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-
-
 namespace api.Controllers
 {
     [Route("api/[controller]")]
@@ -30,10 +28,6 @@ namespace api.Controllers
                    StatusName = s.StatusName,
                })
                .ToListAsync();
-
-        }
-        
+        }        
     }
-
-
 }
