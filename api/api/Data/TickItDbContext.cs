@@ -53,6 +53,26 @@ public partial class TickItDbContext : DbContext
         return await Database.ExecuteSqlRawAsync("EXEC sp_CreateTask @AssigneeID, @TaskName, @TaskDescription, @DueDate, @PriorityID, @ProjectID, @StatusID", parameters);
     }
 
+    public async Task<int> UpdateTaskAsync(int taskId, int? newStatusId, int? newAssigneeId, int? newPriorityId, 
+                                           string? newTaskName, string? newTaskDescription, DateTime? newDueDate)
+    {
+        var parameters = new[]
+        {
+            new SqlParameter("@TaskID", taskId),
+            new SqlParameter("@NewStatusID", newStatusId ?? (object)DBNull.Value),
+            new SqlParameter("@NewAssigneeID", newAssigneeId ?? (object)DBNull.Value),
+            new SqlParameter("@NewPriorityID", newPriorityId ?? (object)DBNull.Value),
+            new SqlParameter("@NewTaskName", newTaskName ?? (object)DBNull.Value),
+            new SqlParameter("@NewTaskDescription", newTaskDescription ?? (object)DBNull.Value),
+            new SqlParameter("@NewDueDate", newDueDate ?? (object)DBNull.Value)
+        };
+
+        return await Database.ExecuteSqlRawAsync(
+            "EXEC UpdateTask @TaskID, @NewStatusID, @NewAssigneeID, @NewPriorityID, @NewTaskName, @NewTaskDescription, @NewDueDate",
+            parameters
+        );
+    }
+
     public virtual DbSet<TaskLabel> TaskLabels { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
