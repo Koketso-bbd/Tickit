@@ -99,8 +99,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error retreiving user projects for user {id}");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("user's projects", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }
