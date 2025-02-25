@@ -106,11 +106,11 @@ namespace api.Controllers
                 await _context.SaveChangesAsync();
                 return NoContent();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return StatusCode(500, "Internal server error");
+                _logger.LogError(e, "Error updating task {TaskId}", id);
+                return StatusCode(500, "Internal Server Error");
             }
-
         }
     }
 }
