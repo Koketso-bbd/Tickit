@@ -106,9 +106,6 @@ namespace api.Controllers
                 _logger.LogError(ex, "An error occured while fetching user");
                 return StatusCode(500, "Internal Error");
             }
-
         }
-
-        
     }
 }
