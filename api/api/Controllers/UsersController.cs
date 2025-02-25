@@ -103,7 +103,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("user to a project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("user's notification", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
