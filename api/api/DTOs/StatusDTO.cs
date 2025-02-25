@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace api.DTOs;
 
 public partial class StatusDTO
