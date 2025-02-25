@@ -19,8 +19,10 @@
     {
         public int ID { get; set; }
 
-        public string ProjectName { get; set; }
+        public int LabelID { get; set; }
 
-        public List<LabelDTO> Labels { get; set; } = new();
+        public int ProjectID { get; set; }
+
+        public required LabelDTO LabelName { get; set; }
     }
 }
