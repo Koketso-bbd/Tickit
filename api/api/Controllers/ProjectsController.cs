@@ -52,7 +52,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("projects", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("projects", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -89,7 +89,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -154,7 +154,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDeleting("project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }

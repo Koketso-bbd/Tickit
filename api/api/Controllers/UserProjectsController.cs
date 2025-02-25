@@ -90,7 +90,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDeleting("user from project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("user from project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
