@@ -19,15 +19,18 @@ namespace api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasks()
+        [HttpGet("/projects/{projectId}/tasks")]
+        public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasksInProject(int projectId)
         {
-            var tasks = await _context.Tasks.ToListAsync();
+            var tasks = await _context.Tasks
+                                            .Where(t => t.ProjectId==projectId)
+                                            .ToListAsync();
 
             if (tasks == null || tasks.Count == 0)
             {
-                _logger.LogWarning("No tasks found.");
-                return NotFound("No tasks found.");
+                var message = $"No tasks found for Project ID {projectId}."; 
+                _logger.LogWarning(message);
+                return NotFound(message);
             }
 
             return Ok(tasks);
