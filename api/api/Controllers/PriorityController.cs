@@ -27,8 +27,9 @@ namespace api.Controllers
                 var Priority = await  _context.Priorities.ToListAsync();
 
                 if(Priority.IsNullOrEmpty()){
-                    _logger.LogWarning("oOps No Priority found");
-                    return NotFound("No Priority found");
+                    var message = "No Priority found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(Priority);

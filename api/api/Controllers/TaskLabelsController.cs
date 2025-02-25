@@ -37,8 +37,9 @@ namespace api.Controllers
 
                 if (taskLabel == null)
                 {
-                    _logger.LogWarning("Task Label with ID {id} not found.", id);
-                    return NotFound("Task Label not found");
+                    var message = $"Task Label with ID {id} not found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(taskLabel);

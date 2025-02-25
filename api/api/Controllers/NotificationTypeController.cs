@@ -46,8 +46,9 @@ namespace api.Controllers
                 
                 if(notificationType  == null)
                 {
-                    _logger.LogWarning("Notification type with ID{id} not found",id);
-                    return NotFound($"Notification type with ID {id} not found");
+                    var message = $"Notification type with ID {id} not found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(notificationType);            

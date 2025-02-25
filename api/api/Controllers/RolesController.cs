@@ -27,8 +27,9 @@ namespace api.Controllers
                 var roles = await  _context.Roles.ToListAsync();
 
                 if(roles.IsNullOrEmpty()){
-                    _logger.LogWarning("oOps No roles found");
-                    return NotFound("No roles found");
+                    var message = "No roles found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(roles);

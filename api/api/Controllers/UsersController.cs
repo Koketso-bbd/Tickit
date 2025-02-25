@@ -29,8 +29,9 @@ namespace api.Controllers
 
                 if (users == null || !users.Any())
                 {
-                    _logger.LogWarning("No users have been found.");
-                    return NotFound("No users found.");
+                    var message = "No users found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(users);
@@ -54,8 +55,9 @@ namespace api.Controllers
 
                 if (user == null)
                 {
-                    _logger.LogWarning("User has not been found or doesn't exist");
-                    return NotFound("User not found");
+                    var message = "User not found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(user);

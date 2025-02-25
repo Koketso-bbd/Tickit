@@ -25,8 +25,9 @@ namespace api.Controllers
 
             if (tasks == null || tasks.Count == 0)
             {
-                _logger.LogWarning("No tasks found.");
-                return NotFound("No tasks found.");
+                var message = "No tasks found.";
+                _logger.LogWarning(message);
+                return NotFound(message);
             }
 
             return Ok(tasks);
@@ -36,12 +37,12 @@ namespace api.Controllers
         public async Task<ActionResult<Models.Task>> GetTask(int id)
         {
             var task = await _context.Tasks.FindAsync(id);
-            string warnMessage = $"Task with ID {id} not found.";
 
             if (task == null)
             {
-                _logger.LogWarning(warnMessage);
-                return NotFound(warnMessage);
+                string message = $"Task with ID {id} not found.";
+                _logger.LogWarning(message);
+                return NotFound(message);
             }
 
             return Ok(task);

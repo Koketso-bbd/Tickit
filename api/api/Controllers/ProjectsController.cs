@@ -42,8 +42,9 @@ namespace api.Controllers
 
                 if (projects == null || !projects.Any())
                 {
-                    _logger.LogWarning("No projects have been found");
-                    return NotFound("No projects found");
+                    var message = "No projects found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(projects);
@@ -78,8 +79,9 @@ namespace api.Controllers
 
                 if (project == null)
                 {
-                    _logger.LogWarning("Project with ID {id} not found.", id);
-                    return NotFound($"Project with ID {id} not found");
+                    var message = $"Project with ID {id} not found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(project);
@@ -131,8 +133,9 @@ namespace api.Controllers
 
                 if (project == null)
                 {
-                    _logger.LogWarning($"Project with ID {id} not found.");
-                    return NotFound($"Project with {id} not found");
+                    var message = $"Project with ID {id} not found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 bool projectHasTasks = _context.Tasks.Any(t => t.ProjectId == id);
