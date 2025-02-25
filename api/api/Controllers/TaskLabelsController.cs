@@ -47,7 +47,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("task label", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorFetching("task label", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -104,8 +104,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting this project.");
-                return StatusCode(500, "Internal Service Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDeleting("task label", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }

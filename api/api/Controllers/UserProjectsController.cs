@@ -1,4 +1,5 @@
 using api.Data;
+using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -89,8 +90,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error removing user from project");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDeleting("user from project", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
