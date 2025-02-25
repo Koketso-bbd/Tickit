@@ -7,5 +7,11 @@
             logger.LogError(ex, $"An error occured while fetching {errorFor}.");
             return (500, "Internal Error");
         }
+
+        public static (int StatusCode, string Message) InternalServerErrorDeleting(string errorFor, ILogger logger, Exception ex)
+        {
+            logger.LogError(ex, $"An error occured while deleting {errorFor}.");
+            return (500, "Internal Error");
+        }
     }
 }
