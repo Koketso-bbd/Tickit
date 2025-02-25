@@ -51,7 +51,10 @@ namespace api.Controllers
             {
                 var user = await _context.Users
                     .Where(u => u.Id == id)
-                    .Select(u => new UserDTO { ID = u.Id, GitHubID = u.GitHubId })
+                    .Select(u => new UserDTO {
+                        ID = u.Id,
+                        GitHubID = u.GitHubId,
+                        })
                     .FirstOrDefaultAsync();
 
                 if (user == null)
@@ -69,5 +72,43 @@ namespace api.Controllers
                 return StatusCode(statusCode, message);
             }
         }
+
+        [HttpGet("{userId}/notifications")]
+        public async Task<IActionResult> GetUserNotifications(int userId)
+        {   
+            try
+            {
+                var user = await _context.Notifications
+                    .Where(n => n.UserId == userId)
+                    .Select(n => new NotificationsDTO
+                    {
+                        Id = n.Id,
+                        UserId = n.UserId,
+                        ProjectId = n.ProjectId,
+                        TaskId = n.TaskId,
+                        NotificationTypeId = n.NotificationTypeId,
+                        Message = n.Message,
+                        IsRead = n.IsRead,
+                        CreatedAt = n.CreatedAt
+                    })
+                    .ToListAsync();
+
+                if (user == null)
+                {
+                    _logger.LogWarning("User has not been found or doesn't exist");
+                    return NotFound("User not found");
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occured while fetching user");
+                return StatusCode(500, "Internal Error");
+            }
+
+        }
+
+        
     }
 }
