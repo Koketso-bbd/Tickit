@@ -160,22 +160,20 @@ namespace api.Controllers
         }
 
         [HttpGet("{id}/labels")]
-        public async Task<ActionResult<LabelDTO>> GetProjectLabels(int id)
+        public async Task<ActionResult<ProjectLabelDTO>> GetProjectLabels(int id)
         {
             try
             {
-                var projectLabel = await _context.Projects
-                    .Where(pl => pl.Id == id)
+                var projectLabel = await _context.ProjectLabels
+                    .Where(pl => pl.ProjectId == id)
                     .Select(pl => new ProjectLabelDTO
                     {
                         ID = pl.Id,
-                        ProjectName = pl.ProjectName,
-                        Labels = pl.ProjectLabels
-                            .Select(l => new LabelDTO { ID = l.LabelId, LabelName = l.Label.LabelName })
-                            .ToList()
-
+                        LabelID = pl.LabelId,
+                        ProjectID = pl.ProjectId,
+                        LabelName = new LabelDTO { ID = pl.LabelId, LabelName = pl.Label.LabelName }
                     })
-                    .FirstOrDefaultAsync();
+                    .ToListAsync();
 
                 if (projectLabel == null)
                 {
@@ -192,5 +190,36 @@ namespace api.Controllers
                 return StatusCode(statusCode, message);
             }
         }
+
+        //[HttpPost]
+        //public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(ProjectLabelDTO projectLabelDto)
+        //{
+        //    if (projectLabelDto == null)
+        //    {
+        //        return BadRequest("Project label data is null.");
+        //    }
+
+        //    bool projectLabelExists = await _context.ProjectLabels
+        //        .AnyAsync(pl => pl.ProjectId == projectLabelDto.ProjectName && p.OwnerId == projectLabelDto.OwnerID);
+
+        //    if (projectExists)
+        //    {
+        //        return Conflict("A project with this name already exists for this owner");
+        //    }
+
+        //    var project = new Project
+        //    {
+        //        ProjectName = projectDto.ProjectName,
+        //        ProjectDescription = projectDto.ProjectDescription,
+        //        OwnerId = projectDto.OwnerID
+        //    };
+
+        //    _context.Projects.Add(project);
+        //    await _context.SaveChangesAsync();
+
+        //    projectDto.ID = project.Id;
+
+        //    return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, projectDto);
+        //}
     }
 }
