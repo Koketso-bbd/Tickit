@@ -158,5 +158,39 @@ namespace api.Controllers
                 return StatusCode(statusCode, message);
             }
         }
+
+        [HttpGet("{id}/labels")]
+        public async Task<ActionResult<LabelDTO>> GetProjectLabels(int id)
+        {
+            try
+            {
+                var projectLabel = await _context.Projects
+                    .Where(pl => pl.Id == id)
+                    .Select(pl => new ProjectLabelDTO
+                    {
+                        ID = pl.Id,
+                        ProjectName = pl.ProjectName,
+                        Labels = pl.ProjectLabels
+                            .Select(l => new LabelDTO { ID = l.LabelId, LabelName = l.Label.LabelName })
+                            .ToList()
+
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (projectLabel == null)
+                {
+                    var message = $"Project with ID {id} not found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
+                }
+
+                return Ok(projectLabel);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("project label", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
+        }
     }
 }
