@@ -112,5 +112,32 @@ namespace api.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTask(int id)
+        {
+            var task = await _context.Tasks.FindAsync(id);
+            if (task == null)
+            {
+                return NotFound($"Task with ID {id} not found.");
+            }
+
+            var notifications = _context.Notifications.Where(n => n.TaskId == id);
+            _context.Notifications.RemoveRange(notifications);
+
+            _context.Tasks.Remove(task);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error deleting task {TaskId}", id);
+                return StatusCode(500, e.InnerException?.Message ?? e.Message);
+            }
+        }
+
     }
 }
