@@ -19,5 +19,11 @@
             logger.LogError(ex, $"An error occured while adding {label}.");
             return (500, "Internal Error");
         }
+
+        public static (int StatusCode, string Message) InternalServerErrorPut(string label, ILogger logger, Exception ex)
+        {
+            logger.LogError(ex, $"An error occured while updating {label}.");
+            return (500, "Internal Error");
+        }
     }
 }
