@@ -1,7 +1,6 @@
 using api.Data;
 using api.DTOs;
-using api.Models;
-using Microsoft.AspNetCore.Http;
+using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,16 +30,17 @@ namespace api.Controllers
 
                 if (users == null || !users.Any())
                 {
-                    _logger.LogWarning("No users have been found.");
-                    return NotFound("No users found.");
+                    var message = "No users found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(users);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured while fetching users");
-                return StatusCode(500, "Internal Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("users", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
@@ -56,17 +56,17 @@ namespace api.Controllers
 
                 if (user == null)
                 {
-                    _logger.LogWarning("User has not been found or doesn't exist");
-                    return NotFound("User not found");
+                    var message = "User not found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
                 }
 
                 return Ok(user);
-
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured while fetching user");
-                return StatusCode(500, "Internal Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("user", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }

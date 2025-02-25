@@ -2,7 +2,7 @@ using api.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.DTOs;
-
+using api.Helpers;
 
 namespace api.Controllers
 {
@@ -33,28 +33,41 @@ namespace api.Controllers
                 return NotFound(message);
             }
 
-            return Ok(tasks);
+                return Ok(tasks);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("tasks", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
         }
-
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Models.Task>> GetTask(int id)
         {
-            var task = await _context.Tasks.FindAsync(id);
-
-            if (task == null)
+            try
             {
-                string warnMessage = $"Task with ID {id} not found.";
-                _logger.LogWarning(warnMessage);
-                return NotFound(warnMessage);
-            }
+                var task = await _context.Tasks.FindAsync(id);
 
-            return Ok(task);
+                if (task == null)
+                {
+                    string message = $"Task with ID {id} not found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
+                }
+
+                return Ok(task);
+            }
+            catch (Exception ex)
+            {
+
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("task", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
         }
         
-
-        [HttpPost("/projects/{projectId}/tasks")]
-        public async Task<IActionResult> CreateTask(int projectId, [FromBody] TaskDTO taskDto)
+        [HttpPost]
+        public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
         {
             if (taskDto == null || string.IsNullOrWhiteSpace(taskDto.TaskName))
             {
@@ -73,14 +86,13 @@ namespace api.Controllers
                 return CreatedAtAction(nameof(GetTask), new { id = taskDto.Id }, taskDto);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Internal Server Error");
             }
         }
 
-
-        [HttpPut("{id}")]
+         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTask(int id, TaskDTO taskDto)
         {
             if (taskDto==null || id != taskDto.Id)
@@ -138,6 +150,5 @@ namespace api.Controllers
                 return StatusCode(500, e.InnerException?.Message ?? e.Message);
             }
         }
-
     }
 }

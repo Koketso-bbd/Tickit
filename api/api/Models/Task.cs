@@ -1,5 +1,4 @@
-﻿
-namespace api.Models;
+﻿namespace api.Models;
 
 public partial class Task
 {
