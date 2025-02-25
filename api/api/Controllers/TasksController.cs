@@ -45,16 +45,25 @@ namespace api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Models.Task>> GetTask(int id)
         {
-            var task = await _context.Tasks.FindAsync(id);
-
-            if (task == null)
+            try
             {
-                string message = $"Task with ID {id} not found.";
-                _logger.LogWarning(message);
-                return NotFound(message);
-            }
+                var task = await _context.Tasks.FindAsync(id);
 
-            return Ok(task);
+                if (task == null)
+                {
+                    string message = $"Task with ID {id} not found.";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
+                }
+
+                return Ok(task);
+            }
+            catch (Exception ex)
+            {
+
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("task", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
         }
         
         [HttpPost]
@@ -77,9 +86,10 @@ namespace api.Controllers
                 return CreatedAtAction(nameof(GetTask), new { id = taskDto.Id }, taskDto);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("task", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
     }

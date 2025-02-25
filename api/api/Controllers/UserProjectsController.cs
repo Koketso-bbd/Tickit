@@ -56,8 +56,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding user to a project");
-                return StatusCode(500, "Internal Server Error.");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("user to a project", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
