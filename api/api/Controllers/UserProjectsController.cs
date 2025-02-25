@@ -1,4 +1,5 @@
 using api.Data;
+using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,6 @@ namespace api.Controllers
             _context = context;
             _logger = logger;
         }
-
 
         [HttpPost]
         public async Task<ActionResult> AddUserToProject(int userId, int projectId,  int roleId)
@@ -56,8 +56,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding user to a project");
-                return StatusCode(500, "Internal Server Error.");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("user to a project", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
@@ -90,8 +90,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error removing user from project");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("user from project", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
 
@@ -125,10 +125,9 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating user's role");
-                return StatusCode(500, "Internal Server Error");
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPut("user's role", _logger, ex);
+                return StatusCode(statusCode, message);
             }
         }
-
     }
 }
