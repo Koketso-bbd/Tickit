@@ -268,10 +268,7 @@ namespace api.Controllers
 
             try
             {
-                await _context.Database.ExecuteSqlRawAsync(
-                            "EXEC sp_AddLabelToProject @p0, @p1",
-                            projectId, labelName
-                        );
+                await _context.AddLabelToProject(projectId, labelName);
 
                 _logger.LogInformation($"{labelName} label added to Project: {projectId}");
                 return Ok("Label added to project successfully");
