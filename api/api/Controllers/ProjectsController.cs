@@ -209,6 +209,9 @@ namespace api.Controllers
         }
 
         [HttpGet("{id}/labels")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get all labels for a project")]
         public async Task<ActionResult<ProjectLabelDTO>> GetProjectLabels(int id)
         {
             try
@@ -241,6 +244,10 @@ namespace api.Controllers
         }
 
         [HttpPost("{projectId}/labels")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
         public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(int projectId, string labelName)
         {
             if (labelName.IsNullOrEmpty()) return BadRequest("labelName is required.");
@@ -278,6 +285,10 @@ namespace api.Controllers
         }
 
         [HttpDelete("{projectId}/labels")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
         public async Task<IActionResult> DeleteProjectLabel(int projectId, string labelName)
         {
             try
