@@ -4,6 +4,7 @@ using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace api.Controllers
 {
@@ -191,35 +192,41 @@ namespace api.Controllers
             }
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(ProjectLabelDTO projectLabelDto)
-        //{
-        //    if (projectLabelDto == null)
-        //    {
-        //        return BadRequest("Project label data is null.");
-        //    }
+        [HttpPost("{projectId}/labels")]
+        public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(int projectId, string labelName)
+        {
+            if (labelName.IsNullOrEmpty()) return BadRequest("labelName is required.");
+            if (projectId <= 0) return BadRequest("ProjectID is required.");
 
-        //    bool projectLabelExists = await _context.ProjectLabels
-        //        .AnyAsync(pl => pl.ProjectId == projectLabelDto.ProjectName && p.OwnerId == projectLabelDto.OwnerID);
+            var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
+            if (!projectExists) return BadRequest("Project does not exist");
 
-        //    if (projectExists)
-        //    {
-        //        return Conflict("A project with this name already exists for this owner");
-        //    }
+            var label =await _context.Labels
+                .Where(l => labelName == l.LabelName)
+                .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
+            
+            if (label != null)
+            {
+                var projectLabelExist = await _context.ProjectLabels.AnyAsync(pl => pl.ProjectId == projectId && label.ID == pl.LabelId);
+                if (projectLabelExist) return BadRequest("Project label already exists");
+            }
 
-        //    var project = new Project
-        //    {
-        //        ProjectName = projectDto.ProjectName,
-        //        ProjectDescription = projectDto.ProjectDescription,
-        //        OwnerId = projectDto.OwnerID
-        //    };
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync(
+                            "EXEC sp_AddLabelToProject @p0, @p1",
+                            projectId, labelName
+                        );
 
-        //    _context.Projects.Add(project);
-        //    await _context.SaveChangesAsync();
+                _logger.LogInformation($"{labelName} label added to Project: {projectId}");
+                return Ok("Label added to project successfully");
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("label to a project", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
 
-        //    projectDto.ID = project.Id;
-
-        //    return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, projectDto);
-        //}
+        }
     }
 }
