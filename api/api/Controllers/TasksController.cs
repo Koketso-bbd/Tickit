@@ -177,14 +177,14 @@ namespace api.Controllers
 
 
         [HttpDelete("{taskId}/labels/{labelId}")]
-        public async Task<IActionResult> DeleteTaskLabel(int taskId, int labelId)
+        public async Task<IActionResult> DeleteTaskLabel(int taskId, int projectlabelId)
         {
             var taskLabel = await _context.TaskLabels
-                .FirstOrDefaultAsync(tl => tl.TaskId == taskId && tl.ProjectLabelId == labelId);
+                .FirstOrDefaultAsync(tl => tl.TaskId == taskId && tl.ProjectLabelId == projectlabelId);
 
             if (taskLabel == null)
             {
-                return NotFound($"Label with ID {labelId} not found for task {taskId}.");
+                return NotFound($"Label with ID {projectlabelId} not found for task {taskId}.");
             }
 
             _context.TaskLabels.Remove(taskLabel);
@@ -277,7 +277,10 @@ namespace api.Controllers
                     taskDto.DueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
 
                 if (result == 0)
-                    return StatusCode(500, "Task creation failed.");
+                    {
+                        return StatusCode(422, "Task creation failed due to a logical issue.");
+                    }
+
 
                 return CreatedAtAction(nameof(GetTask), 
                     new { taskDto.ProjectId, taskid = taskDto.Id }, taskDto);
