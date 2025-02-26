@@ -2,6 +2,7 @@ using api.Data;
 using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers
 {
@@ -21,6 +22,10 @@ namespace api.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [SwaggerOperation(Summary = "Adds a user to a project")]
         public async Task<ActionResult> AddUserToProject(int userId, int projectId,  int roleId)
         {
             if (userId <= 0) return BadRequest("UserID is required.");
@@ -31,9 +36,9 @@ namespace api.Controllers
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             var roleExists = await _context.Roles.AnyAsync(r => r.Id == roleId);
 
-            if (!userExists) return BadRequest("User does not exist");
-            if (!projectExists) return BadRequest("Project does not exist");
-            if (!roleExists) return BadRequest("Role does not exist");
+            if (!userExists) return NotFound("User does not exist");
+            if (!projectExists) return NotFound("Project does not exist");
+            if (!roleExists) return NotFound("Role does not exist");
 
             try
             {
@@ -62,6 +67,10 @@ namespace api.Controllers
         }
 
         [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Removes a user from a project")]
         public async Task<ActionResult> RemoveUserFromProject(int userId, int projectId)
         {
             if (userId <= 0) return BadRequest("UserID is required.");
@@ -70,15 +79,15 @@ namespace api.Controllers
             var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
 
-            if (!userExists) return BadRequest("User does not exist");
-            if (!projectExists) return BadRequest("Project does not exist");
+            if (!userExists) return NotFound("User does not exist");
+            if (!projectExists) return NotFound("Project does not exist");
 
             try
             {
                 var userProject = await _context.UserProjects
                     .FirstOrDefaultAsync(up => up.MemberId == userId && up.ProjectId == projectId);
 
-                if (userProject == null) return BadRequest("User not found in the specific project");
+                if (userProject == null) return NotFound("User not found in the specific project");
 
                 await _context.Database.ExecuteSqlRawAsync(
                     "EXEC sp_RemoveUserFromProject @p0, @p1",
@@ -96,6 +105,10 @@ namespace api.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Update a user's role in the project")]
         public async Task<ActionResult> UpdateUserRole(int userId, int projectId, int newRoleId)
         {
             if (userId <= 0) return BadRequest("UserID is required");
@@ -106,16 +119,16 @@ namespace api.Controllers
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             var roleExists = await _context.Roles.AnyAsync(r => r.Id == newRoleId);
 
-            if (!userExists) return BadRequest("User does not exist");
-            if (!projectExists) return BadRequest("Project does not exist");
-            if (!roleExists) return BadRequest("Role does not exist");
+            if (!userExists) return NotFound("User does not exist");
+            if (!projectExists) return NotFound("Project does not exist");
+            if (!roleExists) return NotFound("Role does not exist");
 
             try
             {
                 var userProject = await _context.UserProjects
                     .FirstOrDefaultAsync(up => up.MemberId == userId && up.ProjectId == projectId);
 
-                if (userProject == null) return BadRequest("User not found in this project");
+                if (userProject == null) return NotFound("User not found in this project");
 
                 userProject.RoleId = newRoleId;
                 await _context.SaveChangesAsync();

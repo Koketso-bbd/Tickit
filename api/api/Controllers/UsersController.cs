@@ -3,6 +3,7 @@ using api.DTOs;
 using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers
 {
@@ -20,6 +21,9 @@ namespace api.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get all users")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
         {
             try
@@ -45,6 +49,9 @@ namespace api.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get a user's details")]
         public async Task<IActionResult> GetUserById(int id)
         {
             try
@@ -74,6 +81,9 @@ namespace api.Controllers
         }
 
         [HttpGet("{userId}/notifications")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Gets notifications for a user")]
         public async Task<IActionResult> GetUserNotifications(int userId)
         {   
             try

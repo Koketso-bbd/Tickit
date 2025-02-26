@@ -4,6 +4,7 @@ using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers
 {
@@ -23,6 +24,9 @@ namespace api.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ProjectDTO>), 200)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get all projects")]
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetProjects()
         {
             try
@@ -33,10 +37,9 @@ namespace api.Controllers
                         ID = p.Id,
                         ProjectName = p.ProjectName,
                         ProjectDescription = p.ProjectDescription,
-                        OwnerID = p.OwnerId,
                         Owner = new UserDTO { ID = p.Owner.Id, GitHubID = p.Owner.GitHubId },
                         AssignedUsers = p.UserProjects
-                            .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId }) // Fixed (sometimes), I think?
+                            .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
                             .ToList(),
                     })
                     .ToListAsync();
@@ -58,6 +61,9 @@ namespace api.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get a project by project ID")]
         public async Task<ActionResult<ProjectDTO>> GetProjectById(int id)
         {
             try
@@ -69,7 +75,6 @@ namespace api.Controllers
                         ID = p.Id,
                         ProjectName = p.ProjectName,
                         ProjectDescription = p.ProjectDescription,
-                        OwnerID = p.OwnerId,
                         Owner = new UserDTO { ID = p.Owner.Id, GitHubID = p.Owner.GitHubId },
                         AssignedUsers = p.UserProjects
                             .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
@@ -95,6 +100,9 @@ namespace api.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [SwaggerOperation(Summary = "Create a new project")]
         public async Task<ActionResult<ProjectDTO>> AddProject(ProjectDTO projectDto)
         {
             if (projectDto == null)
@@ -103,7 +111,7 @@ namespace api.Controllers
             }
 
             bool projectExists = await _context.Projects
-                .AnyAsync(p => p.ProjectName == projectDto.ProjectName && p.OwnerId == projectDto.OwnerID);
+                .AnyAsync(p => p.ProjectName == projectDto.ProjectName && p.OwnerId == projectDto.Owner.ID);
 
             if (projectExists)
             {
@@ -114,7 +122,7 @@ namespace api.Controllers
             {
                 ProjectName = projectDto.ProjectName,
                 ProjectDescription = projectDto.ProjectDescription,
-                OwnerId = projectDto.OwnerID
+                OwnerId = projectDto.Owner.ID
             };
 
             _context.Projects.Add(project);
@@ -126,6 +134,10 @@ namespace api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Delete a project based on project ID")]
         public async Task<IActionResult> DeleteProject(int id)
         {
             try
@@ -160,6 +172,9 @@ namespace api.Controllers
         }
 
         [HttpGet("/api/users/{id}/projects")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get all projects a user is in based on UserID")]
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetUsersProjects(int id)
         {
 
@@ -175,7 +190,6 @@ namespace api.Controllers
                         ID = p.Id,
                         ProjectName = p.ProjectName,
                         ProjectDescription = p.ProjectDescription,
-                        OwnerID = p.OwnerId,
                         Owner = new UserDTO { ID = p.OwnerId, GitHubID = p.Owner.GitHubId },
                         AssignedUsers = p.UserProjects
                                     .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
