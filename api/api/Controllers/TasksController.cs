@@ -142,32 +142,28 @@ namespace api.Controllers
 
 
         [HttpPost("{taskId}/labels")]
-        public async Task<IActionResult> PostTaskLabels(int taskId, [FromBody] TaskLabelDTO taskLabelDTO)
+        public async Task<IActionResult> PostTaskLabels(int taskId, [FromQuery] int projectLabelId)
         {
-            if (taskLabelDTO == null)
-            {
-                return BadRequest("Task label data is null.");
-            }
-
-            bool taskLabelExists = await _context.TaskLabels
-                .AnyAsync(tsl => tsl.TaskId == taskId && tsl.ProjectLabelId == taskLabelDTO.ProjectLabelId);
-
-            if (taskLabelExists)
-            {
-                return Conflict("This label is already assigned to the task.");
-            }
-
-            var taskLabel = new TaskLabel
-            {
-                TaskId = taskId,
-                ProjectLabelId = taskLabelDTO.ProjectLabelId,
-            };
-            
             try
             {
+                bool taskLabelExists = await _context.TaskLabels
+                    .AnyAsync(tsl => tsl.TaskId == taskId && tsl.ProjectLabelId == projectLabelId);
+
+                if (taskLabelExists)
+                {
+                    return Conflict("This label is already assigned to the task.");
+                }
+
+                var taskLabel = new TaskLabel
+                {
+                    TaskId = taskId,
+                    ProjectLabelId = projectLabelId,
+                };
+
                 _context.TaskLabels.Add(taskLabel);
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetTaskLabelById), new { id = taskLabel.Id }, taskLabelDTO);
+
+                return CreatedAtAction(nameof(GetTaskLabelById), new { id = taskLabel.Id }, taskLabel);
             }
             catch (Exception ex)
             {
@@ -175,6 +171,7 @@ namespace api.Controllers
                 return StatusCode(statusCode, message);
             }
         }
+
 
         [HttpDelete("{taskId}/labels/{labelId}")]
         public async Task<IActionResult> DeleteTaskLabel(int taskId, int labelId)
@@ -226,21 +223,33 @@ namespace api.Controllers
         }
 
         [HttpGet("{projectId}/tasks")]
-        public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasksInProject(int projectId)
+        public async Task<ActionResult<IEnumerable<object>>> GetTasksInProject(int projectId)
         {
-            try{
+            try
+            {
                 var tasks = await _context.Tasks
-                                                .Where(t => t.ProjectId==projectId)
-                                                .ToListAsync();
+                    .Where(t => t.ProjectId == projectId)
+                    .Select(t => new 
+                    {
+                        t.Id,
+                        t.AssigneeId,
+                        t.TaskName,
+                        t.TaskDescription,
+                        t.DueDate,
+                        t.PriorityId,
+                        t.ProjectId,
+                        t.StatusId
+                    })
+                    .ToListAsync();
 
                 if (tasks == null || tasks.Count == 0)
                 {
-                    var message = $"No tasks found for Project ID {projectId}."; 
+                    var message = $"No tasks found for Project ID {projectId}.";
                     _logger.LogWarning(message);
                     return NotFound(message);
                 }
 
-                    return Ok(tasks);
+                return Ok(tasks);
             }
             catch (Exception ex)
             {
@@ -249,8 +258,9 @@ namespace api.Controllers
             }
         }
 
-        [HttpPost("{projectId}/task")]
-        public async Task<IActionResult> CreateTask(int projectId, [FromBody] TaskDTO taskDto)
+
+        [HttpPost("task")]
+        public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
         {
             if (taskDto == null || string.IsNullOrWhiteSpace(taskDto.TaskName))
             {
@@ -261,13 +271,13 @@ namespace api.Controllers
             {
                 int result = await _context.CreateTaskAsync(
                     taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription,
-                    taskDto.DueDate, taskDto.PriorityId, projectId, taskDto.StatusId);
+                    taskDto.DueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
 
                 if (result == 0)
                     return StatusCode(500, "Task creation failed.");
 
                 return CreatedAtAction(nameof(GetTask), 
-                    new { projectId, taskid = taskDto.Id }, taskDto);
+                    new { taskDto.ProjectId, taskid = taskDto.Id }, taskDto);
             }
             catch (Exception ex)
             {
