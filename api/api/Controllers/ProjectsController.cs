@@ -159,7 +159,7 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("/users/{id}/projects")]
+        [HttpGet("/api/users/{id}/projects")]
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetUsersProjects(int id)
         {
 
