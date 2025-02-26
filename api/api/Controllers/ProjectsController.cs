@@ -199,7 +199,7 @@ namespace api.Controllers
             if (projectId <= 0) return BadRequest("ProjectID is required.");
 
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
-            if (!projectExists) return BadRequest("Project does not exist");
+            if (!projectExists) return NotFound("Project not found");
 
             var label =await _context.Labels
                 .Where(l => labelName == l.LabelName)
@@ -227,6 +227,38 @@ namespace api.Controllers
                 return StatusCode(statusCode, message);
             }
 
+        }
+
+        [HttpDelete("{projectId}/labels")]
+        public async Task<IActionResult> DeleteProjectLabel(int projectId, string labelName)
+        {
+            try
+            {
+                if (labelName.IsNullOrEmpty()) return BadRequest("labelName is required.");
+                if (projectId <= 0) return BadRequest("ProjectID is required.");
+
+                var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
+                if (!projectExists) return NotFound("Project not found");
+
+                var label = await _context.Labels
+                    .Where(l => labelName == l.LabelName)
+                    .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
+                if (label == null) return NotFound("Label not found");
+
+                var projectLabel = await _context.ProjectLabels
+                    .Where(pl => pl.ProjectId == projectId && label.ID == pl.LabelId).FirstOrDefaultAsync();
+                if (projectLabel == null) return NotFound("Project label not found");
+
+                _context.ProjectLabels.Remove(projectLabel);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("project", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
         }
     }
 }
