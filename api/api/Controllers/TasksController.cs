@@ -22,15 +22,17 @@ namespace api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTask(int id, TaskDTO taskDto)
+        public async Task<IActionResult> UpdateTask(int id, [FromBody] TaskDTO taskDto)
         {
-            if (taskDto==null || id != taskDto.Id)
+            if (taskDto == null)
             {
-                return BadRequest("Invalid task data");
+                return BadRequest("Invalid task data.");
             }
 
+            taskDto.Id = id;
+
             var existingTask = await _context.Tasks.FindAsync(id);
-            if (existingTask==null)
+            if (existingTask == null)
             {
                 return NotFound($"Task with ID {id} not found.");
             }
@@ -53,6 +55,7 @@ namespace api.Controllers
                 return StatusCode(statusCode, message);
             }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
