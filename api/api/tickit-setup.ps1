@@ -1,4 +1,3 @@
-# Manage-Application.ps1
 
 param (
     [Parameter(Mandatory = $true)]
