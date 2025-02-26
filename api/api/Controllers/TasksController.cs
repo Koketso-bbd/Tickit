@@ -80,25 +80,24 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("labels/{labelId}")]
-        public async Task<ActionResult<TaskLabelDTO>> GetTaskLabelById(int id)
+        [HttpGet("{taskid}/labels/{labelId}")]
+        public async Task<ActionResult<TaskLabelDTO>> GetTaskLabelById(int taskid, int labelId)
         {
             try
             {
                 var taskLabel = await _context.TaskLabels
-                    .Where(tsl => tsl.Id == id)
+                    .Where(tsl => tsl.Id == labelId && tsl.TaskId == taskid) // Ensuring label belongs to the correct task
                     .Select(tsl => new TaskLabelDTO
                     {
                         ID = tsl.Id,
                         TaskId = tsl.TaskId,
                         ProjectLabelId = tsl.ProjectLabelId
-
                     })
                     .FirstOrDefaultAsync();
 
                 if (taskLabel == null)
                 {
-                    var message = $"Task Label with ID {id} not found.";
+                    var message = $"Task Label with ID {labelId} not found for Task {taskid}.";
                     _logger.LogWarning(message);
                     return NotFound(message);
                 }
