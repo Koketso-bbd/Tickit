@@ -1,11 +1,7 @@
-using System.Security.Claims;
 using api.Data;
-using api.DTOs;
-using api.Helpers;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace api.Controllers
 {
