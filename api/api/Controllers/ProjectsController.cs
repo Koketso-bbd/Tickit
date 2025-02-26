@@ -16,7 +16,7 @@ namespace api.Controllers
         private readonly TickItDbContext _context;
         private readonly ILogger<ProjectsController> _logger;
 
-        public ProjectsController(TickItDbContext context, ILogger<ProjectsController> logger) 
+        public ProjectsController(TickItDbContext context, ILogger<ProjectsController> logger)
         {
             _context = context;
             _logger = logger;
