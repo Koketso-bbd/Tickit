@@ -4,11 +4,8 @@ using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-<<<<<<< HEAD
-using Microsoft.IdentityModel.Tokens;
-=======
 using Swashbuckle.AspNetCore.Annotations;
->>>>>>> main
+using Microsoft.IdentityModel.Tokens;
 
 namespace api.Controllers
 {
