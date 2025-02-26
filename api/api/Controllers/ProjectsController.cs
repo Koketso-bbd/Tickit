@@ -33,7 +33,7 @@ namespace api.Controllers
                         ID = p.Id,
                         ProjectName = p.ProjectName,
                         ProjectDescription = p.ProjectDescription,
-                        OwnerID = p.OwnerId,
+                        //OwnerID = p.OwnerId,
                         Owner = new UserDTO { ID = p.Owner.Id, GitHubID = p.Owner.GitHubId },
                         AssignedUsers = p.UserProjects
                             .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId }) // Fixed (sometimes), I think?
@@ -69,7 +69,7 @@ namespace api.Controllers
                         ID = p.Id,
                         ProjectName = p.ProjectName,
                         ProjectDescription = p.ProjectDescription,
-                        OwnerID = p.OwnerId,
+                        //OwnerID = p.OwnerId,
                         Owner = new UserDTO { ID = p.Owner.Id, GitHubID = p.Owner.GitHubId },
                         AssignedUsers = p.UserProjects
                             .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
@@ -103,7 +103,7 @@ namespace api.Controllers
             }
 
             bool projectExists = await _context.Projects
-                .AnyAsync(p => p.ProjectName == projectDto.ProjectName && p.OwnerId == projectDto.OwnerID);
+                .AnyAsync(p => p.ProjectName == projectDto.ProjectName && p.OwnerId == projectDto.Owner.ID);
 
             if (projectExists)
             {
@@ -114,7 +114,7 @@ namespace api.Controllers
             {
                 ProjectName = projectDto.ProjectName,
                 ProjectDescription = projectDto.ProjectDescription,
-                OwnerId = projectDto.OwnerID
+                OwnerId = projectDto.Owner.ID
             };
 
             _context.Projects.Add(project);
@@ -175,7 +175,6 @@ namespace api.Controllers
                         ID = p.Id,
                         ProjectName = p.ProjectName,
                         ProjectDescription = p.ProjectDescription,
-                        OwnerID = p.OwnerId,
                         Owner = new UserDTO { ID = p.OwnerId, GitHubID = p.Owner.GitHubId },
                         AssignedUsers = p.UserProjects
                                     .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
