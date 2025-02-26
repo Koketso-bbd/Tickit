@@ -33,10 +33,9 @@ namespace api.Controllers
                         ID = p.Id,
                         ProjectName = p.ProjectName,
                         ProjectDescription = p.ProjectDescription,
-                        //OwnerID = p.OwnerId,
                         Owner = new UserDTO { ID = p.Owner.Id, GitHubID = p.Owner.GitHubId },
                         AssignedUsers = p.UserProjects
-                            .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId }) // Fixed (sometimes), I think?
+                            .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
                             .ToList(),
                     })
                     .ToListAsync();
@@ -69,7 +68,6 @@ namespace api.Controllers
                         ID = p.Id,
                         ProjectName = p.ProjectName,
                         ProjectDescription = p.ProjectDescription,
-                        //OwnerID = p.OwnerId,
                         Owner = new UserDTO { ID = p.Owner.Id, GitHubID = p.Owner.GitHubId },
                         AssignedUsers = p.UserProjects
                             .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
