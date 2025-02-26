@@ -64,7 +64,7 @@ Your database should be set up successfully now.
     dotnet restore
     ```
 
-*If for any reason the dependancies failed to install you can insteall them manually using the following commands*
+*If for any reason the dependencies failed to install you can install them manually using the following commands*
 ```bash
     dotnet add package Microsoft.EntityFrameworkCore.Design --version 9.0.2
     dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 9.0.2
