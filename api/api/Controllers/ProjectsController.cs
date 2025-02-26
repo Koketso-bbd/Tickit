@@ -4,6 +4,7 @@ using api.Helpers;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers
 {
@@ -23,6 +24,9 @@ namespace api.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ProjectDTO>), 200)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get all projects")]
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetProjects()
         {
             try
@@ -57,6 +61,9 @@ namespace api.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get a project by project ID")]
         public async Task<ActionResult<ProjectDTO>> GetProjectById(int id)
         {
             try
@@ -93,6 +100,9 @@ namespace api.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [SwaggerOperation(Summary = "Create a new project")]
         public async Task<ActionResult<ProjectDTO>> AddProject(ProjectDTO projectDto)
         {
             if (projectDto == null)
@@ -124,6 +134,10 @@ namespace api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Delete a project based on project ID")]
         public async Task<IActionResult> DeleteProject(int id)
         {
             try
@@ -158,6 +172,9 @@ namespace api.Controllers
         }
 
         [HttpGet("/api/users/{id}/projects")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get all projects a user is in based on UserID")]
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetUsersProjects(int id)
         {
 
