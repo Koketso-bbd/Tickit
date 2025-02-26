@@ -1,4 +1,5 @@
-﻿using api.Models;
+﻿using api.DTOs;
+using api.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,6 +27,17 @@ public partial class TickItDbContext : DbContext
     public virtual DbSet<Project> Projects { get; set; }
 
     public virtual DbSet<ProjectLabel> ProjectLabels { get; set; }
+
+    public async Task<int> AddLabelToProject(int projectID, string labelName)
+    {
+        var parameters = new[]
+        {
+            new SqlParameter("@ProjectID", projectID),
+            new SqlParameter("@LabelName", labelName),
+        };
+
+        return await Database.ExecuteSqlRawAsync("EXEC sp_AddLabelToProject @projectID, @LabelName", parameters);
+    }
 
     public virtual DbSet<Role> Roles { get; set; }
 

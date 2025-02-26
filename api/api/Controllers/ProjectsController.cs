@@ -5,6 +5,7 @@ using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.IdentityModel.Tokens;
 
 namespace api.Controllers
 {
@@ -203,6 +204,115 @@ namespace api.Controllers
             catch (Exception ex)
             {
                 var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("user's projects", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
+        }
+
+        [HttpGet("{id}/labels")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Get all labels for a project")]
+        public async Task<ActionResult<ProjectLabelDTO>> GetProjectLabels(int id)
+        {
+            try
+            {
+                var projectLabel = await _context.ProjectLabels
+                    .Where(pl => pl.ProjectId == id)
+                    .Select(pl => new ProjectLabelDTO
+                    {
+                        ID = pl.Id,
+                        LabelID = pl.LabelId,
+                        ProjectID = pl.ProjectId,
+                        LabelName = new LabelDTO { ID = pl.LabelId, LabelName = pl.Label.LabelName }
+                    })
+                    .ToListAsync();
+
+                if (projectLabel == null)
+                {
+                    var message = $"Project with ID {id} not found";
+                    _logger.LogWarning(message);
+                    return NotFound(message);
+                }
+
+                return Ok(projectLabel);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("project label", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
+        }
+
+        [HttpPost("{projectId}/labels")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
+        public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(int projectId, string labelName)
+        {
+            if (labelName.IsNullOrEmpty()) return BadRequest("labelName is required.");
+            if (projectId <= 0) return BadRequest("ProjectID is required.");
+
+            var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
+            if (!projectExists) return NotFound("Project not found");
+
+            var label =await _context.Labels
+                .Where(l => labelName == l.LabelName)
+                .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
+            
+            if (label != null)
+            {
+                var projectLabelExist = await _context.ProjectLabels.AnyAsync(pl => pl.ProjectId == projectId && label.ID == pl.LabelId);
+                if (projectLabelExist) return BadRequest("Project label already exists");
+            }
+
+            try
+            {
+                await _context.AddLabelToProject(projectId, labelName);
+
+                _logger.LogInformation($"{labelName} label added to Project: {projectId}");
+                return Ok("Label added to project successfully");
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("label to a project", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
+
+        }
+
+        [HttpDelete("{projectId}/labels")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
+        public async Task<IActionResult> DeleteProjectLabel(int projectId, string labelName)
+        {
+            try
+            {
+                if (labelName.IsNullOrEmpty()) return BadRequest("labelName is required.");
+                if (projectId <= 0) return BadRequest("ProjectID is required.");
+
+                var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
+                if (!projectExists) return NotFound("Project not found");
+
+                var label = await _context.Labels
+                    .Where(l => labelName == l.LabelName)
+                    .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
+                if (label == null) return NotFound("Label not found");
+
+                var projectLabel = await _context.ProjectLabels
+                    .Where(pl => pl.ProjectId == projectId && label.ID == pl.LabelId).FirstOrDefaultAsync();
+                if (projectLabel == null) return NotFound("Project label not found");
+
+                _context.ProjectLabels.Remove(projectLabel);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
