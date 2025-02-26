@@ -17,7 +17,7 @@ namespace api.Controllers
         private readonly TickItDbContext _context;
         private readonly ILogger<ProjectsController> _logger;
 
-        public ProjectsController(TickItDbContext context, ILogger<ProjectsController> logger) 
+        public ProjectsController(TickItDbContext context, ILogger<ProjectsController> logger)
         {
             _context = context;
             _logger = logger;
@@ -156,6 +156,40 @@ namespace api.Controllers
             catch (Exception ex)
             {
                 var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("project", _logger, ex);
+                return StatusCode(statusCode, message);
+            }
+        }
+
+        [HttpGet("/api/users/{id}/projects")]
+        public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetUsersProjects(int id)
+        {
+
+            var userExists = await _context.Users.AnyAsync(u => u.Id == id);
+            if (!userExists) return NotFound("User does not exist");
+
+            try
+            {
+                var projects = await _context.Projects
+                    .Where(p => p.OwnerId == id || p.UserProjects.Any(up => up.MemberId == id))
+                    .Select(p => new ProjectDTO
+                    {
+                        ID = p.Id,
+                        ProjectName = p.ProjectName,
+                        ProjectDescription = p.ProjectDescription,
+                        OwnerID = p.OwnerId,
+                        Owner = new UserDTO { ID = p.OwnerId, GitHubID = p.Owner.GitHubId },
+                        AssignedUsers = p.UserProjects
+                                    .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
+                                    .ToList()
+                    }).ToListAsync();
+
+                if (projects == null) return NotFound($"No projects found for user with ID {id}");
+
+                return Ok(projects);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("user's projects", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
