@@ -1,23 +1,29 @@
-# TickIt
+# TickIt API
 
-**A task management system.**
+TickIt API is a web application built with ASP.NET Core and Entity Framework Core. It provides a RESTful API for managing tickets and related data.
 
-**TickIt** is a project and task management tool made for teams who want to collaborate and assign tasks on a project. Teams are able to create projects, add users to these projects, create tasks and assign them to members in the project.
+## Table of Contents
 
-## Database Setup for TickIt  
+- [Getting Started](#getting-started)
+- [Prerequisites](#prerequisites)
+- [Database Setup](#database)
+- [WebAPI Setup](#api)
+- [Configuration](#configuration)
+- [Usage](#usage)
 
-The `database` folder contains SQL scripts required to set up the **TickIt** database successfully. Follow the steps below to create and configure the database.
 
----
+## Getting Started
 
-### Setup Instructions  
+These instructions will help you set up and run the project on your local machine for development and testing purposes.
 
-#### Open SQL Server & Connect to Your Instance  
-Ensure you have **Microsoft SQL Server** and **SQL Server Management Studio (SSMS)** installed.
+## Prerequisites
 
-#### Run the SQL Scripts in Order  
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 
-Run the following scripts **in sequence**:
+## Database
+
+Run the following scripts in order
 
 1. Create The Database
     ```bash
@@ -44,4 +50,50 @@ Run the following scripts **in sequence**:
     CreateViews.sql
     ```
 
-The TickIt Database should be set up after this :). 
+Your database should be set up successfully now.
+
+## API
+
+1. Navigate into the API folder
+    ```bash
+    cd api
+    ```
+
+2. Restore the dependancies
+    ```bash
+    dotnet restore
+    ```
+
+*If for any reason the dependencies failed to install you can install them manually using the following commands*
+```bash
+    dotnet add package Microsoft.EntityFrameworkCore.Design --version 9.0.2
+    dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 9.0.2
+    dotnet add package Microsoft.EntityFrameworkCore.Tools --version 9.0.2
+    dotnet add package Swashbuckle.AspNetCore --version 6.6.2
+    dotnet add package Swashbuckle.AspNetCore.Annotations --version 7.2.0
+```
+
+3. Build the project
+    ```bash
+    dotnet build
+    ```
+
+## Configuration
+
+1. Add your database connection string to `appsettings.json`:
+    ```bash
+      "ConnectionStrings": {
+    "DefaultConnection": "Server=<server_name>;Database=<database_name>;User Id=<user_id>;Password=<password>;TrustServerCertificate=True"}
+    ```
+
+## Usage
+
+1. Run the application
+    ```bash
+    dotnet run
+    ```
+
+2. The API will be available at `http://localhost:5213/` and `https://localhost:7151` by default (unless you specify it differently on `launchSettings.json`).
+
+3. Access the Swagger UI for the API documentation on `localhost:<port>/swagger
+
