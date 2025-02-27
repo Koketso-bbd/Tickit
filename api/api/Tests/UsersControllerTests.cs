@@ -12,8 +12,8 @@ namespace api.Tests
     public class UsersControllerTests
     {
         private Mock<ILogger<UsersController>> _loggerMock;
-        private DbContextOptions<TickItDbContext>? _dbContextOptions;
-        private TickItDbContext? _dbContext;
+        private DbContextOptions<TickItDbContext> _dbContextOptions;
+        private TickItDbContext _dbContext;
 
         public UsersControllerTests()
         {
@@ -38,8 +38,8 @@ namespace api.Tests
 
             var users = new List<User>
             {
-                new User { Id = 1, GitHubId = "GitHub User 1" },
-                new User { Id = 2, GitHubId = "GitHub User 2" }
+                new() { Id = 1, GitHubId = "GitHub User 1" },
+                new() { Id = 2, GitHubId = "GitHub User 2" }
             };
 
             await _dbContext.Users.AddRangeAsync(users);
@@ -89,6 +89,24 @@ namespace api.Tests
 
             Assert.Equal(1, returnedUser.ID);
             Assert.Equal("GitHub User 1", returnedUser.GitHubID);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task GetUserById_NotFound()
+        {
+            var controller = new UsersController(_dbContext, _loggerMock.Object);
+
+            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await controller.GetUserById(2);
+
+            Assert.NotNull(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var message = Assert.IsType<string>(notFoundResult.Value);
+
+            Assert.Equal("User not found", message);
         }
     }
 }
