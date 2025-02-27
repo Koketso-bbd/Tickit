@@ -1,6 +1,5 @@
 using api.Controllers;
 using api.Data;
-using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +27,7 @@ public class UserProjectsTest
             _loggerMock = new Mock<ILogger<UserProjectsController>>();
         }
 
+
         [Fact]
         public void Dispose()
         {
@@ -43,9 +43,7 @@ public class UserProjectsTest
             await _dbContext.SaveChangesAsync();
             var controller = new UserProjectsController(_dbContext, _loggerMock.Object);
 
-
             var result = await controller.AddUserToProject(999, 1, 1);
-
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
@@ -61,14 +59,13 @@ public class UserProjectsTest
             await _dbContext.SaveChangesAsync();
             var controller = new UserProjectsController(_dbContext, _loggerMock.Object);
 
-
             var result = await controller.AddUserToProject(1, 20, 1);
-
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             Assert.Equal("Project does not exist", notFoundResult.Value);
         }
+
 
          [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenRoleDoesNotExist()
@@ -78,14 +75,13 @@ public class UserProjectsTest
             await _dbContext.SaveChangesAsync();
             var controller = new UserProjectsController(_dbContext, _loggerMock.Object);
 
-
             var result = await controller.AddUserToProject(1, 1, 5);
-
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             Assert.Equal("Role does not exist", notFoundResult.Value);
         }
+
 
          [Fact]
         public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
@@ -104,16 +100,16 @@ public class UserProjectsTest
 
             var controller = new UserProjectsController(_dbContext, _loggerMock.Object);
 
-            
             var result = await controller.UpdateUserRole(1, 1, 2);
 
-            
             Assert.NotNull(result);
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal("User role updated successfully.", okResult.Value);
 
+            
+            var updatedUserProject = await _dbContext.UserProjects.FirstOrDefaultAsync(up => up.MemberId == 1 && up.ProjectId == 1);
+            Assert.NotNull(updatedUserProject);
+            Assert.Equal(2, updatedUserProject.RoleId);
         }
-
-
     }
 }
