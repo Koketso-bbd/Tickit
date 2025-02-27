@@ -91,5 +91,16 @@ namespace api.Tests
             Assert.Equal("project description for project 2", returnedProject2.ProjectDescription);
             Assert.Empty(assignees2);
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task GetProjectById_ReturnsProjectNotFound()
+        {
+            int id = 1;
+            var result = await _controller.GetProjectById(id);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            var message = Assert.IsType<string>(notFoundResult.Value);
+
+            Assert.Equal($"Project with ID {id} not found", message);
+        }
     }
 }
