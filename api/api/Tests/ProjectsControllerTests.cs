@@ -193,5 +193,14 @@ namespace api.Tests
                 .FirstOrDefaultAsync(p => p.Id == projectId);
             Assert.Null(deletedProject);
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task DeleteProject_ReturnsNotFound_ProjectDoesNotExist()
+        {
+            var result = await _controller.DeleteProject(1);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var message = Assert.IsType<string>(notFoundResult.Value);
+            Assert.Equal("Project with ID 1 not found.", message);
+        }
     }
 }
