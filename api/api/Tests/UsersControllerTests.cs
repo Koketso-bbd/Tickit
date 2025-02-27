@@ -11,9 +11,10 @@ namespace api.Tests
 {
     public class UsersControllerTests
     {
-        private Mock<ILogger<UsersController>> _loggerMock;
-        private DbContextOptions<TickItDbContext> _dbContextOptions;
-        private TickItDbContext _dbContext;
+        private readonly Mock<ILogger<UsersController>> _loggerMock;
+        private readonly DbContextOptions<TickItDbContext> _dbContextOptions;
+        private readonly TickItDbContext _dbContext;
+        private readonly UsersController _controller;
 
         public UsersControllerTests()
         {
@@ -23,6 +24,7 @@ namespace api.Tests
             _dbContext = new TickItDbContext(_dbContextOptions);
 
             _loggerMock = new Mock<ILogger<UsersController>>();
+            _controller = new UsersController(_dbContext, _loggerMock.Object);
         }
 
         [Fact]
@@ -34,8 +36,6 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task GetUsers_ReturnsListOfUsers()
         {
-            var controller = new UsersController(_dbContext, _loggerMock.Object);
-
             var users = new List<User>
             {
                 new() { Id = 1, GitHubId = "GitHub User 1" },
@@ -45,7 +45,7 @@ namespace api.Tests
             await _dbContext.Users.AddRangeAsync(users);
             await _dbContext.SaveChangesAsync();
 
-            var result = await controller.GetUsers();
+            var result = await _controller.GetUsers();
 
             Assert.NotNull(result);
 
@@ -60,9 +60,7 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task GetUsers_NotFound()
         {
-            var controller = new UsersController(_dbContext, _loggerMock.Object);
-
-            var result = await controller.GetUsers();
+            var result = await _controller.GetUsers();
 
             Assert.NotNull(result);
 
@@ -75,13 +73,11 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task GetUserById_ReturnsUser()
         {
-            var controller = new UsersController(_dbContext, _loggerMock.Object);
-
             var user = new User { Id = 1, GitHubId = "GitHub User 1" };
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
 
-            var result = await controller.GetUserById(1);
+            var result = await _controller.GetUserById(1);
 
             Assert.NotNull(result);
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -94,13 +90,11 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task GetUserById_NotFound()
         {
-            var controller = new UsersController(_dbContext, _loggerMock.Object);
-
             var user = new User { Id = 1, GitHubId = "GitHub User 1" };
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
 
-            var result = await controller.GetUserById(2);
+            var result = await _controller.GetUserById(2);
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
@@ -112,8 +106,6 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task GetUserNotifications_ReturnsListOfNotifications()
         {
-            var controller = new UsersController(_dbContext, _loggerMock.Object);
-
             var users = new List<User>
             {
                 new() { Id = 1, GitHubId = "GitHub User 1" },
@@ -139,7 +131,7 @@ namespace api.Tests
             await _dbContext.SaveChangesAsync();
 
             //User 1 notifications
-            var result1 = await controller.GetUserNotifications(1);
+            var result1 = await _controller.GetUserNotifications(1);
             var okResult1 = Assert.IsType<OkObjectResult>(result1);
             var returnedNotifications1 = Assert.IsAssignableFrom<List<NotificationsDTO>>(okResult1.Value);
             
@@ -159,7 +151,7 @@ namespace api.Tests
             Assert.Equal(4, notification4.Id);
 
             //User 2 notifications
-            var result2 = await controller.GetUserNotifications(2);
+            var result2 = await _controller.GetUserNotifications(2);
             var okResult2 = Assert.IsType<OkObjectResult>(result2);
             var returnedNotifications2 = Assert.IsAssignableFrom<List<NotificationsDTO>>(okResult2.Value);
 
