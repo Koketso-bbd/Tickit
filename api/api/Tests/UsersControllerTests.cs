@@ -58,6 +58,21 @@ namespace api.Tests
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task GetUsers_NotFound()
+        {
+            var controller = new UsersController(_dbContext, _loggerMock.Object);
+
+            var result = await controller.GetUsers();
+
+            Assert.NotNull(result);
+
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            var message = Assert.IsType<string>(notFoundResult.Value);
+
+            Assert.Equal("No users found.", message);
+        }
+
+        [Fact]
         public async System.Threading.Tasks.Task GetUserById_ReturnsUser()
         {
             var controller = new UsersController(_dbContext, _loggerMock.Object);
