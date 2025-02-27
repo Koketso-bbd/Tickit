@@ -38,8 +38,8 @@ namespace api.Tests
 
             var users = new List<User>
             {
-                new User { Id = 1, GitHubId = "JohnDoe" },
-                new User { Id = 2, GitHubId = "JaneDoe" }
+                new User { Id = 1, GitHubId = "GitHub User 1" },
+                new User { Id = 2, GitHubId = "GitHub User 2" }
             };
 
             await _dbContext.Users.AddRangeAsync(users);
@@ -53,8 +53,27 @@ namespace api.Tests
             var returnedUsers = Assert.IsAssignableFrom<IEnumerable<UserDTO>>(okResult.Value);
 
             Assert.Equal(2, returnedUsers.Count());
-            Assert.Contains(returnedUsers, u => u.ID == 1 && u.GitHubID == "JohnDoe");
-            Assert.Contains(returnedUsers, u => u.ID == 2 && u.GitHubID == "JaneDoe");
+            Assert.Contains(returnedUsers, u => u.ID == 1 && u.GitHubID == "GitHub User 1");
+            Assert.Contains(returnedUsers, u => u.ID == 2 && u.GitHubID == "GitHub User 2");
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task GetUserById_ReturnsUser()
+        {
+            var controller = new UsersController(_dbContext, _loggerMock.Object);
+
+            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await controller.GetUserById(1);
+
+            Assert.NotNull(result);
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnedUser = Assert.IsType<UserDTO>(okResult.Value);
+
+            Assert.Equal(1, returnedUser.ID);
+            Assert.Equal("GitHub User 1", returnedUser.GitHubID);
         }
     }
 }
