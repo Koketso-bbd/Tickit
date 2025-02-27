@@ -117,15 +117,27 @@ namespace api.Tests
             var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
             var createdProjectDTO = Assert.IsType<ProjectDTO>(createdResult.Value);
 
+            //check created for the correct table
             Assert.Equal(projectDTO.ProjectName, createdProjectDTO.ProjectName);
             Assert.Equal(projectDTO.ProjectDescription, createdProjectDTO.ProjectDescription);
             Assert.Equal(projectDTO.Owner.ID, createdProjectDTO.Owner.ID);
 
+            //check created project is stored in database
             var saveProject = await _dbContext.Projects
                 .FirstOrDefaultAsync(p => p.Id == createdProjectDTO.ID);
             Assert.NotNull(saveProject);
             Assert.Equal(projectDTO.ProjectName, saveProject.ProjectName);
             Assert.Equal(projectDTO.ProjectDescription, saveProject.ProjectDescription);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task AddProject_ReturnsBadRequest_InvalidProjectData()
+        {
+            ProjectDTO? projectDTO = null;
+            var result = await _controller.AddProject(projectDTO);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            var message = Assert.IsType<string>(badRequestResult.Value);
+            Assert.Equal("Project data is null.", message);
         }
     }
 }
