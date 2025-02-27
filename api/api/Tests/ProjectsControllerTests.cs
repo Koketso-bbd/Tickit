@@ -139,5 +139,31 @@ namespace api.Tests
             var message = Assert.IsType<string>(badRequestResult.Value);
             Assert.Equal("Project data is null.", message);
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task AddProject_ReturnsConflict_ProjectAlreadyExists()
+        {
+            var projectDTO = new ProjectDTO
+            {
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1",
+                Owner = new UserDTO { ID = 1, GitHubID = "GitHub User 1" }
+            };
+
+            var result = await _controller.AddProject(projectDTO);
+            var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+            var createdProjectDTO = Assert.IsType<ProjectDTO>(createdResult.Value);
+
+            //check created for the correct table
+            Assert.Equal(projectDTO.ProjectName, createdProjectDTO.ProjectName);
+            Assert.Equal(projectDTO.ProjectDescription, createdProjectDTO.ProjectDescription);
+            Assert.Equal(projectDTO.Owner.ID, createdProjectDTO.Owner.ID);
+
+            result = await _controller.AddProject(projectDTO);
+            var conflictResult = Assert.IsType<ConflictObjectResult>(result.Result);
+            var message = Assert.IsType<string>(conflictResult.Value);
+
+            Assert.Equal("A project with this name already exists for this owner", message);
+        }
     }
 }
