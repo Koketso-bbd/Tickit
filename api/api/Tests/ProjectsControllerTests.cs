@@ -102,5 +102,30 @@ namespace api.Tests
 
             Assert.Equal($"Project with ID {id} not found", message);
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task AddProject_ReturnsCreatedProjectDTO()
+        {
+            var projectDTO = new ProjectDTO
+            {
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1",
+                Owner = new UserDTO { ID = 1, GitHubID = "GitHub User 1"}
+            };
+
+            var result = await _controller.AddProject(projectDTO);
+            var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+            var createdProjectDTO = Assert.IsType<ProjectDTO>(createdResult.Value);
+
+            Assert.Equal(projectDTO.ProjectName, createdProjectDTO.ProjectName);
+            Assert.Equal(projectDTO.ProjectDescription, createdProjectDTO.ProjectDescription);
+            Assert.Equal(projectDTO.Owner.ID, createdProjectDTO.Owner.ID);
+
+            var saveProject = await _dbContext.Projects
+                .FirstOrDefaultAsync(p => p.Id == createdProjectDTO.ID);
+            Assert.NotNull(saveProject);
+            Assert.Equal(projectDTO.ProjectName, saveProject.ProjectName);
+            Assert.Equal(projectDTO.ProjectDescription, saveProject.ProjectDescription);
+        }
     }
 }
