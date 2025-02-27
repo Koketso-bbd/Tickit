@@ -70,5 +70,23 @@ public class UserProjectsTest
             Assert.Equal("Project does not exist", notFoundResult.Value);
         }
 
+         [Fact]
+        public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenRoleDoesNotExist()
+        {
+            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
+            await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenRoleDoesNotExist" });
+            await _dbContext.SaveChangesAsync();
+            var controller = new UserProjectsController(_dbContext, _loggerMock.Object);
+
+
+            var result = await controller.AddUserToProject(1, 1, 5);
+
+
+            Assert.NotNull(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Equal("Role does not exist", notFoundResult.Value);
+        }
+
+
     }
 }
