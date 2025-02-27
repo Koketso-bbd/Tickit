@@ -13,9 +13,10 @@ public class UserProjectsTest
 {
     public class UserProjectsControllerTests
     {
-        private Mock<ILogger<UserProjectsController>> _loggerMock;
-        private DbContextOptions<TickItDbContext>? _dbContextOptions;
-        private TickItDbContext? _dbContext;
+        private readonly Mock<ILogger<UserProjectsController>> _loggerMock;
+        private readonly UserProjectsController _controller;
+        private readonly DbContextOptions<TickItDbContext>? _dbContextOptions;
+        private readonly TickItDbContext? _dbContext;
 
         public UserProjectsControllerTests()
         {
@@ -25,6 +26,7 @@ public class UserProjectsTest
             _dbContext = new TickItDbContext(_dbContextOptions);
 
             _loggerMock = new Mock<ILogger<UserProjectsController>>();
+            _controller = new UserProjectsController(_dbContext, _loggerMock.Object);
         }
 
 
@@ -41,9 +43,9 @@ public class UserProjectsTest
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "Testing for when user does not exist" });
             await  _dbContext.Roles.AddAsync(new Role { Id = 1, RoleName = "Role" });
             await _dbContext.SaveChangesAsync();
-            var controller = new UserProjectsController(_dbContext, _loggerMock.Object);
+            
 
-            var result = await controller.AddUserToProject(999, 1, 1);
+            var result = await _controller.AddUserToProject(999, 1, 1);
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
@@ -57,9 +59,8 @@ public class UserProjectsTest
             await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
             await _dbContext.Roles.AddAsync(new Role { Id = 1, RoleName = "Guest" });
             await _dbContext.SaveChangesAsync();
-            var controller = new UserProjectsController(_dbContext, _loggerMock.Object);
 
-            var result = await controller.AddUserToProject(1, 20, 1);
+            var result = await _controller.AddUserToProject(1, 20, 1);
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
@@ -73,9 +74,8 @@ public class UserProjectsTest
             await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenRoleDoesNotExist" });
             await _dbContext.SaveChangesAsync();
-            var controller = new UserProjectsController(_dbContext, _loggerMock.Object);
 
-            var result = await controller.AddUserToProject(1, 1, 5);
+            var result = await _controller.AddUserToProject(1, 1, 5);
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
@@ -98,9 +98,7 @@ public class UserProjectsTest
             _dbContext.UserProjects.Add(new UserProject { MemberId = 1, ProjectId = 1, RoleId = 1 });
             await _dbContext.SaveChangesAsync();
 
-            var controller = new UserProjectsController(_dbContext, _loggerMock.Object);
-
-            var result = await controller.UpdateUserRole(1, 1, 2);
+            var result = await _controller.UpdateUserRole(1, 1, 2);
 
             Assert.NotNull(result);
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -111,5 +109,6 @@ public class UserProjectsTest
             Assert.NotNull(updatedUserProject);
             Assert.Equal(2, updatedUserProject.RoleId);
         }
+
     }
 }
