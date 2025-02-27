@@ -202,5 +202,42 @@ namespace api.Tests
             var message = Assert.IsType<string>(notFoundResult.Value);
             Assert.Equal("Project with ID 1 not found.", message);
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task GetUsersProjects_ReturnsOk_ListOfProjects()
+        {
+            int userId = 1;
+            User user = new User { Id = userId, GitHubId = "Github User 1" };
+            var projects = new List<Project>
+            {
+                new()
+                {
+                    Id = 1,
+                    OwnerId = userId,
+                    ProjectName = "project 1",
+                    ProjectDescription = "project description for project 1",
+                },
+
+                new()
+                {
+                    Id = 2,
+                    OwnerId = userId,
+                    ProjectName = "project 2",
+                    ProjectDescription = "project description for project 2"
+                }
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddRangeAsync(projects);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.GetUsersProjects(userId);
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnedProjects = Assert.IsAssignableFrom<IEnumerable<ProjectDTO>>(okResult.Value);
+
+            Assert.Equal(2, returnedProjects.Count());
+            Assert.Contains(returnedProjects, p => p.ID == 1 && p.ProjectName == "project 1" && p.ProjectDescription == "project description for project 1" && p.Owner.ID == userId);
+            Assert.Contains(returnedProjects, p => p.ID == 2 && p.ProjectName == "project 2" && p.ProjectDescription == "project description for project 2" && p.Owner.ID == userId);
+        }
     }
 }
