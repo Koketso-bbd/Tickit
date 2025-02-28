@@ -51,7 +51,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPut("task", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("updating task", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -78,7 +78,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("task", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("deleting task", _logger, ex);
                 return StatusCode(statusCode, message);;
             }
         }
@@ -122,7 +122,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("task label", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching task label", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -151,7 +151,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("task", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching task", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -199,7 +199,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("task", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("adding task", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -226,7 +226,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("task", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("deleting task", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -250,7 +250,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("task", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching task", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -286,7 +286,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("tasks", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching tasks", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -317,7 +317,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("task", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("adding task", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }

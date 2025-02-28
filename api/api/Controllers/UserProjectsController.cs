@@ -61,7 +61,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("user to a project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("adding user to a project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -99,7 +99,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("user from project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError(" deleting user from project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -138,7 +138,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPut("user's role", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("updating user's role", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }

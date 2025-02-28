@@ -34,7 +34,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("statuses", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching statuses", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }        

@@ -56,7 +56,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("projects", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError(" fetching projects", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -95,7 +95,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -167,7 +167,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("deleting project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -203,7 +203,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("user's projects", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching user's projects", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -238,7 +238,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("project label", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching project label", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -275,7 +275,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorPost("label to a project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("adding label to a project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
 
@@ -312,7 +312,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorDelete("project", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("deleting project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
