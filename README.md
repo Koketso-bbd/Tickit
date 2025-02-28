@@ -71,6 +71,13 @@ Your database should be set up successfully now.
     dotnet add package Microsoft.EntityFrameworkCore.Tools --version 9.0.2
     dotnet add package Swashbuckle.AspNetCore --version 6.6.2
     dotnet add package Swashbuckle.AspNetCore.Annotations --version 7.2.0
+    dotnet add package xunit --version 2.9.3
+    dotnet add package xunit.runner.visualstudio --version 3.0.2
+    dotnet add package Moq --version 4.20.72
+    dotnet add package Microsoft.EntityFrameworkCore.InMemory --version 9.0.2
+    dotnet add package Newtonsoft.Json --version 13.0.3
+    dotnet add package Microsoft.TestPlatform --version 17.13.0
+    dotnet add package Microsoft.NET.Test.Sdk --version 17.13.0
 ```
 
 3. Build the project
@@ -96,4 +103,13 @@ Your database should be set up successfully now.
 2. The API will be available at `http://localhost:5213/` and `https://localhost:7151` by default (unless you specify it differently on `launchSettings.json`).
 
 3. Access the Swagger UI for the API documentation on `localhost:<port>/swagger
+
+## Test
+
+1. Navigate into the API folder `Tickit\api\api\`
+
+2. Run tests
+    ```bash
+    dotnet test
+    ```
 
