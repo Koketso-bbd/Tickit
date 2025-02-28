@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
+using systemTasks = System.Threading.Tasks;
 
 namespace api.Tests
 {
@@ -33,7 +34,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task GetProjectById_ReturnsProject()
+        public async systemTasks.Task GetProjectById_ReturnsProject()
         {
             var users = new List<User>
             {
@@ -93,7 +94,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task GetProjectById_ReturnsProjectNotFound()
+        public async systemTasks.Task GetProjectById_ReturnsProjectNotFound()
         {
             int id = 1;
             var result = await _controller.GetProjectById(id);
@@ -104,7 +105,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task AddProject_ReturnsCreatedProjectDTO()
+        public async systemTasks.Task AddProject_ReturnsCreatedProjectDTO()
         {
             var projectDTO = new ProjectDTO
             {
@@ -131,7 +132,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task AddProject_ReturnsBadRequest_InvalidProjectData()
+        public async systemTasks.Task AddProject_ReturnsBadRequest_InvalidProjectData()
         {
             ProjectDTO? projectDTO = null;
             var result = await _controller.AddProject(projectDTO);
@@ -141,7 +142,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task AddProject_ReturnsConflict_ProjectAlreadyExists()
+        public async systemTasks.Task AddProject_ReturnsConflict_ProjectAlreadyExists()
         {
             var projectDTO = new ProjectDTO
             {
@@ -167,7 +168,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task DeleteProject_ReturnsNoContent_DeleteProject()
+        public async systemTasks.Task DeleteProject_ReturnsNoContent_DeleteProject()
         {
             var user = new User  { Id = 1, GitHubId = "owner123" };
 
@@ -195,7 +196,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task DeleteProject_ReturnsNotFound_ProjectDoesNotExist()
+        public async systemTasks.Task DeleteProject_ReturnsNotFound_ProjectDoesNotExist()
         {
             var result = await _controller.DeleteProject(1);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
@@ -204,7 +205,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task GetUsersProjects_ReturnsOk_ListOfProjects()
+        public async systemTasks.Task GetUsersProjects_ReturnsOk_ListOfProjects()
         {
             int userId = 1;
             User user = new User { Id = userId, GitHubId = "Github User 1" };
@@ -238,6 +239,15 @@ namespace api.Tests
             Assert.Equal(2, returnedProjects.Count());
             Assert.Contains(returnedProjects, p => p.ID == 1 && p.ProjectName == "project 1" && p.ProjectDescription == "project description for project 1" && p.Owner.ID == userId);
             Assert.Contains(returnedProjects, p => p.ID == 2 && p.ProjectName == "project 2" && p.ProjectDescription == "project description for project 2" && p.Owner.ID == userId);
+        }
+
+        [Fact]
+        public async systemTasks.Task GetUsersProjects_ReturnsNotFound_UserDoesNotExist()
+        {
+            var result = await _controller.GetUsersProjects(1);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            var message = Assert.IsType<string>(notFoundResult.Value);
+            Assert.Equal("User does not exist", message);
         }
     }
 }
