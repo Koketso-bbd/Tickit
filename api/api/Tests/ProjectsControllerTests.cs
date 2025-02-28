@@ -249,5 +249,62 @@ namespace api.Tests
             var message = Assert.IsType<string>(notFoundResult.Value);
             Assert.Equal("User does not exist", message);
         }
+
+        [Fact]
+        public async systemTasks.Task GetProjectLabels_ReturnListOfProjectLabels()
+        {
+            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            var projects = new List<Project>
+            {
+                new()
+                {
+                    Id = 1,
+                    OwnerId = 1,
+                    ProjectName = "project 1",
+                    ProjectDescription = "project description for project 1",
+                },
+
+                new()
+                {
+                    Id = 2,
+                    OwnerId = 1,
+                    ProjectName = "project 2",
+                    ProjectDescription = "project description for project 2"
+                }
+            };
+            var labels = new List<Label>
+            {
+                new() { Id = 1, LabelName = "label 1"},
+                new() { Id = 2, LabelName = "label 2"},
+                new() { Id = 3, LabelName = "label 3"},
+            };
+            var projectLabels = new List<ProjectLabel>
+            {
+                new() { Id = 1, LabelId = 1, ProjectId = 1},
+                new() { Id = 2, LabelId = 3, ProjectId = 1},
+                new() { Id = 3, LabelId = 1, ProjectId = 2},
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddRangeAsync(projects);
+            await _dbContext.Labels.AddRangeAsync(labels);
+            await _dbContext.ProjectLabels.AddRangeAsync(projectLabels);
+            await _dbContext.SaveChangesAsync();
+
+            var result1 = await _controller.GetProjectLabels(1);
+            var okResult1 = Assert.IsType<OkObjectResult>(result1.Result);
+            var returnedProjectLabels1 = Assert.IsType<List<ProjectLabelDTO>>(okResult1.Value);
+
+            Assert.Equal(2, returnedProjectLabels1.Count());
+            Assert.Contains(returnedProjectLabels1, pl => pl.ID == 1 && pl.LabelID == 1 && pl.ProjectID == 1);
+            Assert.Contains(returnedProjectLabels1, pl => pl.ID == 2 && pl.LabelID == 3 && pl.ProjectID == 1);
+
+            var result2 = await _controller.GetProjectLabels(2);
+            var okResult2 = Assert.IsType<OkObjectResult>(result2.Result);
+            var returnedProjectLabels2 = Assert.IsType<List<ProjectLabelDTO>>(okResult2.Value);
+
+            Assert.Single(returnedProjectLabels2);
+            Assert.Contains(returnedProjectLabels2, pl => pl.ID == 3 && pl.LabelID == 1 && pl.ProjectID == 2);
+        }
     }
 }
