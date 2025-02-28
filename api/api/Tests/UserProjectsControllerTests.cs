@@ -5,18 +5,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Xunit;
 
 namespace api.Tests;
-
 
 public class UserProjectsTest
 {
     public class UserProjectsControllerTests
+
     {
         private readonly Mock<ILogger<UserProjectsController>> _loggerMock;
         private readonly UserProjectsController _controller;
-        private readonly DbContextOptions<TickItDbContext>? _dbContextOptions;
-        private readonly TickItDbContext? _dbContext;
+        private readonly DbContextOptions<TickItDbContext> _dbContextOptions;
+        private readonly TickItDbContext _dbContext;
 
         public UserProjectsControllerTests()
         {
@@ -32,6 +33,7 @@ public class UserProjectsTest
 
         [Fact]
         public void Dispose()
+
         {
             _dbContext?.Dispose();
         }
@@ -39,6 +41,7 @@ public class UserProjectsTest
 
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenUserDoesNotExist()
+        
         {
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "Testing for when user does not exist" });
             await  _dbContext.Roles.AddAsync(new Role { Id = 1, RoleName = "Role" });
@@ -55,6 +58,7 @@ public class UserProjectsTest
         
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenProjectDoesNotExist()
+
         {
             await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
             await _dbContext.Roles.AddAsync(new Role { Id = 1, RoleName = "Guest" });
@@ -70,6 +74,7 @@ public class UserProjectsTest
 
          [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenRoleDoesNotExist()
+        
         {
             await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenRoleDoesNotExist" });
