@@ -359,6 +359,20 @@ namespace api.Tests
         }
 
         [Fact]
+        public async systemTasks.Task DeleteProjectLabel_ReturnsBadRequest_InvalidProjectProvided()
+        {
+            var result1 = await _controller.DeleteProjectLabel(0, "label 1");
+            var badRequestResult1 = Assert.IsType<BadRequestObjectResult>(result1);
+            var message1 = Assert.IsType<string>(badRequestResult1.Value);
+            Assert.Equal("ProjectID is required.", message1);
+
+            var result2 = await _controller.DeleteProjectLabel(-1, "label 1");
+            var badRequestResult2 = Assert.IsType<BadRequestObjectResult>(result2);
+            var message2 = Assert.IsType<string>(badRequestResult2.Value);
+            Assert.Equal("ProjectID is required.", message2);
+        }
+
+        [Fact]
         public async systemTasks.Task DeleteProjectLabel_ReturnsNotFound_ProjectDoesNotExist()
         {
             var result = await _controller.DeleteProjectLabel(1, "label 1");
