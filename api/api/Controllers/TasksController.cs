@@ -232,12 +232,24 @@ namespace api.Controllers
         }
 
         [HttpGet("{projectId}/tasks/{taskid}")]
-        public async Task<ActionResult<Models.Task>> GetTask(int projectId, int taskid)
+        public async Task<ActionResult<TaskDTO>> GetTask(int projectId, int taskid)
         {
             try
             {
                 var task = await _context.Tasks
-                    .FirstOrDefaultAsync(t => t.Id == taskid && t.ProjectId == projectId);
+                    .Where(t => t.Id == taskid && t.ProjectId == projectId)
+                    .Select(t => new 
+                    {
+                        t.Id,
+                        t.AssigneeId,
+                        t.TaskName,
+                        t.TaskDescription,
+                        t.DueDate,
+                        t.PriorityId,
+                        t.ProjectId,
+                        t.StatusId
+                    })
+                    .FirstOrDefaultAsync();
 
                 if (task == null)
                 {
