@@ -346,6 +346,20 @@ namespace api.Tests
         }
 
         [Fact]
+        public async systemTasks.Task AddProjectLabel_ReturnsBadRequest_InvalidProjectProvided()
+        {
+            var result1 = await _controller.AddProjectLabel(0, "label 1");
+            var badRequestResult1 = Assert.IsType<BadRequestObjectResult>(result1.Result);
+            var message1 = Assert.IsType<string>(badRequestResult1.Value);
+            Assert.Equal("ProjectID is required.", message1);
+
+            var result2 = await _controller.AddProjectLabel(-1, "label 1");
+            var badRequestResult2 = Assert.IsType<BadRequestObjectResult>(result2.Result);
+            var message2 = Assert.IsType<string>(badRequestResult2.Value);
+            Assert.Equal("ProjectID is required.", message2);
+        }
+
+        [Fact]
         public async systemTasks.Task AddProjectLabel_ReturnsNotFound_ProjectDoesNotExist()
         {
             var result = await _controller.AddProjectLabel(1, "label 1");
