@@ -256,7 +256,7 @@ namespace api.Controllers
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             if (!projectExists) return NotFound("Project not found");
 
-            var label =await _context.Labels
+            var label = await _context.Labels
                 .Where(l => labelName == l.LabelName)
                 .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
             
@@ -271,7 +271,7 @@ namespace api.Controllers
                 await _context.AddLabelToProject(projectId, labelName);
 
                 _logger.LogInformation($"{labelName} label added to Project: {projectId}");
-                return Ok("Label added to project successfully");
+                return Created();
             }
             catch (Exception ex)
             {
