@@ -344,5 +344,14 @@ namespace api.Tests
             var messageEmpty = Assert.IsType<string>(badRequestResultEmpty.Value);
             Assert.Equal("labelName is required.", messageEmpty);
         }
+
+        [Fact]
+        public async systemTasks.Task AddProjectLabel_ReturnsNotFound_ProjectDoesNotExist()
+        {
+            var result = await _controller.AddProjectLabel(1, "label 1");
+            var notFoundResult= Assert.IsType<NotFoundObjectResult>(result.Result);
+            var message= Assert.IsType<string>(notFoundResult.Value);
+            Assert.Equal("Project not found", message);
+        }
     }
 }
