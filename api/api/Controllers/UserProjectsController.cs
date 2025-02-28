@@ -47,7 +47,6 @@ namespace api.Controllers
 
                 if (userAlreadyInProject)
                 {
-                    _logger.LogWarning($"User {userId} already in project {projectId}.");
                     return BadRequest("User is already assigned to this project");
                 }
 
@@ -56,7 +55,6 @@ namespace api.Controllers
                     userId, projectId, roleId
                 );
 
-                _logger.LogInformation($"{userId} added to Project: {projectId} with Role: {roleId}");
                 return Ok("User added to project successfully");
             }
             catch (Exception ex)
@@ -94,7 +92,6 @@ namespace api.Controllers
                     userId, projectId
                     );
 
-                _logger.LogInformation($"{userId} removed from Project: {projectId}");
                 return Ok("User successfully removed from project");
             }
             catch (Exception ex)
@@ -133,7 +130,6 @@ namespace api.Controllers
                 userProject.RoleId = newRoleId;
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Role: {newRoleId} applied to User: {userId} in Project {projectId}");
                 return Ok("User role updated successfully.");
             }
             catch (Exception ex)
