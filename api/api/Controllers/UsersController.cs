@@ -35,7 +35,6 @@ namespace api.Controllers
                 if (users == null || !users.Any())
                 {
                     var message = "No users found.";
-                    _logger.LogWarning(message);
                     return NotFound(message);
                 }
 
@@ -43,7 +42,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("users", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("users", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -75,7 +74,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("user", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("user", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
@@ -113,7 +112,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerErrorGet("user's notification", _logger, ex);
+                var (statusCode, message) = HttpResponseHelper.InternalServerError("user's notification", _logger, ex);
                 return StatusCode(statusCode, message);
             }
         }
