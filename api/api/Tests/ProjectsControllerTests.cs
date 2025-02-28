@@ -307,30 +307,6 @@ namespace api.Tests
             Assert.Contains(returnedProjectLabels2, pl => pl.ID == 3 && pl.LabelID == 1 && pl.ProjectID == 2);
         }
 
-        //[Fact]
-        //public async systemTasks.Task AddProjectLabel_ReturnsCreated()
-        //{
-        //    var user = new User { Id = 1, GitHubId = "GitHub User 1" };
-        //    var project = new Project { Id = 1, Owner = user, ProjectName = "project 1" };
-        //    var label = new Label { Id = 1, LabelName = "label 1" };
-
-        //    await _dbContext.Users.AddAsync(user);
-        //    await _dbContext.Projects.AddAsync(project);
-        //    await _dbContext.Labels.AddAsync(label);
-        //    await _dbContext.SaveChangesAsync();
-            //ProjectLabel projectLabel = new ProjectLabel
-            //{
-            //    Id = 1,
-            //    Label = new Label { Id = 1, LabelName = "label 1"},
-            //    Project = new Project
-            //    {
-            //        Id = 1,
-            //        Owner = new User { Id = 1, GitHubId = "GitHub User 1"},
-            //        ProjectName = "project 1"
-            //    }
-            //};
-        //}
-
         [Fact]
         public async systemTasks.Task AddProjectLabel_ReturnsBadRequest_NoLabelNameProvided()
         {
@@ -366,6 +342,20 @@ namespace api.Tests
             var notFoundResult= Assert.IsType<NotFoundObjectResult>(result.Result);
             var message= Assert.IsType<string>(notFoundResult.Value);
             Assert.Equal("Project not found", message);
+        }
+
+        [Fact]
+        public async systemTasks.Task DeleteProjectLabel_ReturnsBadRequest_NoLabelNameProvided()
+        {
+            var resultNull = await _controller.DeleteProjectLabel(1, null);
+            var badRequestResultNull = Assert.IsType<BadRequestObjectResult>(resultNull);
+            var messageNull = Assert.IsType<string>(badRequestResultNull.Value);
+            Assert.Equal("labelName is required.", messageNull);
+
+            var resultEmpty = await _controller.DeleteProjectLabel(1, "");
+            var badRequestResultEmpty = Assert.IsType<BadRequestObjectResult>(resultEmpty);
+            var messageEmpty = Assert.IsType<string>(badRequestResultEmpty.Value);
+            Assert.Equal("labelName is required.", messageEmpty);
         }
     }
 }
