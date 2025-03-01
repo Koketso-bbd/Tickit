@@ -156,56 +156,6 @@ namespace api.Controllers
             }
         }
 
-        [HttpPost("{taskId}/labels")]
-        public async Task<IActionResult> PostTaskLabels(int taskId, [FromBody] TaskLabelDTO taskLabelDTO)
-        {
-            if (taskLabelDTO == null || taskLabelDTO.ProjectLabelId <= 0)
-            {
-                return BadRequest("ProjectLabelId is required and must be greater than zero.");
-            }
-
-            if (taskLabelDTO.TaskId != 0 && taskLabelDTO.TaskId != taskId)
-            {
-                return BadRequest("TaskId in the body must match the route parameter or be omitted.");
-            }
-
-            try
-            {
-                bool taskLabelExists = await _context.TaskLabels
-                    .AnyAsync(tsl => tsl.TaskId == taskId && tsl.ProjectLabelId == taskLabelDTO.ProjectLabelId);
-
-                if (taskLabelExists)
-                {
-                    return Conflict("This label is already assigned to the task.");
-                }
-
-                var taskLabel = new TaskLabel
-                {
-                    TaskId = taskId,  // Always use the route parameter, ignore body TaskId
-                    ProjectLabelId = taskLabelDTO.ProjectLabelId,
-                };
-
-                _context.TaskLabels.Add(taskLabel);
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction(nameof(GetTaskLabelById), 
-                    new { taskid = taskLabel.TaskId, labelId = taskLabel.Id }, 
-                    new TaskLabelDTO 
-                    {
-                        ID = taskLabel.Id,
-                        TaskId = taskLabel.TaskId,
-                        ProjectLabelId = taskLabel.ProjectLabelId
-                    });
-            }
-            catch (Exception ex)
-            {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("adding task", _logger, ex);
-                return StatusCode(statusCode, message);
-            }
-        }
-
-
-
         [HttpDelete("{taskId}/labels/{labelId}")]
         public async Task<IActionResult> DeleteTaskLabel(int taskId, int projectlabelId)
         {
