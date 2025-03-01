@@ -2,7 +2,6 @@ using api.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.DTOs;
-using api.Helpers;
 using api.Models;
 
 
@@ -21,165 +20,44 @@ namespace api.Controllers
             _logger = logger;
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTask(int id, [FromBody] TaskDTO taskDto)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasks()
         {
-            if (taskDto == null)
+            var tasks = await _context.Tasks.ToListAsync();
+
+            if (tasks == null || tasks.Count == 0)
             {
-                return BadRequest("Invalid task data.");
+                _logger.LogWarning("No tasks found.");
+                return NotFound("No tasks found.");
             }
 
-            taskDto.Id = id;
-
-            var existingTask = await _context.Tasks.FindAsync(id);
-            if (existingTask == null)
-            {
-                return NotFound($"Task with ID {id} not found.");
-            }
-
-            existingTask.AssigneeId = taskDto.AssigneeId;
-            existingTask.TaskName = taskDto.TaskName;
-            existingTask.TaskDescription = taskDto.TaskDescription;
-            existingTask.DueDate = taskDto.DueDate;
-            existingTask.PriorityId = taskDto.PriorityId;
-            existingTask.StatusId = taskDto.StatusId;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("updating task", _logger, ex);
-                return StatusCode(statusCode, message);
-            }
+            return Ok(tasks);
         }
 
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTask(int id)
+        [HttpGet("{assigneeId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetUserTasks(int assigneeId)
         {
-            var task = await _context.Tasks.FindAsync(id);
-            if (task == null)
-            {
-                return NotFound($"Task with ID {id} not found.");
-            }
-
-            var notifications = _context.Notifications.Where(n => n.TaskId == id);
-            _context.Notifications.RemoveRange(notifications);
-
-            _context.Tasks.Remove(task);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("deleting task", _logger, ex);
-                return StatusCode(statusCode, message);;
-            }
-        }
-
-        [HttpDelete("{taskId}/labels/{labelId}")]
-        public async Task<IActionResult> DeleteTaskLabel(int taskId, int projectlabelId)
-        {
-            var taskLabel = await _context.TaskLabels
-                .FirstOrDefaultAsync(tl => tl.TaskId == taskId && tl.ProjectLabelId == projectlabelId);
-
-            if (taskLabel == null)
-            {
-                return NotFound($"Label with ID {projectlabelId} not found for task {taskId}.");
-            }
-
-            _context.TaskLabels.Remove(taskLabel);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("deleting task", _logger, ex);
-                return StatusCode(statusCode, message);
-            }
-        }
-
-        [HttpGet("{projectId}/tasks/{taskid}")]
-        public async Task<ActionResult<TaskDTO>> GetTask(int projectId, int taskid)
-        {
-            try
-            {
-                var task = await _context.Tasks
-                    .Where(t => t.Id == taskid && t.ProjectId == projectId)
-                    .Select(t => new 
-                    {
-                        t.Id,
-                        t.AssigneeId,
-                        t.TaskName,
-                        t.TaskDescription,
-                        t.DueDate,
-                        t.PriorityId,
-                        t.ProjectId,
-                        t.StatusId
-                    })
-                    .FirstOrDefaultAsync();
-
-                if (task == null)
+            var tasks = await _context.Tasks
+                .Where(t => t.AssigneeId == assigneeId)
+                .Select(t => new
                 {
-                    string message = $"Task with ID {taskid} not found in project {projectId}.";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
+                    t.Id,
+                    t.TaskName,
+                    t.TaskDescription,
+                    t.DueDate,
+                    t.PriorityId,
+                    t.ProjectId,
+                    t.StatusId
+                })
+                .ToListAsync();
 
-                return Ok(task);
-            }
-            catch (Exception ex)
+            if (!tasks.Any())
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching task", _logger, ex);
-                return StatusCode(statusCode, message);
+                return NotFound($"No tasks found for user {assigneeId}.");
             }
+
+            return Ok(tasks);
         }
-
-        [HttpGet("{projectId}/tasks")]
-        public async Task<ActionResult<IEnumerable<object>>> GetTasksInProject(int projectId)
-        {
-            try
-            {
-                var tasks = await _context.Tasks
-                    .Where(t => t.ProjectId == projectId)
-                    .Select(t => new 
-                    {
-                        t.Id,
-                        t.AssigneeId,
-                        t.TaskName,
-                        t.TaskDescription,
-                        t.DueDate,
-                        t.PriorityId,
-                        t.ProjectId,
-                        t.StatusId
-                    })
-                    .ToListAsync();
-
-                if (tasks == null || tasks.Count == 0)
-                {
-                    var message = $"No tasks found for Project ID {projectId}.";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
-
-                return Ok(tasks);
-            }
-            catch (Exception ex)
-            {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching tasks", _logger, ex);
-                return StatusCode(statusCode, message);
-            }
-        }
-
 
         [HttpPost("task")]
         public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
@@ -189,26 +67,108 @@ namespace api.Controllers
                 return BadRequest("Invalid task data.");
             }
 
+            string description = string.IsNullOrWhiteSpace(taskDto.TaskDescription) ? "No description provided" : taskDto.TaskDescription;
+            DateTime dueDate = taskDto.DueDate ?? DateTime.UtcNow.AddDays(7);
+            int assigneeId = taskDto.AssigneeId; 
+
+            int result = await _context.CreateTaskAsync(
+                assigneeId, taskDto.TaskName, description,
+                dueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
+
+            if (result == 0)
+            {
+                return StatusCode(422, "Task creation failed due to a logical issue.");
+            }
+
+            return CreatedAtAction(nameof(CreateTask), new { taskId = taskDto.Id }, taskDto);
+        }
+
+
+        [HttpPut("{taskid}")]
+        public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
+        {
+            if (taskDto == null)
+            {
+                return BadRequest("Invalid task data.");
+            }
+
+            var existingTask = await _context.Tasks.FindAsync(taskid);
+            if (existingTask == null)
+            {
+                return NotFound($"Task with ID {taskid} not found.");
+            }
+
+            if (taskDto.ProjectId != existingTask.ProjectId)
+            {
+                return BadRequest("Updating ProjectId is not allowed.");
+            }
+
+            if (string.IsNullOrWhiteSpace(taskDto.TaskName) || 
+                taskDto.PriorityId <= 0 || 
+                taskDto.StatusId <= 0 || 
+                taskDto.AssigneeId <= 0)
+            {
+                return BadRequest("Task Name, Priority, Status, and AssigneeId are required and must be valid.");
+            }
+
+            existingTask.AssigneeId = taskDto.AssigneeId;
+            existingTask.TaskName = taskDto.TaskName;
+            existingTask.TaskDescription = string.IsNullOrWhiteSpace(taskDto.TaskDescription) 
+                                        ? existingTask.TaskDescription 
+                                        : taskDto.TaskDescription;
+            existingTask.DueDate = (DateTime)taskDto.DueDate; 
+            existingTask.PriorityId = taskDto.PriorityId;
+            existingTask.StatusId = taskDto.StatusId;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{taskid}")]
+        public async Task<IActionResult> DeleteTask(int taskid)
+        {
+            var task = await _context.Tasks.FindAsync(taskid);
+            if (task == null)
+            {
+                return NotFound($"Task with ID {taskid} not found.");
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
-                int result = await _context.CreateTaskAsync(
-                    taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription,
-                    taskDto.DueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
+                var statusTracks = await _context.StatusTracks.Where(st => st.TaskId == taskid).ToListAsync();
+                if (statusTracks.Any())
+                {
+                    _context.StatusTracks.RemoveRange(statusTracks);
+                }
 
-                if (result == 0)
-                    {
-                        return StatusCode(422, "Task creation failed due to a logical issue.");
-                    }
+                var notifications = await _context.Notifications.Where(n => n.TaskId == taskid).ToListAsync();
+                if (notifications.Any())
+                {
+                    _context.Notifications.RemoveRange(notifications);
+                }
 
+                var tasklabels = await _context.TaskLabels.Where(tl => tl.TaskId == taskid).ToListAsync();
+                if (tasklabels.Any())
+                {
+                    _context.TaskLabels.RemoveRange(tasklabels);
+                }
 
-                return CreatedAtAction(nameof(GetTask), 
-                    new { taskDto.ProjectId, taskid = taskDto.Id }, taskDto);
+                _context.Tasks.Remove(task);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                return Ok(new { message = $"Task with ID {taskid} successfully deleted." });
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("adding task", _logger, ex);
-                return StatusCode(statusCode, message);
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Error deleting task: {ex.Message}");
             }
         }
+
+
+
     }
 }
