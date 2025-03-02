@@ -111,12 +111,7 @@ namespace api.Controllers
                     })
                     .FirstOrDefaultAsync();
 
-                if (taskLabel == null)
-                {
-                    var message = $"Task Label with ID {labelId} not found for Task {taskid}.";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
+                if (taskLabel == null) return NotFound($"Task Label with ID {labelId} not found for Task {taskid}.");
 
                 return Ok(taskLabel);
             }
@@ -251,12 +246,7 @@ namespace api.Controllers
                     })
                     .FirstOrDefaultAsync();
 
-                if (task == null)
-                {
-                    string message = $"Task with ID {taskid} not found in project {projectId}.";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
+                if (task == null) return NotFound($"Task with ID {taskid} not found in project {projectId}.");
 
                 return Ok(task);
             }
@@ -287,12 +277,7 @@ namespace api.Controllers
                     })
                     .ToListAsync();
 
-                if (tasks == null || tasks.Count == 0)
-                {
-                    var message = $"No tasks found for Project ID {projectId}.";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
+                if (tasks == null || tasks.Count == 0) return NotFound($"No tasks found for Project ID {projectId}.");
 
                 return Ok(tasks);
             }
