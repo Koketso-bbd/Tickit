@@ -32,11 +32,7 @@ namespace api.Controllers
                     .Select(u => new UserDTO { ID = u.Id, GitHubID = u.GitHubId })
                     .ToListAsync();
 
-                if (users == null || !users.Any())
-                {
-                    var message = "No users found.";
-                    return NotFound(message);
-                }
+                if (users == null || !users.Any()) return NotFound("No users found.");
 
                 return Ok(users);
             }
@@ -63,12 +59,7 @@ namespace api.Controllers
                         })
                     .FirstOrDefaultAsync();
 
-                if (user == null)
-                {
-                    var message = "User not found";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
+                if (user == null) return NotFound("User not found");
 
                 return Ok(user);
             }
@@ -102,11 +93,7 @@ namespace api.Controllers
                     })
                     .ToListAsync();
 
-                if (user == null)
-                {
-                    _logger.LogWarning("User has not been found or doesn't exist");
-                    return NotFound("User not found");
-                }
+                if (user == null) return NotFound("User not found");
 
                 return Ok(user);
             }
