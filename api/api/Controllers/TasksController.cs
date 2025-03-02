@@ -20,51 +20,46 @@ namespace api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasks()
-        {
-            var tasks = await _context.Tasks.ToListAsync();
+        
 
-            if (tasks == null || tasks.Count == 0)
-            {
-                _logger.LogWarning("No tasks found.");
-                return NotFound("No tasks found.");
-            }
-
-            return Ok(tasks);
-        }
-
-
-       [HttpGet("{assigneeId}")]
+        [HttpGet("{assigneeId}")]
         public async Task<ActionResult<IEnumerable<object>>> GetUserTasks(int assigneeId)
         {
-            var tasks = await _context.Tasks
-                .Where(t => t.AssigneeId == assigneeId)
-                .Select(t => new
-                {
-                    t.Id,
-                    t.TaskName,
-                    t.TaskDescription,
-                    t.DueDate,
-                    t.PriorityId,
-                    t.ProjectId,
-                    t.StatusId,
-                    TaskLabels = t.TaskLabels.Select(tl => new 
-                    {
-                        tl.Id,
-                        tl.ProjectLabelId
-                    }).ToList()
-                })
-                .ToListAsync();
-
-            if (!tasks.Any())
+            try
             {
-                return NotFound($"No tasks found for user {assigneeId}.");
+                var tasks = await _context.Tasks
+                    .Where(t => t.AssigneeId == assigneeId)
+                    .Select(t => new
+                    {
+                        t.Id,
+                        t.TaskName,
+                        t.TaskDescription,
+                        t.DueDate,
+                        t.PriorityId,
+                        t.ProjectId,
+                        t.StatusId,
+                        TaskLabels = t.TaskLabels.Select(tl => new
+                        {
+                            tl.Id,
+                            tl.ProjectLabelId
+                        }).ToList()
+                    })
+                    .ToListAsync();
+
+                if (!tasks.Any())
+                {
+                    return NotFound($"No tasks found for user {assigneeId}.");
+                }
+
+                return Ok(tasks);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving tasks: {ex.Message}");
 
-            return Ok(tasks);
+                return StatusCode(500, "An internal server error occurred. Please try again later.");
+            }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> CreateTask([FromBody] TasksDTO taskDto)
