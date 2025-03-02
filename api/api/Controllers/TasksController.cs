@@ -34,7 +34,8 @@ namespace api.Controllers
             return Ok(tasks);
         }
 
-        [HttpGet("{assigneeId}")]
+
+       [HttpGet("{assigneeId}")]
         public async Task<ActionResult<IEnumerable<object>>> GetUserTasks(int assigneeId)
         {
             var tasks = await _context.Tasks
@@ -47,7 +48,12 @@ namespace api.Controllers
                     t.DueDate,
                     t.PriorityId,
                     t.ProjectId,
-                    t.StatusId
+                    t.StatusId,
+                    TaskLabels = t.TaskLabels.Select(tl => new 
+                    {
+                        tl.Id,
+                        tl.ProjectLabelId
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -59,40 +65,65 @@ namespace api.Controllers
             return Ok(tasks);
         }
 
-        [HttpPost("task")]
-        public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
+
+        [HttpPost]
+        public async Task<IActionResult> CreateTask([FromBody] TasksDTO taskDto)
         {
             if (taskDto == null || string.IsNullOrWhiteSpace(taskDto.TaskName))
             {
                 return BadRequest("Invalid task data.");
             }
 
-            string description = string.IsNullOrWhiteSpace(taskDto.TaskDescription) ? "No description provided" : taskDto.TaskDescription;
-            DateTime dueDate = taskDto.DueDate ?? DateTime.UtcNow.AddDays(7);
-            int assigneeId = taskDto.AssigneeId; 
+            if (taskDto.PriorityId <= 0 || taskDto.StatusId <= 0 || taskDto.AssigneeId <= 0)
+            {
+                return BadRequest("Priority, Status, and AssigneeId are required and must be valid.");
+            }
 
-            int result = await _context.CreateTaskAsync(
+            string description = string.IsNullOrWhiteSpace(taskDto.TaskDescription) ? "No description provided" : taskDto.TaskDescription;
+            DateTime dueDate = taskDto.DueDate.HasValue ? taskDto.DueDate.Value : DateTime.UtcNow.AddDays(7);
+            int assigneeId = taskDto.AssigneeId;
+
+            Console.WriteLine($"Creating Task: {taskDto.TaskName}, Priority: {taskDto.PriorityId}");
+
+            int newTaskId = await _context.CreateTaskAsync(
                 assigneeId, taskDto.TaskName, description,
                 dueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
 
-            if (result == 0)
+            if (newTaskId == 0)
             {
                 return StatusCode(422, "Task creation failed due to a logical issue.");
             }
 
-            return CreatedAtAction(nameof(CreateTask), new { taskId = taskDto.Id }, taskDto);
+            if (taskDto.TaskLabels != null && taskDto.TaskLabels.Any())
+            {
+                var taskLabels = taskDto.TaskLabels.Select(label => new TaskLabel
+                {
+                    TaskId = newTaskId,
+                    ProjectLabelId = label.ProjectLabelId
+                }).ToList();
+
+                await _context.TaskLabels.AddRangeAsync(taskLabels);
+                await _context.SaveChangesAsync();
+            }
+
+            return CreatedAtAction(nameof(CreateTask), new { taskId = newTaskId }, taskDto);
         }
 
 
+
+
         [HttpPut("{taskid}")]
-        public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
+        public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TasksDTO taskDto)
         {
             if (taskDto == null)
             {
                 return BadRequest("Invalid task data.");
             }
 
-            var existingTask = await _context.Tasks.FindAsync(taskid);
+            var existingTask = await _context.Tasks
+                .Include(t => t.TaskLabels) 
+                .FirstOrDefaultAsync(t => t.Id == taskid);
+
             if (existingTask == null)
             {
                 return NotFound($"Task with ID {taskid} not found.");
@@ -111,18 +142,40 @@ namespace api.Controllers
                 return BadRequest("Task Name, Priority, Status, and AssigneeId are required and must be valid.");
             }
 
+            Console.WriteLine($"Updating Task {taskid}: Priority {taskDto.PriorityId}, Status {taskDto.StatusId}");
+
             existingTask.AssigneeId = taskDto.AssigneeId;
             existingTask.TaskName = taskDto.TaskName;
             existingTask.TaskDescription = string.IsNullOrWhiteSpace(taskDto.TaskDescription) 
-                                        ? existingTask.TaskDescription 
-                                        : taskDto.TaskDescription;
-            existingTask.DueDate = (DateTime)taskDto.DueDate; 
+                                            ? existingTask.TaskDescription 
+                                            : taskDto.TaskDescription;
+            existingTask.DueDate = (DateTime)taskDto.DueDate;
             existingTask.PriorityId = taskDto.PriorityId;
             existingTask.StatusId = taskDto.StatusId;
+
+            _context.Tasks.Update(existingTask); 
+
+            if (taskDto.TaskLabels != null && taskDto.TaskLabels.Any())
+            {
+                existingTask.TaskLabels.RemoveAll(tl => !taskDto.TaskLabels.Any(dto => dto.ProjectLabelId == tl.ProjectLabelId));
+
+                foreach (var newLabel in taskDto.TaskLabels)
+                {
+                    if (!existingTask.TaskLabels.Any(tl => tl.ProjectLabelId == newLabel.ProjectLabelId))
+                    {
+                        existingTask.TaskLabels.Add(new TaskLabel
+                        {
+                            TaskId = taskid,
+                            ProjectLabelId = newLabel.ProjectLabelId
+                        });
+                    }
+                }
+            }
 
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
 
         [HttpDelete("{taskid}")]
         public async Task<IActionResult> DeleteTask(int taskid)
@@ -167,8 +220,6 @@ namespace api.Controllers
                 return StatusCode(500, $"Error deleting task: {ex.Message}");
             }
         }
-
-
 
     }
 }

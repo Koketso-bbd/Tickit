@@ -10,7 +10,7 @@ public partial class Task
 
     public string? TaskDescription { get; set; }
 
-    public required DateTime DueDate { get; set; }
+    public DateTime? DueDate { get; set; }
 
     public required int PriorityId { get; set; }
 
@@ -26,9 +26,9 @@ public partial class Task
 
     public virtual required Status Status { get; set; }
 
-    public virtual ICollection<StatusTrack> StatusTracks { get; set; } = new List<StatusTrack>();
+    public virtual List<TaskLabel> TaskLabels { get; set; } = new List<TaskLabel>();
 
-    public virtual ICollection<TaskLabel> TaskLabels { get; set; } = new List<TaskLabel>();
+    public virtual ICollection<StatusTrack> StatusTracks { get; set; } = new List<StatusTrack>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

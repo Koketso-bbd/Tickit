@@ -1,6 +1,8 @@
+using api.Models;
+
 namespace api.DTOs
 {
-    public class TaskDTO
+    public class TasksDTO
     {
         public int Id { get; set; }
         
@@ -17,6 +19,8 @@ namespace api.DTOs
         public required int ProjectId { get; set; }
 
         public required int StatusId { get; set; }
+
+        public List<TaskLabelDTO> TaskLabels { get; set; } = new List<TaskLabelDTO>();
     }
 
 }
