@@ -19,9 +19,7 @@ namespace api.Controllers
             _context = context;
             _logger = logger;
         }
-
         
-
         [HttpGet("{assigneeId}")]
         public async Task<ActionResult<IEnumerable<object>>> GetUserTasks(int assigneeId)
         {
@@ -64,113 +62,143 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTask([FromBody] TasksDTO taskDto)
         {
-            if (taskDto == null || string.IsNullOrWhiteSpace(taskDto.TaskName))
+            try
             {
-                return BadRequest("Invalid task data.");
-            }
-
-            if (taskDto.PriorityId <= 0 || taskDto.StatusId <= 0 || taskDto.AssigneeId <= 0)
-            {
-                return BadRequest("Priority, Status, and AssigneeId are required and must be valid.");
-            }
-
-            string description = string.IsNullOrWhiteSpace(taskDto.TaskDescription) ? "No description provided" : taskDto.TaskDescription;
-            DateTime dueDate = taskDto.DueDate.HasValue ? taskDto.DueDate.Value : DateTime.UtcNow.AddDays(7);
-            int assigneeId = taskDto.AssigneeId;
-
-            Console.WriteLine($"Creating Task: {taskDto.TaskName}, Priority: {taskDto.PriorityId}");
-
-            int newTaskId = await _context.CreateTaskAsync(
-                assigneeId, taskDto.TaskName, description,
-                dueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
-
-            if (newTaskId == 0)
-            {
-                return StatusCode(422, "Task creation failed due to a logical issue.");
-            }
-
-            if (taskDto.TaskLabels != null && taskDto.TaskLabels.Any())
-            {
-                var taskLabels = taskDto.TaskLabels.Select(label => new TaskLabel
+                if (taskDto == null)
                 {
-                    TaskId = newTaskId,
-                    ProjectLabelId = label.ProjectLabelId
-                }).ToList();
+                    return BadRequest("Task data cannot be null.");
+                }
 
-                await _context.TaskLabels.AddRangeAsync(taskLabels);
-                await _context.SaveChangesAsync();
+                if (string.IsNullOrWhiteSpace(taskDto.TaskName))
+                {
+                    return BadRequest("Task name is required.");
+                }
+
+                if (taskDto.PriorityId <= 0)
+                {
+                    return BadRequest("Priority is required and must be a positive integer.");
+                }
+
+                if (taskDto.StatusId <= 0)
+                {
+                    return BadRequest("Status is required and must be a valid value.");
+                }
+
+                if (taskDto.AssigneeId <= 0)
+                {
+                    return BadRequest("AssigneeId is required and must be a valid value.");
+                }
+
+                string description = string.IsNullOrWhiteSpace(taskDto.TaskDescription) ? "No description provided" : taskDto.TaskDescription;
+                DateTime dueDate = taskDto.DueDate ?? DateTime.UtcNow.AddDays(7);  // Use the provided due date or default to 7 days
+                int assigneeId = taskDto.AssigneeId;
+
+                Console.WriteLine($"Creating Task: {taskDto.TaskName}, Priority: {taskDto.PriorityId}");
+
+                int newTaskId = await _context.CreateTaskAsync(
+                    assigneeId, taskDto.TaskName, description,
+                    dueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
+
+                if (newTaskId == 0)
+                {
+                    return StatusCode(422, "Task creation failed due to a logical issue.");
+                }
+
+                if (taskDto.TaskLabels != null && taskDto.TaskLabels.Any())
+                {
+                    var taskLabels = taskDto.TaskLabels.Select(label => new TaskLabel
+                    {
+                        TaskId = newTaskId,
+                        ProjectLabelId = label.ProjectLabelId
+                    }).ToList();
+
+                    await _context.TaskLabels.AddRangeAsync(taskLabels);
+                    await _context.SaveChangesAsync();
+                }
+
+                return CreatedAtAction(nameof(CreateTask), new { taskId = newTaskId }, taskDto);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred while creating task: {ex.Message}");
 
-            return CreatedAtAction(nameof(CreateTask), new { taskId = newTaskId }, taskDto);
+                return StatusCode(500, "An unexpected error occurred while creating the task. Please try again later.");
+            }
         }
-
-
-
 
         [HttpPut("{taskid}")]
         public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TasksDTO taskDto)
         {
-            if (taskDto == null)
+            try
             {
-                return BadRequest("Invalid task data.");
-            }
-
-            var existingTask = await _context.Tasks
-                .Include(t => t.TaskLabels) 
-                .FirstOrDefaultAsync(t => t.Id == taskid);
-
-            if (existingTask == null)
-            {
-                return NotFound($"Task with ID {taskid} not found.");
-            }
-
-            if (taskDto.ProjectId != existingTask.ProjectId)
-            {
-                return BadRequest("Updating ProjectId is not allowed.");
-            }
-
-            if (string.IsNullOrWhiteSpace(taskDto.TaskName) || 
-                taskDto.PriorityId <= 0 || 
-                taskDto.StatusId <= 0 || 
-                taskDto.AssigneeId <= 0)
-            {
-                return BadRequest("Task Name, Priority, Status, and AssigneeId are required and must be valid.");
-            }
-
-            Console.WriteLine($"Updating Task {taskid}: Priority {taskDto.PriorityId}, Status {taskDto.StatusId}");
-
-            existingTask.AssigneeId = taskDto.AssigneeId;
-            existingTask.TaskName = taskDto.TaskName;
-            existingTask.TaskDescription = string.IsNullOrWhiteSpace(taskDto.TaskDescription) 
-                                            ? existingTask.TaskDescription 
-                                            : taskDto.TaskDescription;
-            existingTask.DueDate = (DateTime)taskDto.DueDate;
-            existingTask.PriorityId = taskDto.PriorityId;
-            existingTask.StatusId = taskDto.StatusId;
-
-            _context.Tasks.Update(existingTask); 
-
-            if (taskDto.TaskLabels != null && taskDto.TaskLabels.Any())
-            {
-                existingTask.TaskLabels.RemoveAll(tl => !taskDto.TaskLabels.Any(dto => dto.ProjectLabelId == tl.ProjectLabelId));
-
-                foreach (var newLabel in taskDto.TaskLabels)
+                if (taskDto == null)
                 {
-                    if (!existingTask.TaskLabels.Any(tl => tl.ProjectLabelId == newLabel.ProjectLabelId))
+                    return BadRequest("Invalid task data.");
+                }
+
+                var existingTask = await _context.Tasks
+                    .Include(t => t.TaskLabels)
+                    .FirstOrDefaultAsync(t => t.Id == taskid);
+
+                if (existingTask == null)
+                {
+                    return NotFound($"Task with ID {taskid} not found.");
+                }
+
+                if (taskDto.ProjectId != existingTask.ProjectId)
+                {
+                    return BadRequest("Updating ProjectId is not allowed.");
+                }
+
+                if (string.IsNullOrWhiteSpace(taskDto.TaskName) || 
+                    taskDto.PriorityId <= 0 || 
+                    taskDto.StatusId <= 0 || 
+                    taskDto.AssigneeId <= 0)
+                {
+                    return BadRequest("Task Name, Priority, Status, and AssigneeId are required and must be valid.");
+                }
+
+                Console.WriteLine($"Updating Task {taskid}: Priority {taskDto.PriorityId}, Status {taskDto.StatusId}");
+
+                existingTask.AssigneeId = taskDto.AssigneeId;
+                existingTask.TaskName = taskDto.TaskName;
+                existingTask.TaskDescription = string.IsNullOrWhiteSpace(taskDto.TaskDescription) 
+                                                ? existingTask.TaskDescription 
+                                                : taskDto.TaskDescription;
+                existingTask.DueDate = taskDto.DueDate ?? existingTask.DueDate;  
+                existingTask.PriorityId = taskDto.PriorityId;
+                existingTask.StatusId = taskDto.StatusId;
+
+                _context.Tasks.Update(existingTask);  
+
+                if (taskDto.TaskLabels != null && taskDto.TaskLabels.Any())
+                {
+                    existingTask.TaskLabels.RemoveAll(tl => !taskDto.TaskLabels.Any(dto => dto.ProjectLabelId == tl.ProjectLabelId));
+
+                    foreach (var newLabel in taskDto.TaskLabels)
                     {
-                        existingTask.TaskLabels.Add(new TaskLabel
+                        if (!existingTask.TaskLabels.Any(tl => tl.ProjectLabelId == newLabel.ProjectLabelId))
                         {
-                            TaskId = taskid,
-                            ProjectLabelId = newLabel.ProjectLabelId
-                        });
+                            existingTask.TaskLabels.Add(new TaskLabel
+                            {
+                                TaskId = taskid,
+                                ProjectLabelId = newLabel.ProjectLabelId
+                            });
+                        }
                     }
                 }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = $"Task with ID {taskid} successfully updated." });
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred while updating task {taskid}: {ex.Message}");
 
-            await _context.SaveChangesAsync();
-            return NoContent();
+                return StatusCode(500, "An unexpected error occurred while updating the task. Please try again later.");
+            }
         }
-
 
         [HttpDelete("{taskid}")]
         public async Task<IActionResult> DeleteTask(int taskid)
@@ -197,24 +225,29 @@ namespace api.Controllers
                     _context.Notifications.RemoveRange(notifications);
                 }
 
-                var tasklabels = await _context.TaskLabels.Where(tl => tl.TaskId == taskid).ToListAsync();
-                if (tasklabels.Any())
+                var taskLabels = await _context.TaskLabels.Where(tl => tl.TaskId == taskid).ToListAsync();
+                if (taskLabels.Any())
                 {
-                    _context.TaskLabels.RemoveRange(tasklabels);
+                    _context.TaskLabels.RemoveRange(taskLabels);
                 }
 
                 _context.Tasks.Remove(task);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();  
 
                 await transaction.CommitAsync();
+
                 return Ok(new { message = $"Task with ID {taskid} successfully deleted." });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Database error occurred while deleting task: {dbEx.Message}");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return StatusCode(500, $"Error deleting task: {ex.Message}");
+                return StatusCode(500, $"An unexpected error occurred while deleting task: {ex.Message}");
             }
         }
-
     }
 }
