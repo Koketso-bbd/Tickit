@@ -45,12 +45,7 @@ namespace api.Controllers
                     })
                     .ToListAsync();
 
-                if (projects == null || !projects.Any())
-                {
-                    var message = "No projects found";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
+                if (projects == null || !projects.Any()) return NotFound("No projects found");
 
                 return Ok(projects);
             }
@@ -84,12 +79,7 @@ namespace api.Controllers
                     })
                     .FirstOrDefaultAsync();
 
-                if (project == null)
-                {
-                    var message = $"Project with ID {id} not found";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
+                if (project == null) return NotFound($"Project with ID {id} not found");
 
                 return Ok(project);
             }
@@ -145,12 +135,7 @@ namespace api.Controllers
             {
                 var project = await _context.Projects.FindAsync(id);
 
-                if (project == null)
-                {
-                    var message = $"Project with ID {id} not found.";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
+                if (project == null) return NotFound($"Project with ID {id} not found.");
 
                 bool projectHasTasks = _context.Tasks.Any(t => t.ProjectId == id);
                 bool projectHasUsers = _context.UserProjects.Any(up => up.ProjectId == id);
@@ -227,12 +212,7 @@ namespace api.Controllers
                     })
                     .ToListAsync();
 
-                if (projectLabel == null)
-                {
-                    var message = $"Project with ID {id} not found";
-                    _logger.LogWarning(message);
-                    return NotFound(message);
-                }
+                if (projectLabel == null) return NotFound($"Project with ID {id} not found");
 
                 return Ok(projectLabel);
             }
@@ -269,8 +249,6 @@ namespace api.Controllers
             try
             {
                 await _context.AddLabelToProject(projectId, labelName);
-
-                _logger.LogInformation($"{labelName} label added to Project: {projectId}");
                 return Created();
             }
             catch (Exception ex)
