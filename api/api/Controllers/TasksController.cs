@@ -53,7 +53,6 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error retrieving tasks: {ex.Message}");
                 return StatusCode(500, "An internal server error occurred. Please try again later.");
             }
         }
@@ -78,8 +77,6 @@ namespace api.Controllers
                 DateTime dueDate = (DateTime)taskDto.DueDate;
                 int assigneeId = taskDto.AssigneeId;
 
-                Console.WriteLine($"Creating Task: {taskDto.TaskName}, Priority: {taskDto.PriorityId}");
-
                 await _context.CreateTaskAsync(
                     assigneeId, taskDto.TaskName, description,
                     dueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
@@ -92,8 +89,6 @@ namespace api.Controllers
 
                 if (createdTask == null)
                     return StatusCode(500, "Task was not found after insertion.");
-
-                Console.WriteLine($"Task found with ID: {createdTask.Id}");
 
                 if (taskDto.TaskLabels != null && taskDto.TaskLabels.Any())
                 {
@@ -111,7 +106,6 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred while creating task: {ex.Message}");
                 return StatusCode(500, "An unexpected error occurred while creating the task. Please try again later.");
             }
         }
@@ -145,8 +139,6 @@ namespace api.Controllers
             {
                 return BadRequest("Task Name, Priority, Status, and AssigneeId are required and must be valid.");
             }
-
-            Console.WriteLine($"Updating Task {taskid}: Priority {taskDto.PriorityId}, Status {taskDto.StatusId}");
 
             existingTask.AssigneeId = taskDto.AssigneeId;
             existingTask.TaskName = taskDto.TaskName;
