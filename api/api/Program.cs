@@ -1,45 +1,11 @@
 using api.Data;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-})
-.AddCookie()
-.AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    options.SaveTokens = true;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = false,
-        ValidIssuers = new[] { "https://accounts.google.com", "accounts.google.com" },
-        ValidAudience = builder.Configuration["Authentication:Google:ClientId"]
-    };
-});
-
-// Add secrets.json
-builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("Properties/secrets.json", optional:true, reloadOnChange:true);
 
 /*
  * This code here establishes a connection to our database ;)
@@ -48,6 +14,47 @@ string databaseServer = builder.Configuration["DBSERVER"];
 string databaseName = builder.Configuration["DBNAME"];
 string databaseUserId = builder.Configuration["DBUSERID"];
 string databasePassword = builder.Configuration["DBPASSWORD"];
+string googleClientId = builder.Configuration["CLIENTID"];
+string googleClientSecret = builder.Configuration["CLIENTSECRET"];
+
+// Add services to the container.
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = "GoogleOpenIdConnect";
+})
+.AddCookie()
+.AddOpenIdConnect("GoogleOpenIdConnect", options =>
+{
+    options.ClientId = googleClientId;
+    options.ClientSecret = googleClientSecret;
+    options.Authority = "https://accounts.google.com";
+    options.ResponseType = "code id_token";
+    options.CallbackPath = "/signin-google";
+    options.SaveTokens = true;
+    options.GetClaimsFromUserInfoEndpoint = true;
+    options.Scope.Add("openid");
+    options.Scope.Add("profile");
+    options.Scope.Add("email");
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = true;
+    options.Authority = "https://accounts.google.com";
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuers = new[] { "https://accounts.google.com", "accounts.google.com" },
+        ValidAudience = builder.Configuration["Authentication:Google:ClientId"]
+    };
+});
+
+// Add secrets.json
+builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("Properties/secrets.json", optional:true, reloadOnChange:true);
 
 builder.Services.AddDbContext<TickItDbContext>(options =>
     options.UseSqlServer($"Server={databaseServer};Database={databaseName};User Id={databaseUserId};Password={databasePassword};TrustServerCertificate=True"));
@@ -58,14 +65,31 @@ builder.Services.AddRouting(options =>
     options.LowercaseUrls = true; 
 });
 
-
-    
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.EnableAnnotations();
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "TickIt API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TickIt API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            new string[] {}
+        }
+    });
 });
 
 var app = builder.Build();
