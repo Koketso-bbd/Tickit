@@ -6,13 +6,11 @@ using api.Models;
 
 namespace api.Controllers;
 
-
 [Route("api/[controller]")]
 [ApiController]
 public class TasksController : ControllerBase
 {
     private readonly TickItDbContext _context;
-
     public TasksController(TickItDbContext context)
     {
         _context = context;
@@ -44,10 +42,7 @@ public class TasksController : ControllerBase
                 })
                 .ToListAsync();
 
-            if (!tasks.Any())
-            {
-                return NotFound($"No tasks found for user {assigneeId}.");
-            }
+            if (!tasks.Any()) return NotFound($"No tasks found for user {assigneeId}.");
 
             return Ok(tasks);
         }
@@ -86,7 +81,6 @@ public class TasksController : ControllerBase
                 .OrderByDescending(t => t.Id) 
                 .FirstOrDefaultAsync();
 
-
             if (createdTask == null)
                 return StatusCode(500, "Task was not found after insertion.");
 
@@ -113,24 +107,15 @@ public class TasksController : ControllerBase
     [HttpPut("{taskid}")]
     public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
     {
-        if (taskDto == null)
-        {
-            return BadRequest("Invalid task data");
-        }
+        if (taskDto == null) return BadRequest("Invalid task data");
 
         var existingTask = await _context.Tasks
             .Include(t => t.TaskLabels) 
             .FirstOrDefaultAsync(t => t.Id == taskid);
 
-        if (existingTask == null)
-        {
-            return NotFound($"Task with ID {taskid} not found.");
-        }
+        if (existingTask == null) return NotFound($"Task with ID {taskid} not found.");
 
-        if (taskDto.ProjectId != existingTask.ProjectId)
-        {
-            return BadRequest("Updating ProjectId is not allowed.");
-        }
+        if (taskDto.ProjectId != existingTask.ProjectId) return BadRequest("Updating ProjectId is not allowed.");
 
         if (string.IsNullOrWhiteSpace(taskDto.TaskName) || 
             taskDto.PriorityId <= 0 || 
@@ -221,4 +206,3 @@ public class TasksController : ControllerBase
         }
     }
 }
-
