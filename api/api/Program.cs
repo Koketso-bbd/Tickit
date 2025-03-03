@@ -22,6 +22,11 @@ builder.Services.AddDbContext<TickItDbContext>(options =>
     options.UseSqlServer($"Server={databaseServer};Database={databaseName};User Id={databaseUserId};Password={databasePassword};TrustServerCertificate=True"));
 
 builder.Services.AddControllers();
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true; 
+});
+
 builder.Services.AddControllersWithViews(options =>
     {
         options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
