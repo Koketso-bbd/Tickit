@@ -50,7 +50,18 @@ public class UserProjectsTest
             Assert.Equal("UserID is required.", message);
         }
         
-        
+
+        [Fact]
+        public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidProjectId()
+        {
+    
+            var result = await _controller.AddUserToProject(1,0,1);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var message = Assert.IsType<string>(badRequestResult.Value);
+            Assert.Equal("ProjectID is required.", message);
+        }
+
+
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenUserDoesNotExist()
         
