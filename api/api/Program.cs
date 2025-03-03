@@ -105,7 +105,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.DefaultModelsExpandDepth(-1);
-        options.OAuthClientId(googleClientId);
     });
 }
 
