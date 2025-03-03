@@ -60,7 +60,7 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTask([FromBody] TasksDTO taskDto)
+        public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
         {
             try
             {
@@ -120,7 +120,7 @@ namespace api.Controllers
 
 
         [HttpPut("{taskid}")]
-        public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TasksDTO taskDto)
+        public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
         {
             try
             {

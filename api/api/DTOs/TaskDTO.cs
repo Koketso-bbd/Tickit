@@ -2,7 +2,7 @@ using api.Models;
 
 namespace api.DTOs
 {
-    public class TasksDTO
+    public class TaskDTO
     {
         public int Id { get; set; }
         
