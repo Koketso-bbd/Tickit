@@ -80,7 +80,20 @@ Your database should be set up successfully now.
     dotnet add package Microsoft.NET.Test.Sdk --version 17.13.0
 ```
 
-3. Build the project
+3. Add Secrets
+
+    * Create `secrets.json` inside of `Properties` directory.
+    * Include the following in your secrets file:
+    ```
+    {
+        "DBSERVER": <database server>,
+        "DBNAME": <database name>,
+        "DBUSERID": <database user ID>,
+        "DBPASSWORD": <database password>
+    }
+    ```
+
+4. Build the project
     ```bash
     dotnet build
     ```

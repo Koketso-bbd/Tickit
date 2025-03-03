@@ -6,20 +6,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// Add User secrets
-builder.Configuration.AddUserSecrets<Program>();
+// Add secrets.json
+builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("Properties/secrets.json", optional:true, reloadOnChange:true);
 
 /*
- * This code here establishes a connection to our database "DefaultConnection" in appsettings.json team ;)
+ * This code here establishes a connection to our database ;)
  */
+string databaseServer = builder.Configuration["DBSERVER"];
+string databaseName = builder.Configuration["DBNAME"];
+string databaseUserId = builder.Configuration["DBUSERID"];
+string databasePassword = builder.Configuration["DBPASSWORD"];
+
 builder.Services.AddDbContext<TickItDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer($"Server={databaseServer};Database={databaseName};User Id={databaseUserId};Password={databasePassword};TrustServerCertificate=True"));
 
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews(options =>
     {
         options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
     });
+    
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
