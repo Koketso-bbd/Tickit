@@ -149,5 +149,26 @@ public class UserProjectsTest
             Assert.Equal(2, updatedUserProject.RoleId);
         }
 
+
+        [Fact]
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenUserIdIsInvalid()
+        {
+
+            var result = await _controller.RemoveUserFromProject(0, 1);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("UserID is required.", badRequestResult.Value);
+        }
+
+
+        [Fact]
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenProjectIdIsInvalid()
+        {
+
+            var result = await _controller.RemoveUserFromProject(1, 0);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("ProjectID is required.", badRequestResult.Value);
+        }
+
+
     }
 }
