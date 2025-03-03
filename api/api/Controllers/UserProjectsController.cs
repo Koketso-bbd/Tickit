@@ -6,12 +6,10 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class UserProjectsController : ControllerBase
     {
-
         private readonly TickItDbContext _context;
         private readonly ILogger<UserProjectsController> _logger;
 
