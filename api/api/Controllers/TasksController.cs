@@ -115,7 +115,7 @@ namespace api.Controllers
         {
             if (taskDto == null)
             {
-                return BadRequest("Invalid task data.");
+                return BadRequest("Invalid task data");
             }
 
             var existingTask = await _context.Tasks
@@ -205,7 +205,6 @@ namespace api.Controllers
 
                 _context.Tasks.Remove(task);
                 await _context.SaveChangesAsync();  
-
                 await transaction.CommitAsync();
 
                 return Ok(new { message = $"Task with ID {taskid} successfully deleted." });
