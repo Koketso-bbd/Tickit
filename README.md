@@ -98,14 +98,6 @@ Your database should be set up successfully now.
     dotnet build
     ```
 
-## Configuration
-
-1. Add your database connection string to `appsettings.json`:
-    ```bash
-      "ConnectionStrings": {
-    "DefaultConnection": "Server=<server_name>;Database=<database_name>;User Id=<user_id>;Password=<password>;TrustServerCertificate=True"}
-    ```
-
 ## Usage
 
 1. Run the application

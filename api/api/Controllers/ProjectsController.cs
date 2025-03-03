@@ -9,12 +9,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace api.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectsController : ControllerBase
     {
-
         private readonly TickItDbContext _context;
         private readonly ILogger<ProjectsController> _logger;
 
@@ -96,18 +94,12 @@ namespace api.Controllers
         [SwaggerOperation(Summary = "Create a new project")]
         public async Task<ActionResult<ProjectDTO>> AddProject(ProjectDTO projectDto)
         {
-            if (projectDto == null)
-            {
-                return BadRequest("Project data is null.");
-            }
+            if (projectDto == null) return BadRequest("Project data is null.");
 
             bool projectExists = await _context.Projects
                 .AnyAsync(p => p.ProjectName == projectDto.ProjectName && p.OwnerId == projectDto.Owner.ID);
 
-            if (projectExists)
-            {
-                return Conflict("A project with this name already exists for this owner");
-            }
+            if (projectExists) return Conflict("A project with this name already exists for this owner");
 
             var project = new Project
             {
@@ -258,7 +250,6 @@ namespace api.Controllers
                 var (statusCode, message) = HttpResponseHelper.InternalServerError("adding label to a project", _logger, ex);
                 return StatusCode(statusCode, message);
             }
-
         }
 
         [HttpDelete("{projectId}/labels")]

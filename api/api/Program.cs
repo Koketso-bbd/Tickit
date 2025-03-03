@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-
 var builder = WebApplication.CreateBuilder(args);
+
+// Add secrets.json
+builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("Properties/secrets.json", optional:true, reloadOnChange:true);
 
 /*
  * This code here establishes a connection to our database ;)
@@ -51,10 +54,6 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Authentication:Google:ClientId"]
     };
 });
-
-// Add secrets.json
-builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("Properties/secrets.json", optional:true, reloadOnChange:true);
 
 builder.Services.AddDbContext<TickItDbContext>(options =>
     options.UseSqlServer($"Server={databaseServer};Database={databaseName};User Id={databaseUserId};Password={databasePassword};TrustServerCertificate=True"));
