@@ -104,7 +104,7 @@ public class UserProjectsTest
         }
 
 
-         [Fact]
+        [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenRoleDoesNotExist()
         
         {
@@ -168,6 +168,38 @@ public class UserProjectsTest
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("ProjectID is required.", badRequestResult.Value);
         }
+
+         [Fact]
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenUserDoesNotExist()
+        
+        {
+            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
+            await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenUserDoesNotExist" });
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.RemoveUserFromProject(2, 1);
+
+            Assert.NotNull(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Equal("User does not exist", notFoundResult.Value);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenProjectDoesNotExist()
+        
+        {
+            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
+            await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenUserDoesNotExist" });
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.RemoveUserFromProject(1, 2);
+
+            Assert.NotNull(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Equal("Project does not exist", notFoundResult.Value);
+        }
+
+
 
 
     }
