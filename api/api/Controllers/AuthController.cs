@@ -1,32 +1,40 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+
 
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
     [HttpGet("login")]
-    public IActionResult Login(string returnurl = "/")
+    public IActionResult Login()
     {
-        return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/callback"},
-        GoogleDefaults.AuthenticationScheme);
+        return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/callback" }, 
+        "GoogleOpenIdConnect"); 
     }
 
     [HttpGet("callback")]
     public async Task<IActionResult> GoogleCallback()
     {
-        if (!User.Identity.IsAuthenticated) return Unauthorized();
+        if (!User.Identity.IsAuthenticated)
+            return Unauthorized();
 
-        var googleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var email = User.FindFirst(ClaimTypes.Email)?.Value;
-        var jwtToken = await HttpContext.GetTokenAsync("id_token");
-
-        return Ok(new {
-            GoogleId = googleId,
-            Email = email,
-            IdToken = jwtToken 
+        var authResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        var properties = authResult.Properties;
+        var tokens = properties?.GetTokens();
+        
+        var idToken = tokens?.FirstOrDefault(t => t.Name == "id_token")?.Value;
+        var accessToken = tokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
+        
+        return Ok(new 
+        { 
+            GoogleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            Email = User.FindFirst(ClaimTypes.Email)?.Value,
+            IdToken = idToken,
+            AccessToken = accessToken,
+            AllTokens = tokens?.Select(t => new { t.Name, t.Value })
         });
     }
 }
