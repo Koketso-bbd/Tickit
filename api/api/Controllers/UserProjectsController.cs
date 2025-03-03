@@ -43,10 +43,7 @@ namespace api.Controllers
                 bool userAlreadyInProject = await _context.UserProjects
                     .AnyAsync(up => up.ProjectId == projectId && up.MemberId == userId);
 
-                if (userAlreadyInProject)
-                {
-                    return BadRequest("User is already assigned to this project");
-                }
+                if (userAlreadyInProject) return BadRequest("User is already assigned to this project");
 
                 await _context.Database.ExecuteSqlRawAsync(
                     "EXEC sp_AddUserToProject @p0, @p1, @p2",

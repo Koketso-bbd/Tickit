@@ -24,11 +24,6 @@ builder.Services.AddRouting(options =>
 {
     options.LowercaseUrls = true; 
 });
-
-builder.Services.AddControllersWithViews(options =>
-    {
-        options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
-    });
     
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

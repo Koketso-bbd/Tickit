@@ -34,7 +34,6 @@ public class UserProjectsTest
             _dbContext?.Dispose();
         }
 
-
        [Fact]
         public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidUserId()
         {
@@ -43,30 +42,25 @@ public class UserProjectsTest
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var message = Assert.IsType<string>(badRequestResult.Value);
             Assert.Equal("UserID is required.", message);
-        }
-        
+        }        
 
         [Fact]
         public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidProjectId()
-        {
-    
+        {    
             var result = await _controller.AddUserToProject(1,0,1);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var message = Assert.IsType<string>(badRequestResult.Value);
             Assert.Equal("ProjectID is required.", message);
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidRoleId()
-        {
-    
+        {    
             var result = await _controller.AddUserToProject(1,1,0);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var message = Assert.IsType<string>(badRequestResult.Value);
             Assert.Equal("RoleID is required.", message);
         }
-
 
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenUserDoesNotExist()        
@@ -110,7 +104,6 @@ public class UserProjectsTest
             Assert.Equal("Role does not exist", notFoundResult.Value);
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
         { 
@@ -135,7 +128,6 @@ public class UserProjectsTest
             Assert.NotNull(updatedUserProject);
             Assert.Equal(2, updatedUserProject.RoleId);
         }
-
 
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenUserIdIsInvalid()
