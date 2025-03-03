@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using api.Data;
+using api.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace api.Controllers;
@@ -34,7 +36,19 @@ public class AuthController : ControllerBase
         var properties = authResult.Properties;
         var tokens = properties?.GetTokens();
         
+        var googleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var idToken = tokens?.FirstOrDefault(t => t.Name == "id_token")?.Value;
+
+        if (string.IsNullOrEmpty(googleId)) return BadRequest("Invalid Google ID");
+
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == googleId);
+
+        if (existingUser == null)
+        {
+            var newUser = new User { GitHubId = googleId };
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+        }
         
         return Ok(new 
         { 
