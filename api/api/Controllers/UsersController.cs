@@ -74,12 +74,12 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Gets notifications for a user")]
-        public async Task<IActionResult> GetUserNotifications(int userId)
+        public async Task<IActionResult> GetUserNotifications(int id)
         {   
             try
             {
                 var user = await _context.Notifications
-                    .Where(n => n.UserId == userId)
+                    .Where(n => n.UserId == id)
                     .Select(n => new NotificationsDTO
                     {
                         Id = n.Id,
