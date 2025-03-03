@@ -32,9 +32,7 @@ public class AuthController : ControllerBase
         { 
             GoogleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
             Email = User.FindFirst(ClaimTypes.Email)?.Value,
-            IdToken = idToken,
-            AccessToken = accessToken,
-            AllTokens = tokens?.Select(t => new { t.Name, t.Value })
+            IdToken = idToken
         });
     }
 }
