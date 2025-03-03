@@ -1,10 +1,8 @@
 using api.Controllers;
 using api.Data;
-using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -59,6 +57,17 @@ public class UserProjectsTest
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var message = Assert.IsType<string>(badRequestResult.Value);
             Assert.Equal("ProjectID is required.", message);
+        }
+
+
+        [Fact]
+        public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidRoleId()
+        {
+    
+            var result = await _controller.AddUserToProject(1,1,0);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var message = Assert.IsType<string>(badRequestResult.Value);
+            Assert.Equal("RoleID is required.", message);
         }
 
 
