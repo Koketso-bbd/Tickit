@@ -35,7 +35,6 @@ public class AuthController : ControllerBase
         var tokens = properties?.GetTokens();
         
         var idToken = tokens?.FirstOrDefault(t => t.Name == "id_token")?.Value;
-        var accessToken = tokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
         
         return Ok(new 
         { 
