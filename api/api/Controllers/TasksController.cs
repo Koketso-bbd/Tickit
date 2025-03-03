@@ -12,12 +12,10 @@ namespace api.Controllers
     public class TasksController : ControllerBase
     {
         private readonly TickItDbContext _context;
-        private readonly ILogger<TasksController> _logger;
 
         public TasksController(TickItDbContext context, ILogger<TasksController> logger)
         {
             _context = context;
-            _logger = logger;
         }
         
         [HttpGet("{assigneeId}")]
@@ -181,7 +179,6 @@ namespace api.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
-
 
         [HttpDelete("{taskid}")]
         public async Task<IActionResult> DeleteTask(int taskid)
