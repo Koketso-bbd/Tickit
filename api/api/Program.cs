@@ -6,14 +6,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// Add User secrets
-builder.Configuration.AddUserSecrets<Program>();
+// Add secrets.json
+builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("Properties/secrets.json", optional:true, reloadOnChange:true);
 
 /*
  * This code here establishes a connection to our database "DefaultConnection" in appsettings.json team ;)
  */
+string databaseServer = builder.Configuration["DBSERVER"];
+string databaseName = builder.Configuration["DBNAME"];
+string userId = builder.Configuration["DBUSERID"];
+string password = builder.Configuration["DBPASSWORD"];
+
 builder.Services.AddDbContext<TickItDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer($"Server={databaseServer};Database={databaseName};User Id={userId};Password={password};TrustServerCertificate=True"));
 
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews(options =>
