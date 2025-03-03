@@ -65,50 +65,42 @@ namespace api.Controllers
             try
             {
                 if (taskDto == null)
-                {
                     return BadRequest("Task data cannot be null.");
-                }
-
                 if (string.IsNullOrWhiteSpace(taskDto.TaskName))
-                {
                     return BadRequest("Task name is required.");
-                }
-
                 if (taskDto.PriorityId <= 0)
-                {
                     return BadRequest("Priority is required and must be a positive integer.");
-                }
-
                 if (taskDto.StatusId <= 0)
-                {
                     return BadRequest("Status is required and must be a valid value.");
-                }
-
                 if (taskDto.AssigneeId <= 0)
-                {
                     return BadRequest("AssigneeId is required and must be a valid value.");
-                }
 
                 string description = string.IsNullOrWhiteSpace(taskDto.TaskDescription) ? "No description provided" : taskDto.TaskDescription;
-                DateTime dueDate = taskDto.DueDate ?? DateTime.UtcNow.AddDays(7);  // Use the provided due date or default to 7 days
+                DateTime dueDate = (DateTime)taskDto.DueDate;
                 int assigneeId = taskDto.AssigneeId;
 
                 Console.WriteLine($"Creating Task: {taskDto.TaskName}, Priority: {taskDto.PriorityId}");
 
-                int newTaskId = await _context.CreateTaskAsync(
+                await _context.CreateTaskAsync(
                     assigneeId, taskDto.TaskName, description,
                     dueDate, taskDto.PriorityId, taskDto.ProjectId, taskDto.StatusId);
 
-                if (newTaskId == 0)
-                {
-                    return StatusCode(422, "Task creation failed due to a logical issue.");
-                }
+                var createdTask = await _context.Tasks
+                    .Where(t => t.AssigneeId == assigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
+                    .OrderByDescending(t => t.Id) 
+                    .FirstOrDefaultAsync();
+
+
+                if (createdTask == null)
+                    return StatusCode(500, "Task was not found after insertion.");
+
+                Console.WriteLine($"Task found with ID: {createdTask.Id}");
 
                 if (taskDto.TaskLabels != null && taskDto.TaskLabels.Any())
                 {
                     var taskLabels = taskDto.TaskLabels.Select(label => new TaskLabel
                     {
-                        TaskId = newTaskId,
+                        TaskId = createdTask.Id,
                         ProjectLabelId = label.ProjectLabelId
                     }).ToList();
 
@@ -116,15 +108,16 @@ namespace api.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                return CreatedAtAction(nameof(CreateTask), new { taskId = newTaskId }, taskDto);
+                return CreatedAtAction(nameof(CreateTask), new { taskId = createdTask.Id }, taskDto);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error occurred while creating task: {ex.Message}");
-
                 return StatusCode(500, "An unexpected error occurred while creating the task. Please try again later.");
             }
         }
+
+
 
         [HttpPut("{taskid}")]
         public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TasksDTO taskDto)
