@@ -40,6 +40,7 @@ namespace api.Controllers
                         TaskLabels = t.TaskLabels.Select(tl => new TaskLabelDTO
                         {
                             ID = tl.Id,
+                            TaskId = tl.TaskId,
                             ProjectLabelId = tl.ProjectLabelId
                         }).ToList()
                     })
