@@ -186,19 +186,19 @@ namespace api.Controllers
             try
             {
                 var statusTracks = await _context.StatusTracks.Where(st => st.TaskId == taskid).ToListAsync();
-                if (statusTracks.Any())
+                if (statusTracks.Count != 0)
                 {
                     _context.StatusTracks.RemoveRange(statusTracks);
                 }
 
                 var notifications = await _context.Notifications.Where(n => n.TaskId == taskid).ToListAsync();
-                if (notifications.Any())
+                if (notifications.Count != 0)
                 {
                     _context.Notifications.RemoveRange(notifications);
                 }
 
                 var taskLabels = await _context.TaskLabels.Where(tl => tl.TaskId == taskid).ToListAsync();
-                if (taskLabels.Any())
+                if (taskLabels.Count != 0)
                 {
                     _context.TaskLabels.RemoveRange(taskLabels);
                 }
