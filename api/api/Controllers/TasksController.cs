@@ -21,25 +21,26 @@ namespace api.Controllers
         }
         
         [HttpGet("{assigneeId}")]
-        public async Task<ActionResult<IEnumerable<object>>> GetUserTasks(int assigneeId)
+        public async Task<ActionResult<IEnumerable<TaskDTO>>> GetUserTasks(int assigneeId)
         {
             try
             {
                 var tasks = await _context.Tasks
                     .Where(t => t.AssigneeId == assigneeId)
-                    .Select(t => new
+                    .Select(t => new TaskDTO
                     {
-                        t.Id,
-                        t.TaskName,
-                        t.TaskDescription,
-                        t.DueDate,
-                        t.PriorityId,
-                        t.ProjectId,
-                        t.StatusId,
-                        TaskLabels = t.TaskLabels.Select(tl => new
+                        Id = t.Id,
+                        AssigneeId = t.AssigneeId,
+                        TaskName = t.TaskName,
+                        TaskDescription = t.TaskDescription,
+                        DueDate = t.DueDate,
+                        PriorityId = t.PriorityId,
+                        ProjectId = t.ProjectId,
+                        StatusId = t.StatusId,
+                        TaskLabels = t.TaskLabels.Select(tl => new TaskLabelDTO
                         {
-                            tl.Id,
-                            tl.ProjectLabelId
+                            ID = tl.Id,
+                            ProjectLabelId = tl.ProjectLabelId
                         }).ToList()
                     })
                     .ToListAsync();
@@ -54,7 +55,6 @@ namespace api.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error retrieving tasks: {ex.Message}");
-
                 return StatusCode(500, "An internal server error occurred. Please try again later.");
             }
         }
@@ -116,8 +116,6 @@ namespace api.Controllers
                 return StatusCode(500, "An unexpected error occurred while creating the task. Please try again later.");
             }
         }
-
-
 
         [HttpPut("{taskid}")]
         public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
