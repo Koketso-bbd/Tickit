@@ -13,7 +13,7 @@ namespace api.Controllers
     {
         private readonly TickItDbContext _context;
 
-        public TasksController(TickItDbContext context, ILogger<TasksController> logger)
+        public TasksController(TickItDbContext context)
         {
             _context = context;
         }
