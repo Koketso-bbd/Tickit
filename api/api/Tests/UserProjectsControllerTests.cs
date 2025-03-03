@@ -1,5 +1,6 @@
 using api.Controllers;
 using api.Data;
+using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,17 @@ public class UserProjectsTest
         }
 
 
+       [Fact]
+        public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidUserId()
+        {
+    
+            var result = await _controller.AddUserToProject(0,1,1);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var message = Assert.IsType<string>(badRequestResult.Value);
+            Assert.Equal("UserID is required.", message);
+        }
+        
+        
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenUserDoesNotExist()
         
@@ -88,7 +100,7 @@ public class UserProjectsTest
         }
 
 
-         [Fact]
+        [Fact]
         public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
 
         { 
