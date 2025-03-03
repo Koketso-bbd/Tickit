@@ -34,6 +34,40 @@ public class UserProjectsTest
             _dbContext?.Dispose();
         }
 
+
+       [Fact]
+        public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidUserId()
+        {
+    
+            var result = await _controller.AddUserToProject(0,1,1);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var message = Assert.IsType<string>(badRequestResult.Value);
+            Assert.Equal("UserID is required.", message);
+        }
+        
+
+        [Fact]
+        public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidProjectId()
+        {
+    
+            var result = await _controller.AddUserToProject(1,0,1);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var message = Assert.IsType<string>(badRequestResult.Value);
+            Assert.Equal("ProjectID is required.", message);
+        }
+
+
+        [Fact]
+        public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidRoleId()
+        {
+    
+            var result = await _controller.AddUserToProject(1,1,0);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var message = Assert.IsType<string>(badRequestResult.Value);
+            Assert.Equal("RoleID is required.", message);
+        }
+
+
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenUserDoesNotExist()        
         {
@@ -76,6 +110,7 @@ public class UserProjectsTest
             Assert.Equal("Role does not exist", notFoundResult.Value);
         }
 
+
         [Fact]
         public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
         { 
@@ -99,6 +134,55 @@ public class UserProjectsTest
             var updatedUserProject = await _dbContext.UserProjects.FirstOrDefaultAsync(up => up.MemberId == 1 && up.ProjectId == 1);
             Assert.NotNull(updatedUserProject);
             Assert.Equal(2, updatedUserProject.RoleId);
+        }
+
+
+        [Fact]
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenUserIdIsInvalid()
+        {
+
+            var result = await _controller.RemoveUserFromProject(0, 1);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("UserID is required.", badRequestResult.Value);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenProjectIdIsInvalid()
+        {
+
+            var result = await _controller.RemoveUserFromProject(1, 0);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("ProjectID is required.", badRequestResult.Value);
+        }
+
+         [Fact]
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenUserDoesNotExist()
+        
+        {
+            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
+            await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenUserDoesNotExist" });
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.RemoveUserFromProject(2, 1);
+
+            Assert.NotNull(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Equal("User does not exist", notFoundResult.Value);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenProjectDoesNotExist()
+        
+        {
+            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
+            await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenUserDoesNotExist" });
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.RemoveUserFromProject(1, 2);
+
+            Assert.NotNull(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Equal("Project does not exist", notFoundResult.Value);
         }
     }
 }
