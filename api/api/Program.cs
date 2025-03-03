@@ -28,7 +28,6 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = "GoogleOpenIdConnect";
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddCookie()
 .AddOpenIdConnect("GoogleOpenIdConnect", options =>
@@ -55,7 +54,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidIssuers = new[] { "https://accounts.google.com", "accounts.google.com" },
-        ValidAudience = builder.Configuration["Authentication:Google:ClientId"]
+        ValidAudience = googleClientId
     };
 });
 
@@ -63,6 +62,7 @@ builder.Services.AddDbContext<TickItDbContext>(options =>
     options.UseSqlServer($"Server={databaseServer};Database={databaseName};User Id={databaseUserId};Password={databasePassword};TrustServerCertificate=True"));
 
 builder.Services.AddControllers();
+
 
 builder.Services.AddRouting(options =>
 {
