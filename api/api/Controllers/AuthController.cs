@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using api.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,12 @@ namespace api.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
+    private readonly TickItDbContext _context;
+    public AuthController(TickItDbContext context)
+    {
+        _context = context;
+    }
+
     [HttpGet("login")]
     public IActionResult Login()
     {
