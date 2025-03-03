@@ -41,20 +41,27 @@ public class AuthController : ControllerBase
 
         if (string.IsNullOrEmpty(googleId)) return BadRequest("Invalid Google ID");
 
-        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == googleId);
-
-        if (existingUser == null)
+        try
         {
-            var newUser = new User { GitHubId = googleId };
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == googleId);
+
+            if (existingUser == null)
+            {
+                var newUser = new User { GitHubId = googleId };
+                _context.Users.Add(newUser);
+                await _context.SaveChangesAsync();
+            }
+            
+            return Ok(new 
+            { 
+                GoogleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                Email = User.FindFirst(ClaimTypes.Email)?.Value,
+                IdToken = idToken
+            });
         }
-        
-        return Ok(new 
-        { 
-            GoogleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-            Email = User.FindFirst(ClaimTypes.Email)?.Value,
-            IdToken = idToken
-        });
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An unexpected error occurred while attempting to add user: {ex.Message}");
+        }
     }
 }
