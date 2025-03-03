@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.DTOs;
 using api.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api.Controllers;
 
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class TasksController : ControllerBase
 {
     private readonly TickItDbContext _context;
