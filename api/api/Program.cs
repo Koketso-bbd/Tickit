@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +45,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = true;
+    options.RequireHttpsMetadata = false;
     options.Authority = "https://accounts.google.com";
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -59,6 +62,7 @@ builder.Services.AddDbContext<TickItDbContext>(options =>
     options.UseSqlServer($"Server={databaseServer};Database={databaseName};User Id={databaseUserId};Password={databasePassword};TrustServerCertificate=True"));
 
 builder.Services.AddControllers();
+
 builder.Services.AddRouting(options =>
 {
     options.LowercaseUrls = true; 
@@ -100,6 +104,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.DefaultModelsExpandDepth(-1);
+        options.OAuthClientId(googleClientId);
     });
 }
 
