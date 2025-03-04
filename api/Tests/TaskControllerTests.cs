@@ -130,7 +130,7 @@ namespace api.Tests
     
             var taskDto = new TaskDTO
             {
-                TaskName = " ", 
+                TaskName = "", 
                 PriorityId = 1,
                 StatusId = 1,
                 AssigneeId = 1,
