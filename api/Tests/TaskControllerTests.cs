@@ -83,5 +83,42 @@ namespace api.Tests
             Assert.Equal(task.TaskLabels.First().ProjectLabelId, label.ProjectLabelId);
         }
 
+        [Fact]
+        public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsNotFound_WhenTasksDoesNotExist()
+        {
+            
+            var assigneeId = 1;
+            var assigneeId2 = 2;
+
+            var task = new Models.Task
+            {
+                Id = 1,
+                AssigneeId = assigneeId,
+                TaskName = "Task 1",
+                TaskDescription = "Description 1",
+                DueDate = DateTime.Now.AddDays(5),
+                PriorityId = 1,
+                ProjectId = 1,
+                StatusId = 1,
+                TaskLabels = new List<TaskLabel>
+                {
+                    new TaskLabel { Id = 1, TaskId = 1, ProjectLabelId = 1 }
+                }
+            };
+
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            
+            var result = await _controller. GetUserTasks(assigneeId2);
+
+            
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            var message = Assert.IsAssignableFrom<string>(notFoundResult.Value);
+            Assert.Equal($"No tasks found for user {assigneeId2}.",message);
+
+            
+        }
+
     }
 }
