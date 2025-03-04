@@ -228,7 +228,6 @@ namespace api.Tests
             };
 
             var result = await _controller.CreateTask(taskDto);
-
             Assert.IsType<OkResult>(result); 
         }
 
