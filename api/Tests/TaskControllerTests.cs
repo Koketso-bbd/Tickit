@@ -21,8 +21,6 @@ namespace api.Tests
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
             _dbContext = new TickItDbContext(_dbContextOptions);
-
-            _loggerMock = new Mock<ILogger<TasksController>>();
             _controller = new TasksController(_dbContext);
         }
 
