@@ -11,7 +11,6 @@ namespace api.Tests
 {
     public class TaskControllerTests
     {
-        private readonly Mock<ILogger<TasksController>> _loggerMock;
         private readonly DbContextOptions<TickItDbContext> _dbContextOptions;
         private readonly TickItDbContext _dbContext;
         private readonly TasksController _controller;
