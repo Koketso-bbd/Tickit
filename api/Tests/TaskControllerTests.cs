@@ -4,7 +4,6 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using Xunit;
 
 namespace api.Tests
@@ -30,11 +29,9 @@ namespace api.Tests
             _dbContext?.Dispose();
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsOkResult_WhenTasksExist()
-        {
-            
+        {            
             var assigneeId = 1;
 
             var task = new Models.Task
@@ -78,11 +75,9 @@ namespace api.Tests
             Assert.Equal(task.TaskLabels.First().ProjectLabelId, label.ProjectLabelId);
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsNotFound_WhenTasksDoesNotExist()
-        {
-            
+        {            
             var assigneeId = 1;
             var assigneeId2 = 2;
 
@@ -112,7 +107,6 @@ namespace api.Tests
             Assert.Equal($"No tasks found for user {assigneeId2}.",message); 
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskdtoEmpty()
         {
@@ -123,11 +117,9 @@ namespace api.Tests
             Assert.Equal("Task data cannot be null.",message);
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskNameIsEmpty()
-        {
-    
+        {    
             var taskDto = new TaskDTO
             {
                 TaskName = "", 
@@ -148,7 +140,6 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenPriorityIdIsInvalid()
         {
-
             var taskDto = new TaskDTO
             {
                 TaskName = "Task 1",
@@ -166,11 +157,9 @@ namespace api.Tests
             Assert.Equal("Priority is required and must be a positive integer.", badRequestResult.Value);
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenStatusIdIsInvalid()
-        {
-            
+        {            
             var taskDto = new TaskDTO
             {
                 TaskName = "Task 1",
@@ -187,7 +176,6 @@ namespace api.Tests
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Status is required and must be a valid value.", badRequestResult.Value);
         }
-
 
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenAssigneeIdIsInvalid()
@@ -209,7 +197,6 @@ namespace api.Tests
             Assert.Equal("AssigneeId is required and must be a valid value.", badRequestResult.Value);
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsOkResult_WhenTaskDtoIsValid()
         {
@@ -227,8 +214,5 @@ namespace api.Tests
             var result = await _controller.CreateTask(taskDto);
             Assert.IsType<ObjectResult>(result); 
         }
-
-
-
     }
 }

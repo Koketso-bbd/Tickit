@@ -148,8 +148,7 @@ public class UserProjectsTest
         }
 
          [Fact]
-        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenUserDoesNotExist()
-        
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenUserDoesNotExist()        
         {
             await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenUserDoesNotExist" });
@@ -163,8 +162,7 @@ public class UserProjectsTest
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenProjectDoesNotExist()
-        
+        public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenProjectDoesNotExist()        
         {
             await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenUserDoesNotExist" });
