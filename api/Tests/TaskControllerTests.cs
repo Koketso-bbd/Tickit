@@ -148,6 +148,50 @@ namespace api.Tests
             Assert.Equal("Task name is required.", badRequestResult.Value);
         }
 
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenPriorityIdIsInvalid()
+        {
+
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 0, 
+                StatusId = 1,
+                AssigneeId = 1,
+                TaskDescription = "Testing for when PriorityId is invalid",
+                DueDate = DateTime.Now,
+                ProjectId = 1,
+            };
+
+            var result = await _controller.CreateTask(taskDto);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Priority is required and must be a positive integer.", badRequestResult.Value);
+        }
+
+
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenStatusIdIsInvalid()
+        {
+            
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                StatusId = -1, 
+                AssigneeId = 1,
+                TaskDescription = "Testing for when StatusID is Invalid",
+                DueDate = DateTime.Now,
+                ProjectId = 1,
+            };
+
+            var result = await _controller.CreateTask(taskDto);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Status is required and must be a valid value.", badRequestResult.Value);
+        }
+
+
        
     }
 }
