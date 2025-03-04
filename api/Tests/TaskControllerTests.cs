@@ -59,10 +59,8 @@ namespace api.Tests
             await _dbContext.Tasks.AddAsync(task);
             await _dbContext.SaveChangesAsync();
 
-            
             var result = await _controller. GetUserTasks(assigneeId);
 
-            
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var returnValue = Assert.IsAssignableFrom<List<TaskDTO>>(okResult.Value);
             Assert.Single(returnValue);
@@ -82,6 +80,7 @@ namespace api.Tests
             Assert.Equal(task.TaskLabels.First().TaskId, label.TaskId);
             Assert.Equal(task.TaskLabels.First().ProjectLabelId, label.ProjectLabelId);
         }
+
 
         [Fact]
         public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsNotFound_WhenTasksDoesNotExist()
@@ -109,15 +108,11 @@ namespace api.Tests
             await _dbContext.Tasks.AddAsync(task);
             await _dbContext.SaveChangesAsync();
 
-            
             var result = await _controller. GetUserTasks(assigneeId2);
 
-            
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
             var message = Assert.IsAssignableFrom<string>(notFoundResult.Value);
-            Assert.Equal($"No tasks found for user {assigneeId2}.",message);
-
-            
+            Assert.Equal($"No tasks found for user {assigneeId2}.",message); 
         }
 
 
@@ -130,5 +125,29 @@ namespace api.Tests
             var message = Assert.IsType<string>(badRequestResult.Value);
             Assert.Equal("Task data cannot be null.",message);
         }
+
+
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskNameIsEmpty()
+        {
+    
+            var taskDto = new TaskDTO
+            {
+                TaskName = " ", 
+                PriorityId = 1,
+                StatusId = 1,
+                AssigneeId = 1,
+                TaskDescription = "Testing for when Taskname is empty",
+                DueDate = DateTime.Now,
+                ProjectId = 1,
+            };
+            
+            var result = await _controller.CreateTask(taskDto);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Task name is required.", badRequestResult.Value);
+        }
+
+       
     }
 }
