@@ -23,29 +23,6 @@ namespace api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [SwaggerOperation(Summary = "Get all users")]
-        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
-        {
-            try
-            {
-                var users = await _context.Users
-                    .Select(u => new UserDTO { ID = u.Id, GitHubID = u.GitHubId })
-                    .ToListAsync();
-
-                if (users == null || !users.Any()) return NotFound("No users found.");
-
-                return Ok(users);
-            }
-            catch (Exception ex)
-            {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("users", _logger, ex);
-                return StatusCode(statusCode, message);
-            }
-        }
-
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
