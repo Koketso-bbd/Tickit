@@ -102,7 +102,7 @@ Your database should be set up successfully now.
 
 1. Run the application
     ```bash
-    dotnet run
+    dotnet run --urls="https://localhost:7151"
     ```
 
 2. The API will be available at `http://localhost:5213/` and `https://localhost:7151` by default (unless you specify it differently on `launchSettings.json`).
