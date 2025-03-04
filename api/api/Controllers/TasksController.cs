@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.DTOs;
 using api.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
 
@@ -17,6 +18,9 @@ public class TasksController : ControllerBase
     }
     
     [HttpGet("{assigneeId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerOperation(Summary = "Get all tasks assigned to a user")]
     public async Task<ActionResult<IEnumerable<TaskDTO>>> GetUserTasks(int assigneeId)
     {
         try
@@ -53,6 +57,10 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [SwaggerOperation(Summary = "Create task")]
     public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
     {
         try
@@ -105,6 +113,10 @@ public class TasksController : ControllerBase
     }
 
     [HttpPut("{taskid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerOperation(Summary = "Update task")]
     public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
     {
         if (taskDto == null) return BadRequest("Invalid task data");
@@ -158,6 +170,9 @@ public class TasksController : ControllerBase
     }
 
     [HttpDelete("{taskid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [SwaggerOperation(Summary = "Delete task")]
     public async Task<IActionResult> DeleteTask(int taskid)
     {
         var task = await _context.Tasks.FindAsync(taskid);

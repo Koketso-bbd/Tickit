@@ -256,7 +256,7 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
+        [SwaggerOperation(Summary = "Delete label from a project")]
         public async Task<IActionResult> DeleteProjectLabel(int id, string labelName)
         {
             try

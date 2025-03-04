@@ -3,6 +3,7 @@ using api.DTOs;
 using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers
 {
@@ -20,6 +21,7 @@ namespace api.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Get all statuses")]
         public async Task<ActionResult<IEnumerable<StatusDTO>>> GetStatuses()
         {
             try
