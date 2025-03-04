@@ -56,7 +56,7 @@ namespace api.Tests
             await _dbContext.Tasks.AddAsync(task);
             await _dbContext.SaveChangesAsync();
 
-            var result = await _controller. GetUserTasks(assigneeId);
+            var result = await _controller.GetUserTasks(assigneeId);
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var returnValue = Assert.IsAssignableFrom<List<TaskDTO>>(okResult.Value);
