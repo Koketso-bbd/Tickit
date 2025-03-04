@@ -120,5 +120,15 @@ namespace api.Tests
             
         }
 
+
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskdtoEmpty()
+        {
+            TaskDTO? taskDTO = null;
+            var result = await _controller.CreateTask(taskDTO);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var message = Assert.IsType<string>(badRequestResult.Value);
+            Assert.Equal("Task data cannot be null.",message);
+        }
     }
 }
