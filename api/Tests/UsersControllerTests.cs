@@ -36,7 +36,8 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task GetUserById_ReturnsUser()
         {
-            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            string githubID = "GitHub User 1";
+            var user = new User { Id = 1, GitHubId = githubID };
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
 
@@ -47,7 +48,7 @@ namespace api.Tests
             var returnedUser = Assert.IsType<UserDTO>(okResult.Value);
 
             Assert.Equal(1, returnedUser.ID);
-            Assert.Equal("GitHub User 1", returnedUser.GitHubID);
+            Assert.Equal(githubID, returnedUser.GitHubID);
         }
 
         [Fact]
