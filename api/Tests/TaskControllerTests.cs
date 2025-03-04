@@ -195,7 +195,6 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenAssigneeIdIsInvalid()
         {
-           
             var taskDto = new TaskDTO
             {
                 TaskName = "Task 1",
@@ -207,7 +206,6 @@ namespace api.Tests
                 ProjectId = 1,
             };
 
-            
             var result = await _controller.CreateTask(taskDto);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -215,7 +213,24 @@ namespace api.Tests
         }
 
 
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsOkResult_WhenTaskDtoIsValid()
+        {
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Valid Task",
+                PriorityId = 1,
+                StatusId = 1,
+                AssigneeId = 1,
+                TaskDescription = "Testing for when TaskDTO is Valid",
+                DueDate = DateTime.Now,
+                ProjectId = 1,
+            };
 
-       
+            var result = await _controller.CreateTask(taskDto);
+
+            Assert.IsType<OkResult>(result); 
+        }
+
     }
 }
