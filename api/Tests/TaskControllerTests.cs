@@ -192,6 +192,30 @@ namespace api.Tests
         }
 
 
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenAssigneeIdIsInvalid()
+        {
+           
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                StatusId = 1,
+                AssigneeId = 0,
+                TaskDescription = "Testing for when AssigneeId is Invalid",
+                DueDate = DateTime.Now,
+                ProjectId = 1,
+            };
+
+            
+            var result = await _controller.CreateTask(taskDto);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("AssigneeId is required and must be a valid value.", badRequestResult.Value);
+        }
+
+
+
        
     }
 }
