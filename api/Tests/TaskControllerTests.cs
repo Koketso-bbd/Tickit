@@ -105,7 +105,7 @@ namespace api.Tests
             await _dbContext.Tasks.AddAsync(task);
             await _dbContext.SaveChangesAsync();
 
-            var result = await _controller. GetUserTasks(assigneeId2);
+            var result = await _controller.GetUserTasks(assigneeId2);
 
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
             var message = Assert.IsAssignableFrom<string>(notFoundResult.Value);
