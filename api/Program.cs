@@ -46,10 +46,6 @@ builder.Services.AddAuthentication(options =>
     options.Authority = "https://accounts.google.com";
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
         ValidIssuers = new[] { "https://accounts.google.com", "accounts.google.com" },
         ValidAudience = googleClientId
     };
