@@ -2,8 +2,10 @@
 using api.Data;
 using api.DTOs;
 using api.Models;
+using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Moq;
 using Xunit;
 using systemTasks = System.Threading.Tasks;
@@ -103,9 +105,9 @@ namespace api.Tests
             int id = 1;
             var result = await _controller.GetProjectById(id);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-            var message = Assert.IsType<string>(notFoundResult.Value);
+            var response = notFoundResult.Value as dynamic;
 
-            Assert.Equal($"Project with ID {id} not found", message);
+            Assert.Equal($"Project with ID {id} not found", response.message.ToString());
         }
 
         [Fact]
@@ -141,8 +143,8 @@ namespace api.Tests
             ProjectDTO? projectDTO = null;
             var result = await _controller.AddProject(projectDTO);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-            var message = Assert.IsType<string>(badRequestResult.Value);
-            Assert.Equal("Project data is null.", message);
+            var response = badRequestResult.Value as dynamic;
+            Assert.Equal("Project data is null.", response.message.ToString());
         }
 
         [Fact]
@@ -166,9 +168,9 @@ namespace api.Tests
 
             result = await _controller.AddProject(projectDTO);
             var conflictResult = Assert.IsType<ConflictObjectResult>(result.Result);
-            var message = Assert.IsType<string>(conflictResult.Value);
+            var response = conflictResult.Value as dynamic;
 
-            Assert.Equal("A project with this name already exists for this owner", message);
+            Assert.Equal("A project with this name already exists for this owner", response.message.ToString());
         }
 
         [Fact]
@@ -204,8 +206,8 @@ namespace api.Tests
         {
             var result = await _controller.DeleteProject(1);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            var message = Assert.IsType<string>(notFoundResult.Value);
-            Assert.Equal("Project with ID 1 not found.", message);
+            var response = notFoundResult.Value as dynamic;
+            Assert.Equal("Project with ID 1 not found.", response.message.ToString());
         }
 
         [Fact]
@@ -254,8 +256,8 @@ namespace api.Tests
         {
             var result = await _controller.GetUsersProjects(1);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-            var message = Assert.IsType<string>(notFoundResult.Value);
-            Assert.Equal("User does not exist", message);
+            var response = notFoundResult.Value as dynamic;
+            Assert.Equal("User does not exist", response.message.ToString());
         }
 
         [Fact]
@@ -320,13 +322,13 @@ namespace api.Tests
         {
             var resultNull = await _controller.AddProjectLabel(1, null);
             var badRequestResultNull = Assert.IsType<BadRequestObjectResult>(resultNull.Result);
-            var messageNull = Assert.IsType<string>(badRequestResultNull.Value);
-            Assert.Equal("labelName is required.", messageNull);
+            var responseNull = badRequestResultNull.Value as dynamic;
+            Assert.Equal("labelName is required.", responseNull.message.ToString());
 
             var resultEmpty = await _controller.AddProjectLabel(1, "");
             var badRequestResultEmpty = Assert.IsType<BadRequestObjectResult>(resultEmpty.Result);
-            var messageEmpty = Assert.IsType<string>(badRequestResultEmpty.Value);
-            Assert.Equal("labelName is required.", messageEmpty);
+            var responseEmpty = badRequestResultEmpty.Value as dynamic;
+            Assert.Equal("labelName is required.", responseEmpty.message.ToString());
         }
 
         [Fact]
@@ -334,13 +336,13 @@ namespace api.Tests
         {
             var result1 = await _controller.AddProjectLabel(0, "label 1");
             var badRequestResult1 = Assert.IsType<BadRequestObjectResult>(result1.Result);
-            var message1 = Assert.IsType<string>(badRequestResult1.Value);
-            Assert.Equal("ProjectID is required.", message1);
+            var response1 = badRequestResult1.Value as dynamic;
+            Assert.Equal("ProjectID is required.", response1.message.ToString());
 
             var result2 = await _controller.AddProjectLabel(-1, "label 1");
             var badRequestResult2 = Assert.IsType<BadRequestObjectResult>(result2.Result);
-            var message2 = Assert.IsType<string>(badRequestResult2.Value);
-            Assert.Equal("ProjectID is required.", message2);
+            var response2 = badRequestResult2.Value as dynamic;
+            Assert.Equal("ProjectID is required.", response2.message.ToString());
         }
 
         [Fact]
@@ -348,8 +350,8 @@ namespace api.Tests
         {
             var result = await _controller.AddProjectLabel(1, "label 1");
             var notFoundResult= Assert.IsType<NotFoundObjectResult>(result.Result);
-            var message= Assert.IsType<string>(notFoundResult.Value);
-            Assert.Equal("Project not found", message);
+            var response = notFoundResult.Value as dynamic;
+            Assert.Equal("Project not found", response.message.ToString());
         }
 
         [Fact]
@@ -357,13 +359,13 @@ namespace api.Tests
         {
             var resultNull = await _controller.DeleteProjectLabel(1, null);
             var badRequestResultNull = Assert.IsType<BadRequestObjectResult>(resultNull);
-            var messageNull = Assert.IsType<string>(badRequestResultNull.Value);
-            Assert.Equal("labelName is required.", messageNull);
+            var responseNull = badRequestResultNull.Value as dynamic;
+            Assert.Equal("labelName is required.", responseNull.message.ToString());
 
             var resultEmpty = await _controller.DeleteProjectLabel(1, "");
             var badRequestResultEmpty = Assert.IsType<BadRequestObjectResult>(resultEmpty);
-            var messageEmpty = Assert.IsType<string>(badRequestResultEmpty.Value);
-            Assert.Equal("labelName is required.", messageEmpty);
+            var responseEmpty = badRequestResultEmpty.Value as dynamic;
+            Assert.Equal("labelName is required.", responseEmpty.message.ToString());
         }
 
         [Fact]
@@ -371,13 +373,13 @@ namespace api.Tests
         {
             var result1 = await _controller.DeleteProjectLabel(0, "label 1");
             var badRequestResult1 = Assert.IsType<BadRequestObjectResult>(result1);
-            var message1 = Assert.IsType<string>(badRequestResult1.Value);
-            Assert.Equal("ProjectID is required.", message1);
+            var response1 = badRequestResult1.Value as dynamic;
+            Assert.Equal("ProjectID is required.", response1.message.ToString());
 
             var result2 = await _controller.DeleteProjectLabel(-1, "label 1");
             var badRequestResult2 = Assert.IsType<BadRequestObjectResult>(result2);
-            var message2 = Assert.IsType<string>(badRequestResult2.Value);
-            Assert.Equal("ProjectID is required.", message2);
+            var response2 = badRequestResult2.Value as dynamic;
+            Assert.Equal("ProjectID is required.", response2.message.ToString());
         }
 
         [Fact]
@@ -385,8 +387,8 @@ namespace api.Tests
         {
             var result = await _controller.DeleteProjectLabel(1, "label 1");
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            var message = Assert.IsType<string>(notFoundResult.Value);
-            Assert.Equal("Project not found", message);
+            var response = notFoundResult.Value as dynamic;
+            Assert.Equal("Project not found", response.message.ToString());
         }
     }
 }
