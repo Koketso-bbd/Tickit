@@ -5,6 +5,7 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.ComponentModel.DataAnnotations;
 
 namespace api.Controllers;
 
@@ -57,11 +58,11 @@ public class TasksController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> CreateTask(
-        //POST /api/tasks?assigneeId=1&taskName=New+Feature&priorityId=2&projectId=3&statusId=1&taskDescription=Refactor+code&dueDate=2025-03-05T07:31:02.947Z&projectLabelIds=10&projectLabelIds=20
-        [FromQuery] int assigneeId,
-        [FromQuery] string taskName,
-        [FromQuery] int priorityId,
-        [FromQuery] int projectId,
+        //POST /api/tasks?assigneeId=1&taskName=New+Feature&priorityId=2&projectId=3&taskDescription=Refactor+code&dueDate=2025-03-05T07:31:02.947Z&projectLabelIds=10&projectLabelIds=20
+        [Required] int assigneeId,
+        [Required] string taskName,
+        [Required] int priorityId,
+        [Required] int projectId,
         [FromQuery] string? taskDescription = null,
         [FromQuery] DateTime? dueDate = null,
         [FromQuery] List<int>? projectLabelIds = null)
@@ -76,7 +77,7 @@ public class TasksController : ControllerBase
                 return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
 
             string description = string.IsNullOrWhiteSpace(taskDescription) ? "No description provided" : taskDescription;
-            DateTime finalDueDate = dueDate ?? DateTime.UtcNow.AddDays(7);  // Default to 7 days if not provided
+            DateTime finalDueDate = dueDate ?? DateTime.UtcNow.AddDays(7); 
             int defaultStatusId = 1;
 
             await _context.CreateTaskAsync(
