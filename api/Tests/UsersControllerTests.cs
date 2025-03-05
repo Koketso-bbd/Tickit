@@ -62,9 +62,9 @@ namespace api.Tests
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            var message = Assert.IsType<string>(notFoundResult.Value);
+            var response = notFoundResult.Value as dynamic;
 
-            Assert.Equal("User not found", message);
+            Assert.Equal("User not found", response.message.ToString());
         }
 
         [Fact]
