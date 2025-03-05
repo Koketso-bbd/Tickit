@@ -114,19 +114,26 @@ public class TasksController : ControllerBase
         if (existingTask == null) return NotFound(new { message = $"Task with ID {taskid} not found." });
 
         if (!string.IsNullOrWhiteSpace(taskDto.TaskName)) 
+            if (taskDto.TaskName.Length > 255) return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
             existingTask.TaskName = taskDto.TaskName;
 
         if (taskDto.PriorityId.HasValue) 
+            if (taskDto.PriorityId < 1 || taskDto.PriorityId > 4)
+                return BadRequest(new { message = "Priority must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'." });
             existingTask.PriorityId = taskDto.PriorityId.Value;
 
         if (taskDto.AssigneeId.HasValue) 
+            if (taskDto.AssigneeId <= 0)
+                return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
+            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
+            if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
             existingTask.AssigneeId = taskDto.AssigneeId.Value;
 
         if (!string.IsNullOrWhiteSpace(taskDto.TaskDescription)) 
+        if (taskDto.TaskDescription.Length > 1000) return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
             existingTask.TaskDescription = taskDto.TaskDescription;
 
-        if (taskDto.DueDate.HasValue) 
-            existingTask.DueDate = taskDto.DueDate.Value;
+        if (taskDto.DueDate.HasValue) existingTask.DueDate = taskDto.DueDate.Value;
 
         if (taskDto.ProjectLabelIds != null)
         {
