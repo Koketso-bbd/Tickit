@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace api.Controllers
 {
@@ -27,7 +28,7 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [SwaggerOperation(Summary = "Adds a user to a project")]
-        public async Task<ActionResult> AddUserToProject(int userId, int projectId,  int roleId)
+        public async Task<ActionResult> AddUserToProject([Required] int userId, [Required] int projectId,  [Required] int roleId)
         {
             var availableRoles = await _context.Roles
                     .Select(r => new { r.Id, r.RoleName })
@@ -73,7 +74,7 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Removes a user from a project")]
-        public async Task<ActionResult> RemoveUserFromProject(int userId, int projectId)
+        public async Task<ActionResult> RemoveUserFromProject([Required] int userId, [Required] int projectId)
         {
             if (userId <= 0) return BadRequest(new { message = "UserID is required." });
             if (projectId <= 0) return BadRequest(new { message = "ProjectID is required." });
@@ -110,7 +111,7 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Update a user's role in the project")]
-        public async Task<ActionResult> UpdateUserRole(int userId, int projectId, int newRoleId)
+        public async Task<ActionResult> UpdateUserRole([Required] int userId, [Required] int projectId, [Required] int newRoleId)
         {
             var availableRoles = await _context.Roles
                     .Select(r => new { r.Id, r.RoleName })

@@ -55,12 +55,16 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Gets notifications for a user")]
-        public async Task<IActionResult> GetUserNotifications(int id)
-        {   
+        public async Task<IActionResult> GetUserNotifications(int userId)
+        {
             try
             {
-                var user = await _context.Notifications
-                    .Where(n => n.UserId == id)
+
+                var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+                if (!userExists) return StatusCode(404, new { message = "User not found"});
+
+                var notifications = await _context.Notifications
+                    .Where(n => n.UserId == userId)
                     .Select(n => new NotificationsDTO
                     {
                         Id = n.Id,
@@ -74,9 +78,7 @@ namespace api.Controllers
                     })
                     .ToListAsync();
 
-                if (user == null) return NotFound(new { message = "User not found" });
-
-                return Ok(user);
+                return Ok(notifications);
             }
             catch (Exception ex)
             {
