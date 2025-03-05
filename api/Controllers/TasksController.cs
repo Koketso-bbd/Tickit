@@ -5,6 +5,7 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
 
@@ -20,6 +21,7 @@ public class TasksController : ControllerBase
     }
     
     [HttpGet("{assigneeId}")]
+    [SwaggerOperation(Summary = "Get all the users' tasks based on the assignee ID")]
     public async Task<ActionResult<IEnumerable<TaskResponseDTO>>> GetUserTasks(int assigneeId)
     {
         try
@@ -51,6 +53,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
+    [SwaggerOperation(Summary = "Create a task in a project")]
     public async Task<IActionResult> CreateTask([FromBody] TaskDTO dto)
     {
         DateTime finalDueDate;
@@ -116,6 +119,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPut("{taskid}")]
+    [SwaggerOperation(Summary = "Update a task in a project based on task ID")]
     public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskUpdateDTO taskDto)
     {
         if (taskDto == null) return BadRequest(new { message = "Invalid task data." });
@@ -170,6 +174,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpDelete("{taskid}")]
+    [SwaggerOperation(Summary = "Delete a users' task based on the task ID")]
     public async Task<IActionResult> DeleteTask(int taskid)
     {
         var task = await _context.Tasks.FindAsync(taskid);
