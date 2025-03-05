@@ -110,7 +110,7 @@ public class TasksController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "An unexpected error occurred while creating the task. Please try again later." });
+            return StatusCode(500, new { message = $"An unexpected error occurred while creating the task. Please try again later: {ex.Message}" });
         }
     }
 
