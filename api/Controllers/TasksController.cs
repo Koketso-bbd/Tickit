@@ -53,6 +53,7 @@ public class TasksController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateTask([FromBody] TaskDTO dto)
     {
+        DateTime finalDueDate;
         try
         {
             if (dto.TaskName.Length > 255)
@@ -67,7 +68,19 @@ public class TasksController : ControllerBase
             var assigneeExists = await _context.Users.AnyAsync(u => u.Id == dto.AssigneeId);
             if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
 
-            DateTime finalDueDate = dto.DueDate ?? DateTime.UtcNow.AddDays(7);
+            if (dto.DueDate.HasValue)
+            {
+                if (dto.DueDate.Value < DateTime.UtcNow) 
+                {
+                    return BadRequest(new { message = "Due date cannot be in the past." });
+                }
+                finalDueDate = dto.DueDate.Value;
+            }
+            else
+            {
+                finalDueDate = DateTime.UtcNow.AddDays(7);
+            }
+
             int defaultStatusId = 1;
 
             await _context.CreateTaskAsync(
