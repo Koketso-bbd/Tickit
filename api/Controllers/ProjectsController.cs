@@ -113,29 +113,44 @@ namespace api.Controllers
 
             if (request == null) return BadRequest(new { message = "Project data is null" });
 
-            bool projectExists = await _context.Projects.AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == request.OwnerID);
+            var userId = User.FindFirst(ClaimTypes.Email)?.Value;
 
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userId);
+            if (user == null) return Unauthorized(new { message = "User not found" });
+
+            if (request.OwnerID != user.Id) return StatusCode(403, new { message = "Unauthorised access to this resource." });
+
+            bool projectExists = await _context.Projects
+                            .AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == request.OwnerID);
             if (projectExists) return Conflict(new { message = "A project with this name already exists for this owner" });
 
-            var project = new Project
+            try
             {
-                ProjectName = request.ProjectName,
-                ProjectDescription = request.ProjectDescription,
-                OwnerId = request.OwnerID
-            };
+                var project = new Project
+                {
+                    ProjectName = request.ProjectName,
+                    ProjectDescription = request.ProjectDescription,
+                    OwnerId = request.OwnerID
+                };
 
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
+                _context.Projects.Add(project);
+                await _context.SaveChangesAsync();
 
-            var responseDto = new ProjectDTO
+                var responseDto = new ProjectDTO
+                {
+                    ID = project.Id,
+                    ProjectName = project.ProjectName,
+                    ProjectDescription = project.ProjectDescription,
+                    Owner = new UserDTO { ID = project.OwnerId },
+                };
+
+                return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, responseDto);
+            }
+            catch (Exception ex)
             {
-                ID = project.Id,
-                ProjectName = project.ProjectName,
-                ProjectDescription = project.ProjectDescription,
-                Owner = new UserDTO { ID = project.OwnerId },
-            };
-
-            return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, responseDto);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("Creating project", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
+            }  
         }
 
         [HttpDelete("{id}")]
