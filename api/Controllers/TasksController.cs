@@ -26,6 +26,11 @@ public class TasksController : ControllerBase
     {
         try
         {
+            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == assigneeId);
+            if (!assigneeExists) 
+            {
+                return NotFound(new { message = $"User with ID {assigneeId} does not exist." });
+            }
             var tasks = await _context.Tasks
                 .Where(t => t.AssigneeId == assigneeId)
                 .Select(t => new TaskResponseDTO
