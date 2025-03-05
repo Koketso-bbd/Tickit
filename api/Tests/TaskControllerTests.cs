@@ -155,7 +155,7 @@ namespace api.Tests
             var result = await _controller.CreateTask(taskDto);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var value = badRequestResult.Value as dynamic;
-            Assert.Equal($"Priority is required and must be a positive integer. Available roles are: ", value.message.ToString());
+            Assert.Equal("Priority is required and must be a positive integer. Available roles are: ", value.message.ToString());
         }
 
         [Fact]
