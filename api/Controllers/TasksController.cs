@@ -56,9 +56,10 @@ public class TasksController : ControllerBase
         {
             if (dto.TaskName.Length > 255)
                 return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
+            if (dto.TaskDescription.Length > 1000)
+                return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
             if (dto.PriorityId < 1 || dto.PriorityId > 4)
                 return BadRequest(new { message = "Priority must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'." });
-
             if (dto.AssigneeId <= 0)
                 return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
 
