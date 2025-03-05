@@ -2,10 +2,8 @@
 using api.Data;
 using api.DTOs;
 using api.Models;
-using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Moq;
 using Xunit;
 using systemTasks = System.Threading.Tasks;
