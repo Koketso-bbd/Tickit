@@ -149,57 +149,6 @@ public class TasksController : ControllerBase
         return NoContent();
     }
 
-
-
-    [HttpPatch("{taskid}")]
-    public async Task<IActionResult> PatchTask(int taskid, [FromBody] JsonPatchDocument<TaskUpdateDTO> patchDoc)
-    {
-        if (patchDoc == null) return BadRequest(new { message = "Invalid patch data." });
-
-        var existingTask = await _context.Tasks
-            .Include(t => t.TaskLabels)
-            .FirstOrDefaultAsync(t => t.Id == taskid);
-
-        if (existingTask == null) return NotFound(new { message = $"Task with ID {taskid} not found." });
-
-        var taskToPatch = new TaskUpdateDTO
-        {
-            TaskName = existingTask.TaskName,
-            TaskDescription = existingTask.TaskDescription,
-            DueDate = existingTask.DueDate,
-            PriorityId = existingTask.PriorityId,
-            AssigneeId = existingTask.AssigneeId,
-            ProjectLabelIds = existingTask.TaskLabels.Select(tl => tl.ProjectLabelId).ToList()
-        };
-
-        patchDoc.ApplyTo(taskToPatch, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
-
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
-        if (!string.IsNullOrWhiteSpace(taskToPatch.TaskName)) existingTask.TaskName = taskToPatch.TaskName;
-        if (!string.IsNullOrWhiteSpace(taskToPatch.TaskDescription)) existingTask.TaskDescription = taskToPatch.TaskDescription;
-        if (taskToPatch.DueDate.HasValue) existingTask.DueDate = taskToPatch.DueDate.Value;
-        if (taskToPatch.PriorityId.HasValue) existingTask.PriorityId = taskToPatch.PriorityId.Value;
-        if (taskToPatch.AssigneeId.HasValue) existingTask.AssigneeId = taskToPatch.AssigneeId.Value;
-
-        if (taskToPatch.ProjectLabelIds != null)
-        {
-            existingTask.TaskLabels.RemoveAll(tl => !taskToPatch.ProjectLabelIds.Contains(tl.ProjectLabelId));
-
-            foreach (var labelId in taskToPatch.ProjectLabelIds)
-            {
-                if (!existingTask.TaskLabels.Any(tl => tl.ProjectLabelId == labelId))
-                {
-                    existingTask.TaskLabels.Add(new TaskLabel { TaskId = taskid, ProjectLabelId = labelId });
-                }
-            }
-        }
-
-        await _context.SaveChangesAsync();
-        return NoContent();
-    }
-
-
     [HttpDelete("{taskid}")]
     public async Task<IActionResult> DeleteTask(int taskid)
     {
