@@ -111,11 +111,11 @@ namespace api.Tests
         [Fact]
         public async systemTasks.Task AddProject_ReturnsCreatedProjectDTO()
         {
-            var projectDTO = new ProjectDTO
+            var projectDTO = new CreateProjectDTO
             {
                 ProjectName = "project 1",
                 ProjectDescription = "project description for project 1",
-                Owner = new UserDTO { ID = 1, GitHubID = "GitHub User 1"}
+                OwnerID = 1
             };
 
             var result = await _controller.AddProject(projectDTO);
@@ -125,7 +125,7 @@ namespace api.Tests
             //check created for the correct table
             Assert.Equal(projectDTO.ProjectName, createdProjectDTO.ProjectName);
             Assert.Equal(projectDTO.ProjectDescription, createdProjectDTO.ProjectDescription);
-            Assert.Equal(projectDTO.Owner.ID, createdProjectDTO.Owner.ID);
+            Assert.Equal(projectDTO.OwnerID, createdProjectDTO.Owner.ID);
 
             //check created project is stored in database
             var saveProject = await _dbContext.Projects
@@ -138,21 +138,21 @@ namespace api.Tests
         [Fact]
         public async systemTasks.Task AddProject_ReturnsBadRequest_InvalidProjectData()
         {
-            ProjectDTO? projectDTO = null;
+            CreateProjectDTO? projectDTO = null;
             var result = await _controller.AddProject(projectDTO);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
             var response = badRequestResult.Value as dynamic;
-            Assert.Equal("Project data is null.", response.message.ToString());
+            Assert.Equal("Project data is null", response.message.ToString());
         }
 
         [Fact]
         public async systemTasks.Task AddProject_ReturnsConflict_ProjectAlreadyExists()
         {
-            var projectDTO = new ProjectDTO
+            var projectDTO = new CreateProjectDTO
             {
                 ProjectName = "project 1",
                 ProjectDescription = "project description for project 1",
-                Owner = new UserDTO { ID = 1, GitHubID = "GitHub User 1" }
+                OwnerID = 1
             };
 
             var result = await _controller.AddProject(projectDTO);
@@ -162,7 +162,7 @@ namespace api.Tests
             //check created for the correct table
             Assert.Equal(projectDTO.ProjectName, createdProjectDTO.ProjectName);
             Assert.Equal(projectDTO.ProjectDescription, createdProjectDTO.ProjectDescription);
-            Assert.Equal(projectDTO.Owner.ID, createdProjectDTO.Owner.ID);
+            Assert.Equal(projectDTO.OwnerID, createdProjectDTO.Owner.ID);
 
             result = await _controller.AddProject(projectDTO);
             var conflictResult = Assert.IsType<ConflictObjectResult>(result.Result);
