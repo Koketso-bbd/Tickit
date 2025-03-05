@@ -42,14 +42,18 @@ namespace api.Tests
                 new() { Id = 2, GitHubId = "user456" }
             };
 
+            string projectName1 = "project 1";
+            string projectDescription1 = "project description for project 1";
+            string projectName2 = "project 2";
+            string projectDescription2 = "project description for project 2";
             var projects = new List<Project>
             {
                 new()
                 {
                     Id = 1,
                     OwnerId = 1,
-                    ProjectName = "project 1",
-                    ProjectDescription = "project description for project 1",
+                    ProjectName = projectName1,
+                    ProjectDescription = projectDescription1,
                     UserProjects = new List<UserProject>
                     {
                         new UserProject { MemberId = 2, Member = users[1] }
@@ -60,8 +64,8 @@ namespace api.Tests
                 {
                     Id = 2,
                     OwnerId = 2,
-                    ProjectName = "project 2",
-                    ProjectDescription = "project description for project 2"
+                    ProjectName = projectName2,
+                    ProjectDescription = projectDescription2
                 }
             };
 
@@ -76,8 +80,8 @@ namespace api.Tests
             var assignees1 = returnedProject1.AssignedUsers;
 
             Assert.Equal(1, returnedProject1.ID);
-            Assert.Equal("project 1", returnedProject1.ProjectName);
-            Assert.Equal("project description for project 1", returnedProject1.ProjectDescription);
+            Assert.Equal(projectName1, returnedProject1.ProjectName);
+            Assert.Equal(projectDescription1, returnedProject1.ProjectDescription);
             Assert.Single(assignees1);
             Assert.Equal(2, assignees1[0].ID);
 
@@ -88,8 +92,8 @@ namespace api.Tests
             var assignees2 = returnedProject2.AssignedUsers;
 
             Assert.Equal(2, returnedProject2.ID);
-            Assert.Equal("project 2", returnedProject2.ProjectName);
-            Assert.Equal("project description for project 2", returnedProject2.ProjectDescription);
+            Assert.Equal(projectName2, returnedProject2.ProjectName);
+            Assert.Equal(projectDescription2, returnedProject2.ProjectDescription);
             Assert.Empty(assignees2);
         }
 
@@ -209,22 +213,26 @@ namespace api.Tests
         {
             int userId = 1;
             User user = new User { Id = userId, GitHubId = "Github User 1" };
+            string projectName1 = "project 1";
+            string projectDescription1 = "project description for project 1";
+            string projectName2 = "project 2";
+            string projectDescription2 = "project description for project 2";
             var projects = new List<Project>
             {
                 new()
                 {
                     Id = 1,
                     OwnerId = userId,
-                    ProjectName = "project 1",
-                    ProjectDescription = "project description for project 1",
+                    ProjectName = projectName1,
+                    ProjectDescription = projectDescription1,
                 },
 
                 new()
                 {
                     Id = 2,
                     OwnerId = userId,
-                    ProjectName = "project 2",
-                    ProjectDescription = "project description for project 2"
+                    ProjectName = projectName2,
+                    ProjectDescription = projectDescription2
                 }
             };
 
@@ -237,8 +245,8 @@ namespace api.Tests
             var returnedProjects = Assert.IsAssignableFrom<IEnumerable<ProjectDTO>>(okResult.Value);
 
             Assert.Equal(2, returnedProjects.Count());
-            Assert.Contains(returnedProjects, p => p.ID == 1 && p.ProjectName == "project 1" && p.ProjectDescription == "project description for project 1" && p.Owner.ID == userId);
-            Assert.Contains(returnedProjects, p => p.ID == 2 && p.ProjectName == "project 2" && p.ProjectDescription == "project description for project 2" && p.Owner.ID == userId);
+            Assert.Contains(returnedProjects, p => p.ID == 1 && p.ProjectName == projectName1 && p.ProjectDescription == projectDescription1 && p.Owner.ID == userId);
+            Assert.Contains(returnedProjects, p => p.ID == 2 && p.ProjectName == projectName2 && p.ProjectDescription == projectDescription2 && p.Owner.ID == userId);
         }
 
         [Fact]
