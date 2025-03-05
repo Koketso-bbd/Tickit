@@ -30,17 +30,23 @@ namespace api.Controllers
         [SwaggerOperation(Summary = "Adds a user to a project")]
         public async Task<ActionResult> AddUserToProject([Required] int userId, [Required] int projectId,  [Required] int roleId)
         {
-            if (userId <= 0) return BadRequest(new { message = "UserID must be a valid value." });
-            if (projectId <= 0) return BadRequest(new { message = "ProjectID must be a valid value." });
-            if (roleId <= 0) return BadRequest(new { message = "RoleID must be a valid value." });
+            var availableRoles = await _context.Roles
+                    .Select(r => new { r.Id, r.RoleName })
+                    .ToListAsync();
+            var availableRolesMessage = string.Join(", ", availableRoles.Select(r => $"({r.Id}){r.RoleName}"));
 
+            if (userId <= 0) return BadRequest(new { message = "UserID is required." });
+            if (projectId <= 0) return BadRequest(new { message = "ProjectID is required." });
+            if (roleId <= 0) return BadRequest(
+                new 
+                { message = $"RoleID is required.  Available roles are: {availableRolesMessage}" });
             var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             var roleExists = await _context.Roles.AnyAsync(r => r.Id == roleId);
 
             if (!userExists) return NotFound(new { message = "User does not exist" });
             if (!projectExists) return NotFound(new { message = "Project does not exist" });
-            if (!roleExists) return NotFound(new { message = "Role does not exist" });
+            if (!roleExists) return NotFound(new { message = $"Role does not exist.  Available roles are: {availableRolesMessage}" });
 
             try
             {
@@ -107,9 +113,14 @@ namespace api.Controllers
         [SwaggerOperation(Summary = "Update a user's role in the project")]
         public async Task<ActionResult> UpdateUserRole([Required] int userId, [Required] int projectId, [Required] int newRoleId)
         {
+            var availableRoles = await _context.Roles
+                    .Select(r => new { r.Id, r.RoleName })
+                    .ToListAsync();
+            var availableRolesMessage = string.Join(", ", availableRoles.Select(r => $"({r.Id}){r.RoleName}"));
+
             if (userId <= 0) return BadRequest(new { message = "UserID is required" });
             if (projectId <= 0) return BadRequest(new { message = "ProjectID is required" });
-            if (newRoleId <= 0) return BadRequest(new { message = "RoleID is required" });
+            if (newRoleId <= 0) return BadRequest(new { message = $"RoleID is required. Available roles are: {availableRolesMessage}" });
 
             var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
@@ -117,7 +128,7 @@ namespace api.Controllers
 
             if (!userExists) return NotFound(new { message = "User does not exist" });
             if (!projectExists) return NotFound(new { message = "Project does not exist" });
-            if (!roleExists) return NotFound(new { message = "Role does not exist" });
+            if (!roleExists) return NotFound(new { message = $"Role does not exist. Available roles are: {availableRolesMessage}" });
 
             try
             {
