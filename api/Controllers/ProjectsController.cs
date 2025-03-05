@@ -113,19 +113,22 @@ namespace api.Controllers
 
             if (request == null) return BadRequest(new { message = "Project data is null" });
 
-            var userId = User.FindFirst(ClaimTypes.Email)?.Value;
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userId);
-            if (user == null) return Unauthorized(new { message = "User not found" });
-
-            if (request.OwnerID != user.Id) return StatusCode(403, new { message = "Unauthorised access to this resource." });
-
-            bool projectExists = await _context.Projects
-                            .AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == request.OwnerID);
-            if (projectExists) return Conflict(new { message = "A project with this name already exists for this owner" });
-
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userId);
+
+                if (user == null) 
+                    return Unauthorized(new { message = "User not found" });
+
+                if (request.OwnerID != user.Id) 
+                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+
+                bool projectExists = await _context.Projects
+                .AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == request.OwnerID);
+                if (projectExists) return Conflict(new { message = "A project with this name already exists for this owner" });
+
                 var project = new Project
                 {
                     ProjectName = request.ProjectName,
@@ -159,15 +162,22 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [SwaggerOperation(Summary = "Delete a project based on project ID")]
         public async Task<IActionResult> DeleteProject(int id)
-        {
+        {               
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userId);
+
                 var project = await _context.Projects.FindAsync(id);
+
+                if (project.OwnerId != user.Id) 
+                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
 
                 if (project == null) return NotFound(new { message = $"Project with ID {id} not found." });
 
-                bool projectHasTasks = _context.Tasks.Any(t => t.ProjectId == id);
-                bool projectHasUsers = _context.UserProjects.Any(up => up.ProjectId == id);
+                bool projectHasTasks = await _context.Tasks.AnyAsync(t => t.ProjectId == id);
+                bool projectHasUsers = await _context.UserProjects.AnyAsync(up => up.ProjectId == id);
 
                 if (projectHasTasks || projectHasUsers)
                 {
