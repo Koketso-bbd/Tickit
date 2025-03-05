@@ -5,7 +5,6 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.JsonPatch;
 
 namespace api.Controllers;
 
@@ -21,14 +20,15 @@ public class TasksController : ControllerBase
     }
     
     [HttpGet("{assigneeId}")]
-    public async Task<ActionResult<IEnumerable<TaskDTO>>> GetUserTasks(int assigneeId)
+    public async Task<ActionResult<IEnumerable<TaskResponseDTO>>> GetUserTasks(int assigneeId)
     {
         try
         {
             var tasks = await _context.Tasks
                 .Where(t => t.AssigneeId == assigneeId)
-                .Select(t => new TaskDTO
+                .Select(t => new TaskResponseDTO
                 {
+                    TaskId = t.Id,
                     AssigneeId = t.AssigneeId,
                     TaskName = t.TaskName,
                     TaskDescription = t.TaskDescription,
