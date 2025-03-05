@@ -103,7 +103,7 @@ public class TasksController : ControllerBase
             if (createdTask == null)
                 return StatusCode(500, new { message = "Task was not found after insertion." });
 
-            if (dto.ProjectLabelIds != null && dto.ProjectLabelIds.Any())
+            if (dto.ProjectLabelIds != null && dto.ProjectLabelIds.Any() && !dto.ProjectLabelIds.Contains(0))
             {
                 var taskLabels = dto.ProjectLabelIds.Select(labelId => new TaskLabel
                 {
