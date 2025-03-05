@@ -60,12 +60,17 @@ public class TasksController : ControllerBase
     {
         try
         {
+            var availablePriorities= await _context.Priorities
+                    .Select(p => new { p.Id, p.PriorityLevel })
+                    .ToListAsync();
+            var availablePrioritiesMessage = string.Join(", ", availablePriorities.Select(p => $"({p.Id}){p.PriorityLevel}"));
+
             if (taskDto == null)
                 return BadRequest(new { message = "Task data cannot be null." });
             if (string.IsNullOrWhiteSpace(taskDto.TaskName))
                 return BadRequest(new { message = "Task name is required." });
             if (taskDto.PriorityId <= 0)
-                return BadRequest(new { message = "Priority is required and must be a positive integer." });
+                return BadRequest(new { message = $"Priority is required and must be a positive integer. Available roles are: {availablePrioritiesMessage}" });
             if (taskDto.StatusId <= 0)
                 return BadRequest(new { message = "Status is required and must be a valid value." });
             if (taskDto.AssigneeId <= 0)

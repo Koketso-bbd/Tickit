@@ -45,7 +45,7 @@ namespace api.Controllers
 
             if (!userExists) return NotFound(new { message = "User does not exist" });
             if (!projectExists) return NotFound(new { message = "Project does not exist" });
-            if (!roleExists) return NotFound(new { message = $"Role does not exist.  Available roles are: {availableRolesMessage}" });
+            if (!roleExists) return NotFound(new { message = $"Role does not exist. Available roles are: {availableRolesMessage}" });
 
             try
             {
