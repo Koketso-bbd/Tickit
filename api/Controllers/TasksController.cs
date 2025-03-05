@@ -99,4 +99,55 @@ public class TasksController : ControllerBase
         }
     }
 
+    [HttpPut("{taskid}")]
+    public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
+    {
+        if (taskDto == null) return BadRequest(new { message = "Invalid task data." });
+
+        var existingTask = await _context.Tasks
+            .Include(t => t.TaskLabels)
+            .FirstOrDefaultAsync(t => t.Id == taskid);
+
+        if (existingTask == null) return NotFound(new { message = $"Task with ID {taskid} not found." });
+
+        if (taskDto.ProjectId != existingTask.ProjectId)
+            return BadRequest(new { message = "Updating ProjectId is not allowed." });
+
+        if (string.IsNullOrWhiteSpace(taskDto.TaskName) || taskDto.PriorityId <= 0 || taskDto.AssigneeId <= 0)
+        {
+            return BadRequest(new { message = "Task Name, Priority, and AssigneeId are required and must be valid." });
+        }
+
+        existingTask.AssigneeId = taskDto.AssigneeId;
+        existingTask.TaskName = taskDto.TaskName;
+        existingTask.TaskDescription = string.IsNullOrWhiteSpace(taskDto.TaskDescription) 
+                                        ? existingTask.TaskDescription 
+                                        : taskDto.TaskDescription;
+        existingTask.DueDate = (DateTime)taskDto.DueDate;
+        existingTask.PriorityId = taskDto.PriorityId;
+
+        _context.Tasks.Update(existingTask);
+
+        if (taskDto.ProjectLabelIds != null && taskDto.ProjectLabelIds.Any())
+        {
+            existingTask.TaskLabels.RemoveAll(tl => !taskDto.ProjectLabelIds.Contains(tl.ProjectLabelId));
+
+            foreach (var labelId in taskDto.ProjectLabelIds)
+            {
+                if (!existingTask.TaskLabels.Any(tl => tl.ProjectLabelId == labelId))
+                {
+                    existingTask.TaskLabels.Add(new TaskLabel
+                    {
+                        TaskId = taskid,
+                        ProjectLabelId = labelId
+                    });
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+
 }
