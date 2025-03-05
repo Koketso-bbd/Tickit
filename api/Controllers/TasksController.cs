@@ -149,5 +149,52 @@ public class TasksController : ControllerBase
         return NoContent();
     }
 
+    [HttpDelete("{taskid}")]
+    public async Task<IActionResult> DeleteTask(int taskid)
+    {
+        var task = await _context.Tasks.FindAsync(taskid);
+        if (task == null)
+        {
+            return NotFound(new { message = $"Task with ID {taskid} not found." });
+        }
 
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var statusTracks = await _context.StatusTracks.Where(st => st.TaskId == taskid).ToListAsync();
+            if (statusTracks.Count != 0)
+            {
+                _context.StatusTracks.RemoveRange(statusTracks);
+            }
+
+            var notifications = await _context.Notifications.Where(n => n.TaskId == taskid).ToListAsync();
+            if (notifications.Count != 0)
+            {
+                _context.Notifications.RemoveRange(notifications);
+            }
+
+            var taskLabels = await _context.TaskLabels.Where(tl => tl.TaskId == taskid).ToListAsync();
+            if (taskLabels.Count != 0)
+            {
+                _context.TaskLabels.RemoveRange(taskLabels);
+            }
+
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();  
+            await transaction.CommitAsync();
+
+            return Ok(new { message = $"Task with ID {taskid} successfully deleted." });
+        }
+        catch (DbUpdateException dbEx)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, new { message = $"Database error occurred while deleting task: {dbEx.Message}" });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, new { message = $"An unexpected error occurred while deleting task: {ex.Message}" });
+        }
+    }
 }
