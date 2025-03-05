@@ -5,13 +5,12 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.ComponentModel.DataAnnotations;
 
 namespace api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+// [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class TasksController : ControllerBase
 {
     private readonly TickItDbContext _context;
@@ -55,6 +54,8 @@ public class TasksController : ControllerBase
     {
         try
         {
+            if (dto.TaskName.Length > 255)
+                return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
             if (dto.PriorityId < 1 || dto.PriorityId > 4)
                 return BadRequest(new { message = "Priority must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'." });
 
