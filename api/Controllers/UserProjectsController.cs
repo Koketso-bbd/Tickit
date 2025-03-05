@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace api.Controllers
 {
@@ -27,11 +28,11 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [SwaggerOperation(Summary = "Adds a user to a project")]
-        public async Task<ActionResult> AddUserToProject(int userId, int projectId,  int roleId)
+        public async Task<ActionResult> AddUserToProject([Required] int userId, [Required] int projectId,  [Required] int roleId)
         {
-            if (userId <= 0) return BadRequest(new { message = "UserID is required." });
-            if (projectId <= 0) return BadRequest(new { message = "ProjectID is required." });
-            if (roleId <= 0) return BadRequest(new { message = "RoleID is required." });
+            if (userId <= 0) return BadRequest(new { message = "UserID must be a valid value." });
+            if (projectId <= 0) return BadRequest(new { message = "ProjectID must be a valid value." });
+            if (roleId <= 0) return BadRequest(new { message = "RoleID must be a valid value." });
 
             var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
