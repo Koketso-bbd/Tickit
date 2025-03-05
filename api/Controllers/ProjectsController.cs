@@ -203,11 +203,13 @@ namespace api.Controllers
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetUsersProjects(int id)
         {
 
-            var userExists = await _context.Users.AnyAsync(u => u.Id == id);
-            if (!userExists) return NotFound(new { message = "User does not exist" });
-
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                var userExists = await _context.Users.AnyAsync(u => u.Id == id);
+                if (!userExists) return NotFound(new { message = "User does not exist" });
+
                 var projects = await _context.Projects
                     .Where(p => p.OwnerId == id || p.UserProjects.Any(up => up.MemberId == id))
                     .Select(p => new ProjectDTO
@@ -223,7 +225,13 @@ namespace api.Controllers
 
                 if (projects == null) return NotFound(new { message = $"No projects found for user with ID {id}" });
 
-                return Ok(projects);
+                var authorisedProjects = projects
+                    .Where(p => p.Owner.GitHubID == userId || p.AssignedUsers.Any(u => u.GitHubID == userId));
+
+                if (authorisedProjects.Count() == 0) 
+                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+
+                return Ok(authorisedProjects);
             }
             catch (Exception ex)
             {
