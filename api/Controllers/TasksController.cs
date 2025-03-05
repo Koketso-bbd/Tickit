@@ -62,7 +62,6 @@ public class TasksController : ControllerBase
         [FromQuery] string taskName,
         [FromQuery] int priorityId,
         [FromQuery] int projectId,
-        [FromQuery] int statusId,
         [FromQuery] string? taskDescription = null,
         [FromQuery] DateTime? dueDate = null,
         [FromQuery] List<int>? projectLabelIds = null)
@@ -73,17 +72,16 @@ public class TasksController : ControllerBase
                 return BadRequest(new { message = "Task name is required." });
             if (priorityId <= 0)
                 return BadRequest(new { message = "Priority is required and must be a positive integer." });
-            if (statusId <= 0)
-                return BadRequest(new { message = "Status is required and must be a valid value." });
             if (assigneeId <= 0)
                 return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
 
             string description = string.IsNullOrWhiteSpace(taskDescription) ? "No description provided" : taskDescription;
             DateTime finalDueDate = dueDate ?? DateTime.UtcNow.AddDays(7);  // Default to 7 days if not provided
+            int defaultStatusId = 1;
 
             await _context.CreateTaskAsync(
                 assigneeId, taskName, description,
-                finalDueDate, priorityId, projectId, statusId);
+                finalDueDate, priorityId, projectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
                 .Where(t => t.AssigneeId == assigneeId && t.TaskName == taskName && t.ProjectId == projectId)
