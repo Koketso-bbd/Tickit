@@ -5,6 +5,7 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace api.Controllers;
 
@@ -102,7 +103,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPut("{taskid}")]
-    public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
+    public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskUpdateDTO taskDto)
     {
         if (taskDto == null) return BadRequest(new { message = "Invalid task data." });
 
@@ -112,25 +113,22 @@ public class TasksController : ControllerBase
 
         if (existingTask == null) return NotFound(new { message = $"Task with ID {taskid} not found." });
 
-        if (taskDto.ProjectId != existingTask.ProjectId)
-            return BadRequest(new { message = "Updating ProjectId is not allowed." });
+        if (!string.IsNullOrWhiteSpace(taskDto.TaskName)) 
+            existingTask.TaskName = taskDto.TaskName;
 
-        if (string.IsNullOrWhiteSpace(taskDto.TaskName) || taskDto.PriorityId <= 0 || taskDto.AssigneeId <= 0)
-        {
-            return BadRequest(new { message = "Task Name, Priority, and AssigneeId are required and must be valid." });
-        }
+        if (taskDto.PriorityId.HasValue) 
+            existingTask.PriorityId = taskDto.PriorityId.Value;
 
-        existingTask.AssigneeId = taskDto.AssigneeId;
-        existingTask.TaskName = taskDto.TaskName;
-        existingTask.TaskDescription = string.IsNullOrWhiteSpace(taskDto.TaskDescription) 
-                                        ? existingTask.TaskDescription 
-                                        : taskDto.TaskDescription;
-        existingTask.DueDate = (DateTime)taskDto.DueDate;
-        existingTask.PriorityId = taskDto.PriorityId;
+        if (taskDto.AssigneeId.HasValue) 
+            existingTask.AssigneeId = taskDto.AssigneeId.Value;
 
-        _context.Tasks.Update(existingTask);
+        if (!string.IsNullOrWhiteSpace(taskDto.TaskDescription)) 
+            existingTask.TaskDescription = taskDto.TaskDescription;
 
-        if (taskDto.ProjectLabelIds != null && taskDto.ProjectLabelIds.Any())
+        if (taskDto.DueDate.HasValue) 
+            existingTask.DueDate = taskDto.DueDate.Value;
+
+        if (taskDto.ProjectLabelIds != null)
         {
             existingTask.TaskLabels.RemoveAll(tl => !taskDto.ProjectLabelIds.Contains(tl.ProjectLabelId));
 
@@ -150,6 +148,57 @@ public class TasksController : ControllerBase
         await _context.SaveChangesAsync();
         return NoContent();
     }
+
+
+
+    [HttpPatch("{taskid}")]
+    public async Task<IActionResult> PatchTask(int taskid, [FromBody] JsonPatchDocument<TaskUpdateDTO> patchDoc)
+    {
+        if (patchDoc == null) return BadRequest(new { message = "Invalid patch data." });
+
+        var existingTask = await _context.Tasks
+            .Include(t => t.TaskLabels)
+            .FirstOrDefaultAsync(t => t.Id == taskid);
+
+        if (existingTask == null) return NotFound(new { message = $"Task with ID {taskid} not found." });
+
+        var taskToPatch = new TaskUpdateDTO
+        {
+            TaskName = existingTask.TaskName,
+            TaskDescription = existingTask.TaskDescription,
+            DueDate = existingTask.DueDate,
+            PriorityId = existingTask.PriorityId,
+            AssigneeId = existingTask.AssigneeId,
+            ProjectLabelIds = existingTask.TaskLabels.Select(tl => tl.ProjectLabelId).ToList()
+        };
+
+        patchDoc.ApplyTo(taskToPatch, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
+
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        if (!string.IsNullOrWhiteSpace(taskToPatch.TaskName)) existingTask.TaskName = taskToPatch.TaskName;
+        if (!string.IsNullOrWhiteSpace(taskToPatch.TaskDescription)) existingTask.TaskDescription = taskToPatch.TaskDescription;
+        if (taskToPatch.DueDate.HasValue) existingTask.DueDate = taskToPatch.DueDate.Value;
+        if (taskToPatch.PriorityId.HasValue) existingTask.PriorityId = taskToPatch.PriorityId.Value;
+        if (taskToPatch.AssigneeId.HasValue) existingTask.AssigneeId = taskToPatch.AssigneeId.Value;
+
+        if (taskToPatch.ProjectLabelIds != null)
+        {
+            existingTask.TaskLabels.RemoveAll(tl => !taskToPatch.ProjectLabelIds.Contains(tl.ProjectLabelId));
+
+            foreach (var labelId in taskToPatch.ProjectLabelIds)
+            {
+                if (!existingTask.TaskLabels.Any(tl => tl.ProjectLabelId == labelId))
+                {
+                    existingTask.TaskLabels.Add(new TaskLabel { TaskId = taskid, ProjectLabelId = labelId });
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
 
     [HttpDelete("{taskid}")]
     public async Task<IActionResult> DeleteTask(int taskid)
