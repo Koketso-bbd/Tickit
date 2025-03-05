@@ -75,6 +75,9 @@ public class TasksController : ControllerBase
             if (assigneeId <= 0)
                 return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
 
+            var assigneeExists = await _context.Users.AnyAsync(u => u.Id==assigneeId);
+            if (!assigneeExists) return BadRequest(new { message = "Assignee does not exist." });
+
             string description = string.IsNullOrWhiteSpace(taskDescription) ? "No description provided" : taskDescription;
             DateTime finalDueDate = dueDate ?? DateTime.UtcNow.AddDays(7); 
             int defaultStatusId = 1;
