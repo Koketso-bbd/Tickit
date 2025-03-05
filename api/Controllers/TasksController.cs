@@ -50,4 +50,53 @@ public class TasksController : ControllerBase
         }
     }
 
+    [HttpPost]
+    public async Task<IActionResult> CreateTask([FromBody] TaskDTO dto)
+    {
+        try
+        {
+            if (dto.PriorityId < 1 || dto.PriorityId > 4)
+                return BadRequest(new { message = "Priority must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'." });
+
+            if (dto.AssigneeId <= 0)
+                return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
+
+            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == dto.AssigneeId);
+            if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
+
+            DateTime finalDueDate = dto.DueDate ?? DateTime.UtcNow.AddDays(7);
+            int defaultStatusId = 1;
+
+            await _context.CreateTaskAsync(
+                dto.AssigneeId, dto.TaskName, dto.TaskDescription ?? "No description provided",
+                finalDueDate, dto.PriorityId, dto.ProjectId, defaultStatusId);
+
+            var createdTask = await _context.Tasks
+                .Where(t => t.AssigneeId == dto.AssigneeId && t.TaskName == dto.TaskName && t.ProjectId == dto.ProjectId)
+                .OrderByDescending(t => t.Id)
+                .FirstOrDefaultAsync();
+
+            if (createdTask == null)
+                return StatusCode(500, new { message = "Task was not found after insertion." });
+
+            if (dto.ProjectLabelIds != null && dto.ProjectLabelIds.Any())
+            {
+                var taskLabels = dto.ProjectLabelIds.Select(labelId => new TaskLabel
+                {
+                    TaskId = createdTask.Id,
+                    ProjectLabelId = labelId
+                }).ToList();
+
+                await _context.TaskLabels.AddRangeAsync(taskLabels);
+                await _context.SaveChangesAsync();
+            }
+
+            return CreatedAtAction(nameof(CreateTask), new { taskId = createdTask.Id }, new { message = "Task created successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = $"An unexpected error occurred while creating the task. Please try again later: {ex.Message}" });
+        }
+    }
+
 }
