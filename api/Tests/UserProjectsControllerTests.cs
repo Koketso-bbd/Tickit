@@ -28,11 +28,13 @@ public class UserProjectsTest
             _controller = new UserProjectsController(_dbContext, _loggerMock.Object);
         }
 
+
         [Fact]
         public void Dispose()
         {
             _dbContext?.Dispose();
         }
+
 
        [Fact]
         public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidUserId()
@@ -40,27 +42,30 @@ public class UserProjectsTest
     
             var result = await _controller.AddUserToProject(0,1,1);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var message = Assert.IsType<string>(badRequestResult.Value);
-            Assert.Equal("UserID is required.", message);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("UserID is required.", value.message.ToString());
         }        
+
 
         [Fact]
         public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidProjectId()
         {    
             var result = await _controller.AddUserToProject(1,0,1);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var message = Assert.IsType<string>(badRequestResult.Value);
-            Assert.Equal("ProjectID is required.", message);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("ProjectID is required.", value.message.ToString());
         }
+
 
         [Fact]
         public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidRoleId()
         {    
             var result = await _controller.AddUserToProject(1,1,0);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var message = Assert.IsType<string>(badRequestResult.Value);
-            Assert.Equal("RoleID is required.", message);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("RoleID is required.", value.message.ToString());
         }
+
 
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenUserDoesNotExist()        
@@ -73,9 +78,11 @@ public class UserProjectsTest
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("User does not exist", notFoundResult.Value);
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal("User does not exist", value.message.ToString());
         }
         
+
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenProjectDoesNotExist()
         {
@@ -87,8 +94,10 @@ public class UserProjectsTest
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("Project does not exist", notFoundResult.Value);
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal("Project does not exist", value.message.ToString());
         }
+
 
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenRoleDoesNotExist()        
@@ -101,8 +110,10 @@ public class UserProjectsTest
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("Role does not exist", notFoundResult.Value);
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal("Role does not exist", value.message.ToString());
         }
+
 
         [Fact]
         public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
@@ -122,12 +133,14 @@ public class UserProjectsTest
 
             Assert.NotNull(result);
             var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal("User role updated successfully.", okResult.Value);
+            var value = okResult.Value as dynamic;
+            Assert.Equal("User role updated successfully.", value.message.ToString());
             
             var updatedUserProject = await _dbContext.UserProjects.FirstOrDefaultAsync(up => up.MemberId == 1 && up.ProjectId == 1);
             Assert.NotNull(updatedUserProject);
             Assert.Equal(2, updatedUserProject.RoleId);
         }
+
 
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenUserIdIsInvalid()
@@ -135,8 +148,10 @@ public class UserProjectsTest
 
             var result = await _controller.RemoveUserFromProject(0, 1);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("UserID is required.", badRequestResult.Value);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("UserID is required.", value.message.ToString());
         }
+
 
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenProjectIdIsInvalid()
@@ -144,10 +159,12 @@ public class UserProjectsTest
 
             var result = await _controller.RemoveUserFromProject(1, 0);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("ProjectID is required.", badRequestResult.Value);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("ProjectID is required.", value.message.ToString());
         }
 
-         [Fact]
+
+        [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenUserDoesNotExist()        
         {
             await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
@@ -158,8 +175,10 @@ public class UserProjectsTest
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("User does not exist", notFoundResult.Value);
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal("User does not exist", value.message.ToString());
         }
+
 
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenProjectDoesNotExist()        
@@ -172,7 +191,8 @@ public class UserProjectsTest
 
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("Project does not exist", notFoundResult.Value);
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal("Project does not exist", value.message.ToString());
         }
     }
 }
