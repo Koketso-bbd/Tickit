@@ -46,7 +46,7 @@ public class TasksController : ControllerBase
                 })
                 .ToListAsync();
 
-            if (!tasks.Any()) return NotFound(new { message = $"No tasks found for user {assigneeId}." });
+            if (tasks.Count == 0) return NotFound(new { message = $"No tasks found for user {assigneeId}." });
 
             return Ok(tasks);
         }
@@ -84,7 +84,7 @@ public class TasksController : ControllerBase
 
             await _context.CreateTaskAsync(
                 assigneeId, taskName, description,
-                finalDueDate, priorityId, projectId, defaultStatusId);
+                dueDate, priorityId, projectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
                 .Where(t => t.AssigneeId == assigneeId && t.TaskName == taskName && t.ProjectId == projectId)
@@ -113,7 +113,6 @@ public class TasksController : ControllerBase
             return StatusCode(500, new { message = $"An unexpected error occurred while creating the task. Please try again later: {ex.Message}" });
         }
     }
-
 
     [HttpPut("{taskid}")]
     public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
