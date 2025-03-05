@@ -34,7 +34,8 @@ public class AuthController : ControllerBase
         var authResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         var properties = authResult.Properties;
         var tokens = properties?.GetTokens();
-        
+
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
         var googleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var idToken = tokens?.FirstOrDefault(t => t.Name == "id_token")?.Value;
 
@@ -42,11 +43,11 @@ public class AuthController : ControllerBase
 
         try
         {
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == googleId);
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == email);
 
             if (existingUser == null)
             {
-                var newUser = new User { GitHubId = googleId };
+                var newUser = new User { GitHubId = email };
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
             }
