@@ -1,5 +1,6 @@
 using api.Controllers;
 using api.Data;
+using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -59,11 +60,11 @@ public class UserProjectsTest
 
         [Fact]
         public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidRoleId()
-        {    
+        {        
             var result = await _controller.AddUserToProject(1,1,0);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var value = badRequestResult.Value as dynamic;
-            Assert.Equal("RoleID is required.", value.message.ToString());
+            Assert.Equal($"RoleID is required.  Available roles are: ",value.message.ToString());
         }
 
 
@@ -111,7 +112,7 @@ public class UserProjectsTest
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var value = notFoundResult.Value as dynamic;
-            Assert.Equal("Role does not exist", value.message.ToString());
+            Assert.Equal($"Role does not exist.  Available roles are: ",value.message.ToString());
         }
 
 
