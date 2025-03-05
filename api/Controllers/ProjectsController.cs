@@ -95,28 +95,34 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [SwaggerOperation(Summary = "Create a new project")]
-        public async Task<ActionResult<ProjectDTO>> AddProject(ProjectDTO projectDto)
+        public async Task<ActionResult<ProjectDTO>> AddProject([FromBody] CreateProjectDTO request)
         {
-            if (projectDto == null) return BadRequest(new { message = "Project data is null." });
 
-            bool projectExists = await _context.Projects
-                .AnyAsync(p => p.ProjectName == projectDto.ProjectName && p.OwnerId == projectDto.Owner.ID);
+            if (request == null) return BadRequest(new { message = "Project data is null" });
+
+            bool projectExists = await _context.Projects.AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == request.OwnerID);
 
             if (projectExists) return Conflict(new { message = "A project with this name already exists for this owner" });
 
             var project = new Project
             {
-                ProjectName = projectDto.ProjectName,
-                ProjectDescription = projectDto.ProjectDescription,
-                OwnerId = projectDto.Owner.ID
+                ProjectName = request.ProjectName,
+                ProjectDescription = request.ProjectDescription,
+                OwnerId = request.OwnerID
             };
 
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
-            projectDto.ID = project.Id;
+            var responseDto = new ProjectDTO
+            {
+                ID = project.Id,
+                ProjectName = project.ProjectName,
+                ProjectDescription = project.ProjectDescription,
+                Owner = new UserDTO { ID = project.OwnerId },
+            };
 
-            return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, projectDto);
+            return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, responseDto);
         }
 
         [HttpDelete("{id}")]
@@ -234,7 +240,7 @@ namespace api.Controllers
             var label = await _context.Labels
                 .Where(l => labelName == l.LabelName)
                 .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
-            
+
             if (label != null)
             {
                 var projectLabelExist = await _context.ProjectLabels.AnyAsync(pl => pl.ProjectId == id && label.ID == pl.LabelId);
