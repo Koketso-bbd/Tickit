@@ -58,7 +58,6 @@ public class TasksController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> CreateTask(
-        //POST /api/tasks?assigneeId=1&taskName=New+Feature&priorityId=2&projectId=3&taskDescription=Refactor+code&dueDate=2025-03-05T07:31:02.947Z&projectLabelIds=10&projectLabelIds=20
         [Required] int assigneeId,
         [Required] string taskName,
         [Required] int priorityId,
@@ -71,8 +70,8 @@ public class TasksController : ControllerBase
         {
             if (string.IsNullOrWhiteSpace(taskName))
                 return BadRequest(new { message = "Task name is required." });
-            if (priorityId <= 0)
-                return BadRequest(new { message = "Priority is required and must be a positive integer." });
+            if (priorityId < 1 || priorityId > 4)
+                return BadRequest(new { message = "Priority must be between 1 and 4, where 1='Low', 2='Medium', 3='Urgent'" });
             if (assigneeId <= 0)
                 return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
 
