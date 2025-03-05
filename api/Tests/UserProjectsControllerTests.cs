@@ -112,7 +112,7 @@ public class UserProjectsTest
             Assert.NotNull(result);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var value = notFoundResult.Value as dynamic;
-            Assert.Equal($"Role does not exist.  Available roles are: ",value.message.ToString());
+            Assert.Equal($"Role does not exist. Available roles are: ",value.message.ToString());
         }
 
 
