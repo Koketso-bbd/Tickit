@@ -45,13 +45,13 @@ public class TasksController : ControllerBase
                 })
                 .ToListAsync();
 
-            if (!tasks.Any()) return NotFound($"No tasks found for user {assigneeId}.");
+            if (!tasks.Any()) return NotFound(new { message = $"No tasks found for user {assigneeId}." });
 
             return Ok(tasks);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "An internal server error occurred. Please try again later.");
+            return StatusCode(500, new { message = "An internal server error occurred. Please try again later." });
         }
     }
 
@@ -61,15 +61,15 @@ public class TasksController : ControllerBase
         try
         {
             if (taskDto == null)
-                return BadRequest("Task data cannot be null.");
+                return BadRequest(new { message = "Task data cannot be null." });
             if (string.IsNullOrWhiteSpace(taskDto.TaskName))
-                return BadRequest("Task name is required.");
+                return BadRequest(new { message = "Task name is required." });
             if (taskDto.PriorityId <= 0)
-                return BadRequest("Priority is required and must be a positive integer.");
+                return BadRequest(new { message = "Priority is required and must be a positive integer." });
             if (taskDto.StatusId <= 0)
-                return BadRequest("Status is required and must be a valid value.");
+                return BadRequest(new { message = "Status is required and must be a valid value." });
             if (taskDto.AssigneeId <= 0)
-                return BadRequest("AssigneeId is required and must be a valid value.");
+                return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
 
             string description = string.IsNullOrWhiteSpace(taskDto.TaskDescription) ? "No description provided" : taskDto.TaskDescription;
             DateTime dueDate = (DateTime)taskDto.DueDate;
@@ -85,7 +85,7 @@ public class TasksController : ControllerBase
                 .FirstOrDefaultAsync();
 
             if (createdTask == null)
-                return StatusCode(500, "Task was not found after insertion.");
+                return StatusCode(500, new { message = "Task was not found after insertion." });
 
             if (taskDto.TaskLabels != null && taskDto.TaskLabels.Any())
             {
@@ -103,29 +103,29 @@ public class TasksController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "An unexpected error occurred while creating the task. Please try again later.");
+            return StatusCode(500, new { message = "An unexpected error occurred while creating the task. Please try again later." });
         }
     }
 
     [HttpPut("{taskid}")]
     public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskDTO taskDto)
     {
-        if (taskDto == null) return BadRequest("Invalid task data");
+        if (taskDto == null) return BadRequest(new { message = "Invalid task data" });
 
         var existingTask = await _context.Tasks
             .Include(t => t.TaskLabels) 
             .FirstOrDefaultAsync(t => t.Id == taskid);
 
-        if (existingTask == null) return NotFound($"Task with ID {taskid} not found.");
+        if (existingTask == null) return NotFound(new { message = $"Task with ID {taskid} not found." });
 
-        if (taskDto.ProjectId != existingTask.ProjectId) return BadRequest("Updating ProjectId is not allowed.");
+        if (taskDto.ProjectId != existingTask.ProjectId) return BadRequest(new { message = "Updating ProjectId is not allowed." });
 
         if (string.IsNullOrWhiteSpace(taskDto.TaskName) || 
             taskDto.PriorityId <= 0 || 
             taskDto.StatusId <= 0 || 
             taskDto.AssigneeId <= 0)
         {
-            return BadRequest("Task Name, Priority, Status, and AssigneeId are required and must be valid.");
+            return BadRequest(new { message = "Task Name, Priority, Status, and AssigneeId are required and must be valid." });
         }
 
         existingTask.AssigneeId = taskDto.AssigneeId;
@@ -166,7 +166,7 @@ public class TasksController : ControllerBase
         var task = await _context.Tasks.FindAsync(taskid);
         if (task == null)
         {
-            return NotFound($"Task with ID {taskid} not found.");
+            return NotFound(new { message = $"Task with ID {taskid} not found." });
         }
 
         using var transaction = await _context.Database.BeginTransactionAsync();
@@ -200,12 +200,12 @@ public class TasksController : ControllerBase
         catch (DbUpdateException dbEx)
         {
             await transaction.RollbackAsync();
-            return StatusCode(500, $"Database error occurred while deleting task: {dbEx.Message}");
+            return StatusCode(500, new { message = $"Database error occurred while deleting task: {dbEx.Message}" });
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return StatusCode(500, $"An unexpected error occurred while deleting task: {ex.Message}");
+            return StatusCode(500, new { message = $"An unexpected error occurred while deleting task: {ex.Message}" });
         }
     }
 }
