@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers
@@ -39,14 +40,14 @@ namespace api.Controllers
                         })
                     .FirstOrDefaultAsync();
 
-                if (user == null) return NotFound("User not found");
+                if (user == null) return NotFound( new { message = "User not found" });
 
                 return Ok(user);
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("user", _logger, ex);
-                return StatusCode(statusCode, message);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("user", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
             }
         }
 
@@ -73,14 +74,14 @@ namespace api.Controllers
                     })
                     .ToListAsync();
 
-                if (user == null) return NotFound("User not found");
+                if (user == null) return NotFound(new { message = "User not found" });
 
                 return Ok(user);
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("user's notification", _logger, ex);
-                return StatusCode(statusCode, message);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("user's notification", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
             }
         }
     }

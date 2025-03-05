@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace api.Controllers;
 
 [ApiController]
@@ -39,7 +38,7 @@ public class AuthController : ControllerBase
         var googleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var idToken = tokens?.FirstOrDefault(t => t.Name == "id_token")?.Value;
 
-        if (string.IsNullOrEmpty(googleId)) return BadRequest("Invalid Google ID");
+        if (string.IsNullOrEmpty(googleId)) return BadRequest(new { message = "Invalid Google ID" });
 
         try
         {
@@ -61,7 +60,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"An unexpected error occurred while attempting to add user: {ex.Message}");
+            return StatusCode(500, new { message = $"An unexpected error occurred while attempting to add user: {ex.Message}" });
         }
     }
 }

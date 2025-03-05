@@ -46,14 +46,14 @@ namespace api.Controllers
                     })
                     .ToListAsync();
 
-                if (projects == null || !projects.Any()) return NotFound("No projects found");
+                if (projects == null || !projects.Any()) return NotFound(new { message = "No projects found" });
 
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError(" fetching projects", _logger, ex);
-                return StatusCode(statusCode, message);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError(" fetching projects", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
             }
         }
 
@@ -80,14 +80,14 @@ namespace api.Controllers
                     })
                     .FirstOrDefaultAsync();
 
-                if (project == null) return NotFound($"Project with ID {id} not found");
+                if (project == null) return NotFound(new { message = $"Project with ID {id} not found" });
 
                 return Ok(project);
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching project", _logger, ex);
-                return StatusCode(statusCode, message);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("fetching project", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
             }
         }
 
@@ -97,12 +97,12 @@ namespace api.Controllers
         [SwaggerOperation(Summary = "Create a new project")]
         public async Task<ActionResult<ProjectDTO>> AddProject(ProjectDTO projectDto)
         {
-            if (projectDto == null) return BadRequest("Project data is null.");
+            if (projectDto == null) return BadRequest(new { message = "Project data is null." });
 
             bool projectExists = await _context.Projects
                 .AnyAsync(p => p.ProjectName == projectDto.ProjectName && p.OwnerId == projectDto.Owner.ID);
 
-            if (projectExists) return Conflict("A project with this name already exists for this owner");
+            if (projectExists) return Conflict(new { message = "A project with this name already exists for this owner" });
 
             var project = new Project
             {
@@ -130,14 +130,14 @@ namespace api.Controllers
             {
                 var project = await _context.Projects.FindAsync(id);
 
-                if (project == null) return NotFound($"Project with ID {id} not found.");
+                if (project == null) return NotFound(new { message = $"Project with ID {id} not found." });
 
                 bool projectHasTasks = _context.Tasks.Any(t => t.ProjectId == id);
                 bool projectHasUsers = _context.UserProjects.Any(up => up.ProjectId == id);
 
                 if (projectHasTasks || projectHasUsers)
                 {
-                    return BadRequest("Cannot delete project because it has tasks or users.");
+                    return BadRequest(new { message = "Cannot delete project because it has tasks or users." });
                 }
 
                 _context.Projects.Remove(project);
@@ -147,8 +147,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("deleting project", _logger, ex);
-                return StatusCode(statusCode, message);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("deleting project", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
             }
         }
 
@@ -160,7 +160,7 @@ namespace api.Controllers
         {
 
             var userExists = await _context.Users.AnyAsync(u => u.Id == id);
-            if (!userExists) return NotFound("User does not exist");
+            if (!userExists) return NotFound(new { message = "User does not exist" });
 
             try
             {
@@ -177,14 +177,14 @@ namespace api.Controllers
                                     .ToList()
                     }).ToListAsync();
 
-                if (projects == null) return NotFound($"No projects found for user with ID {id}");
+                if (projects == null) return NotFound(new { message = $"No projects found for user with ID {id}" });
 
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching user's projects", _logger, ex);
-                return StatusCode(statusCode, message);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("fetching user's projects", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
             }
         }
 
@@ -207,14 +207,14 @@ namespace api.Controllers
                     })
                     .ToListAsync();
 
-                if (projectLabel == null) return NotFound($"Project with ID {id} not found");
+                if (projectLabel == null) return NotFound(new { message = $"Project with ID {id} not found" });
 
                 return Ok(projectLabel);
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("fetching project label", _logger, ex);
-                return StatusCode(statusCode, message);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("fetching project label", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
             }
         }
 
@@ -225,11 +225,11 @@ namespace api.Controllers
         [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
         public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(int id, string labelName)
         {
-            if (labelName.IsNullOrEmpty()) return BadRequest("labelName is required.");
-            if (id <= 0) return BadRequest("ProjectID is required.");
+            if (labelName.IsNullOrEmpty()) return BadRequest(new { message = "labelName is required." });
+            if (id <= 0) return BadRequest(new { message = "ProjectID is required." });
 
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == id);
-            if (!projectExists) return NotFound("Project not found");
+            if (!projectExists) return NotFound(new { message = "Project not found" });
 
             var label = await _context.Labels
                 .Where(l => labelName == l.LabelName)
@@ -238,20 +238,18 @@ namespace api.Controllers
             if (label != null)
             {
                 var projectLabelExist = await _context.ProjectLabels.AnyAsync(pl => pl.ProjectId == id && label.ID == pl.LabelId);
-                if (projectLabelExist) return BadRequest("Project label already exists");
+                if (projectLabelExist) return BadRequest(new { message = "Project label already exists" });
             }
 
             try
             {
                 await _context.AddLabelToProject(id, labelName);
-
-                _logger.LogInformation($"{labelName} label added to Project: {id}");
                 return Created();
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("adding label to a project", _logger, ex);
-                return StatusCode(statusCode, message);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("adding label to a project", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
             }
         }
 
@@ -264,20 +262,20 @@ namespace api.Controllers
         {
             try
             {
-                if (labelName.IsNullOrEmpty()) return BadRequest("labelName is required.");
-                if (id <= 0) return BadRequest("ProjectID is required.");
+                if (labelName.IsNullOrEmpty()) return BadRequest(new { message = "labelName is required." });
+                if (id <= 0) return BadRequest(new { message = "ProjectID is required." });
 
                 var projectExists = await _context.Projects.AnyAsync(p => p.Id == id);
-                if (!projectExists) return NotFound("Project not found");
+                if (!projectExists) return NotFound(new { message = "Project not found" });
 
                 var label = await _context.Labels
                     .Where(l => labelName == l.LabelName)
                     .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
-                if (label == null) return NotFound("Label not found");
+                if (label == null) return NotFound(new { message = "Label not found" });
 
                 var projectLabel = await _context.ProjectLabels
                     .Where(pl => pl.ProjectId == id && label.ID == pl.LabelId).FirstOrDefaultAsync();
-                if (projectLabel == null) return NotFound("Project label not found");
+                if (projectLabel == null) return NotFound(new { message = "Project label not found" });
 
                 _context.ProjectLabels.Remove(projectLabel);
                 await _context.SaveChangesAsync();
@@ -286,8 +284,8 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                var (statusCode, message) = HttpResponseHelper.InternalServerError("deleting project", _logger, ex);
-                return StatusCode(statusCode, message);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("deleting project", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
             }
         }
     }
