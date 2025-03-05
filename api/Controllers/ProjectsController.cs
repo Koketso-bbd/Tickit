@@ -8,6 +8,8 @@ using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
+using System.Net;
 
 namespace api.Controllers
 {
@@ -33,7 +35,10 @@ namespace api.Controllers
         {
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
                 var projects = await _context.Projects
+                    .Where(p => p.Owner.GitHubId == userId)
                     .Select(p => new ProjectDTO
                     {
                         ID = p.Id,
@@ -65,6 +70,8 @@ namespace api.Controllers
         {
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
                 var project = await _context.Projects
                     .Where(p => p.Id == id)
                     .Select(p => new ProjectDTO
@@ -81,6 +88,12 @@ namespace api.Controllers
                     .FirstOrDefaultAsync();
 
                 if (project == null) return NotFound(new { message = $"Project with ID {id} not found" });
+
+                bool isOwner = project.Owner.GitHubID == userId;
+                bool isAssignedUser = project.AssignedUsers.Any(u => u.GitHubID == userId);
+
+                if (!isOwner && !isAssignedUser) 
+                    return StatusCode(403, new {message="Unauthorised access to this resource."});
 
                 return Ok(project);
             }
