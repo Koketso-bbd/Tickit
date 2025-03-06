@@ -204,6 +204,16 @@ public class TasksController : ControllerBase
             return NotFound(new { message = $"Task with ID {taskid} not found." });
         }
 
+        var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
+        if (currentUser == null) return Unauthorized(new { message = "User not found" });
+
+        bool isAdmin = await _context.UserProjects
+                .AnyAsync(ur => ur.MemberId == currentUser.Id && ur.RoleId == 1);
+
+        if (!isAdmin) return Unauthorized(new { message = "Only admins can delete tasks." });
+
         using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
