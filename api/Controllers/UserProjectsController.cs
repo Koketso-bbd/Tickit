@@ -38,7 +38,7 @@ namespace api.Controllers
             if (userId <= 0) return BadRequest(new { message = "UserID is required." });
             if (projectId <= 0) return BadRequest(new { message = "ProjectID is required." });
             if (roleId <= 0) return BadRequest(
-                new 
+                new
                 { message = $"RoleID is required.  Available roles are: {availableRolesMessage}" });
             var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
