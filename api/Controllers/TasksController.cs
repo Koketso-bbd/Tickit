@@ -6,6 +6,7 @@ using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 namespace api.Controllers;
 
@@ -79,6 +80,17 @@ public class TasksController : ControllerBase
 
             var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
             if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
+
+            var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            var currentUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
+
+            if (currentUser == null) return Unauthorized(new { message = "User not found or unauthorised" });
+
+            var userHasAccessToProject = await _context.UserProjects
+                        .AnyAsync(up => up.MemberId == currentUser.Id && up.ProjectId == taskDto.ProjectId);
+            if (!userHasAccessToProject)
+                return Unauthorized(new { message = "User does not have permission to create tasks for this project." });
 
             if (taskDto.DueDate.HasValue)
             {
