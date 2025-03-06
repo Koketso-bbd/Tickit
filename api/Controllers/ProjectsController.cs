@@ -8,6 +8,8 @@ using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
+using System.Net;
 
 namespace api.Controllers
 {
@@ -33,7 +35,10 @@ namespace api.Controllers
         {
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
                 var projects = await _context.Projects
+                    .Where(p => p.Owner.GitHubId == userId)
                     .Select(p => new ProjectDTO
                     {
                         ID = p.Id,
@@ -65,6 +70,8 @@ namespace api.Controllers
         {
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
                 var project = await _context.Projects
                     .Where(p => p.Id == id)
                     .Select(p => new ProjectDTO
@@ -81,6 +88,12 @@ namespace api.Controllers
                     .FirstOrDefaultAsync();
 
                 if (project == null) return NotFound(new { message = $"Project with ID {id} not found" });
+
+                bool isOwner = project.Owner.GitHubID == userId;
+                bool isAssignedUser = project.AssignedUsers.Any(u => u.GitHubID == userId);
+
+                if (!isOwner && !isAssignedUser) 
+                    return StatusCode(403, new {message="Unauthorised access to this resource."});
 
                 return Ok(project);
             }
@@ -100,29 +113,47 @@ namespace api.Controllers
 
             if (request == null) return BadRequest(new { message = "Project data is null" });
 
-            bool projectExists = await _context.Projects.AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == request.OwnerID);
-
-            if (projectExists) return Conflict(new { message = "A project with this name already exists for this owner" });
-
-            var project = new Project
+            try
             {
-                ProjectName = request.ProjectName,
-                ProjectDescription = request.ProjectDescription,
-                OwnerId = request.OwnerID
-            };
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
 
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userId);
 
-            var responseDto = new ProjectDTO
+                if (user == null) 
+                    return Unauthorized(new { message = "User not found" });
+
+                if (request.OwnerID != user.Id) 
+                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+
+                bool projectExists = await _context.Projects
+                .AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == request.OwnerID);
+                if (projectExists) return Conflict(new { message = "A project with this name already exists for this owner" });
+
+                var project = new Project
+                {
+                    ProjectName = request.ProjectName,
+                    ProjectDescription = request.ProjectDescription,
+                    OwnerId = request.OwnerID
+                };
+
+                _context.Projects.Add(project);
+                await _context.SaveChangesAsync();
+
+                var responseDto = new ProjectDTO
+                {
+                    ID = project.Id,
+                    ProjectName = project.ProjectName,
+                    ProjectDescription = project.ProjectDescription,
+                    Owner = new UserDTO { ID = project.OwnerId },
+                };
+
+                return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, responseDto);
+            }
+            catch (Exception ex)
             {
-                ID = project.Id,
-                ProjectName = project.ProjectName,
-                ProjectDescription = project.ProjectDescription,
-                Owner = new UserDTO { ID = project.OwnerId },
-            };
-
-            return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, responseDto);
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("Creating project", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
+            }  
         }
 
         [HttpDelete("{id}")]
@@ -131,15 +162,22 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [SwaggerOperation(Summary = "Delete a project based on project ID")]
         public async Task<IActionResult> DeleteProject(int id)
-        {
+        {               
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userId);
+
                 var project = await _context.Projects.FindAsync(id);
+
+                if (project.OwnerId != user.Id) 
+                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
 
                 if (project == null) return NotFound(new { message = $"Project with ID {id} not found." });
 
-                bool projectHasTasks = _context.Tasks.Any(t => t.ProjectId == id);
-                bool projectHasUsers = _context.UserProjects.Any(up => up.ProjectId == id);
+                bool projectHasTasks = await _context.Tasks.AnyAsync(t => t.ProjectId == id);
+                bool projectHasUsers = await _context.UserProjects.AnyAsync(up => up.ProjectId == id);
 
                 if (projectHasTasks || projectHasUsers)
                 {
@@ -165,11 +203,13 @@ namespace api.Controllers
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetUsersProjects(int id)
         {
 
-            var userExists = await _context.Users.AnyAsync(u => u.Id == id);
-            if (!userExists) return NotFound(new { message = "User does not exist" });
-
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                var userExists = await _context.Users.AnyAsync(u => u.Id == id);
+                if (!userExists) return NotFound(new { message = "User does not exist" });
+
                 var projects = await _context.Projects
                     .Where(p => p.OwnerId == id || p.UserProjects.Any(up => up.MemberId == id))
                     .Select(p => new ProjectDTO
@@ -185,7 +225,13 @@ namespace api.Controllers
 
                 if (projects == null) return NotFound(new { message = $"No projects found for user with ID {id}" });
 
-                return Ok(projects);
+                var authorisedProjects = projects
+                    .Where(p => p.Owner.GitHubID == userId || p.AssignedUsers.Any(u => u.GitHubID == userId));
+
+                if (authorisedProjects.Count() == 0) 
+                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+
+                return Ok(authorisedProjects);
             }
             catch (Exception ex)
             {
