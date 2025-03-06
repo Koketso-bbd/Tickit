@@ -66,8 +66,10 @@ namespace api.Controllers
                 if (userAlreadyInProject) return BadRequest(new { message = "User is already assigned to this project" });
 
                 bool isProjectOwner = project.OwnerId == currentUserId;
+                bool isAdmin = await _context.UserProjects
+                        .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1);
 
-                if (!isProjectOwner)
+                if (!isProjectOwner && !isAdmin)
                 {
                     return StatusCode(403, new { message = "Unauthorised access to this resource." });
                 }
@@ -128,9 +130,10 @@ namespace api.Controllers
 
                 bool isRemovingSelf = currentUserId == userId;
                 bool isProjectOwner = project.OwnerId == currentUserId;
+                bool isAdmin = await _context.UserProjects
+                    .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1);
 
-
-                if (!isRemovingSelf && !isProjectOwner)
+                if (!isRemovingSelf && !isProjectOwner && !isAdmin)
                 {
                     return StatusCode(403, new { message = "Unauthorised access to this resource." });
                 }
@@ -190,8 +193,10 @@ namespace api.Controllers
                 if (userProject == null) return NotFound(new { message = "User not found in this project" });
 
                 bool isProjectOwner = project.OwnerId == currentUserId;
+                bool isAdmin = await _context.UserProjects
+                        .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1);
 
-                if (!isProjectOwner)
+                if (!isProjectOwner && !isAdmin)
                 {
                     return StatusCode(403, new { message = "Unauthorised access to this resource." });
                 }
