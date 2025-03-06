@@ -244,27 +244,45 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
         public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(int projectId, string labelName)
         {
-            if (labelName.IsNullOrEmpty()) return BadRequest(new { message = "labelName is required." });
-            if (projectId <= 0) return BadRequest(new { message = "ProjectID is required." });
-
-            var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
-            if (!projectExists) return NotFound(new { message = "Project not found" });
-
-            var label = await _context.Labels
-                .Where(l => labelName == l.LabelName)
-                .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
-
-            if (label != null)
-            {
-                var projectLabelExist = await _context.ProjectLabels.AnyAsync(pl => pl.ProjectId == projectId && label.ID == pl.LabelId);
-                if (projectLabelExist) return BadRequest(new { message = "Project label already exists" });
-            }
-
             try
             {
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
+                if (user == null) return NotFound(new { message = "User not found." });
+
+                var userId = user.Id;
+
+                if (string.IsNullOrWhiteSpace(labelName)) return BadRequest(new { message = "Label name is required." });
+                if (projectId <= 0) return BadRequest(new { message = "Project ID is required." });
+
+                var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+                if (project == null) return NotFound(new { message = "Project not found." });
+
+                bool isProjectOwner = project.OwnerId == userId;
+                bool isAdmin = await _context.UserProjects
+                                    .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
+
+                if (!isProjectOwner && !isAdmin) 
+                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+
+                var label = await _context.Labels
+                    .Where(l => l.LabelName == labelName)
+                    .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName })
+                    .FirstOrDefaultAsync();
+
+                if (label != null)
+                {
+                    var projectLabelExists = await _context.ProjectLabels
+                        .AnyAsync(pl => pl.ProjectId == projectId && label.ID == pl.LabelId);
+
+                    if (projectLabelExists) return BadRequest(new { message = "Project label already exists." });
+                }
+
                 await _context.AddLabelToProject(projectId, labelName);
                 return Created();
             }
