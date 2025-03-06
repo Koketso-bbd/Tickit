@@ -171,6 +171,25 @@ namespace api.Tests
             Assert.Equal("AssigneeId is required and must be a valid value.", value.message.ToString());
         }
 
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskdNameLengthExceeds255()
+        {
+            var taskDto = new TaskDTO
+            {
+                TaskName = new string('t', 256), // entering 256 t's
+                PriorityId = 1,
+                AssigneeId = 1,
+                TaskDescription = "Testing for when PriorityId is invalid",
+                DueDate = DateTime.Now,
+                ProjectId = 1,
+            };
+
+            var result = await _controller.CreateTask(taskDto);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Task name cannot exceed 255 charcacters.", value.message.ToString());
+        }
+
 
         [Fact]
         public async System.Threading.Tasks.Task DeleteTask_ReturnsNotFound_WhenTaskNotExist()
