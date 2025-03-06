@@ -240,36 +240,6 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("{id}/labels")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [SwaggerOperation(Summary = "Get all labels for a project")]
-        public async Task<ActionResult<ProjectLabelDTO>> GetProjectLabels(int id)
-        {
-            try
-            {
-                var projectLabel = await _context.ProjectLabels
-                    .Where(pl => pl.ProjectId == id)
-                    .Select(pl => new ProjectLabelDTO
-                    {
-                        ID = pl.Id,
-                        LabelID = pl.LabelId,
-                        ProjectID = pl.ProjectId,
-                        LabelName = new LabelDTO { ID = pl.LabelId, LabelName = pl.Label.LabelName }
-                    })
-                    .ToListAsync();
-
-                if (projectLabel == null) return NotFound(new { message = $"Project with ID {id} not found" });
-
-                return Ok(projectLabel);
-            }
-            catch (Exception ex)
-            {
-                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("fetching project label", _logger, ex);
-                return StatusCode(statusCode, new { message = errorMessage });
-            }
-        }
-
         [HttpPost("{projectId}/labels")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
