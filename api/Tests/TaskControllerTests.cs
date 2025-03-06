@@ -103,8 +103,8 @@ namespace api.Tests
             var result = await _controller.GetUserTasks(assigneeId2);
 
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-            var message = Assert.IsAssignableFrom<string>(notFoundResult.Value);
-            Assert.Equal($"No tasks found for user {assigneeId2}.",message); 
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal($"No tasks found for user {assigneeId2}.",value.message.ToString()); 
         }
 
         [Fact]
@@ -113,8 +113,8 @@ namespace api.Tests
             TaskDTO? taskDTO = null;
             var result = await _controller.CreateTask(taskDTO);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var message = Assert.IsType<string>(badRequestResult.Value);
-            Assert.Equal("Task data cannot be null.",message);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Task data cannot be null.",value.message.ToString());
         }
 
         [Fact]
@@ -134,7 +134,8 @@ namespace api.Tests
             var result = await _controller.CreateTask(taskDto);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Task name is required.", badRequestResult.Value);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Task name is required.", value.message.ToString());
         }
 
         [Fact]
@@ -152,9 +153,9 @@ namespace api.Tests
             };
 
             var result = await _controller.CreateTask(taskDto);
-
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Priority is required and must be a positive integer.", badRequestResult.Value);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Priority is required and must be a positive integer.", value.message.ToString());
         }
 
         [Fact]
@@ -174,7 +175,8 @@ namespace api.Tests
             var result = await _controller.CreateTask(taskDto);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Status is required and must be a valid value.", badRequestResult.Value);
+            var value = badRequestResult.Value as dynamic; 
+            Assert.Equal("Status is required and must be a valid value.", value.message.ToString());
         }
 
         [Fact]
@@ -194,7 +196,8 @@ namespace api.Tests
             var result = await _controller.CreateTask(taskDto);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("AssigneeId is required and must be a valid value.", badRequestResult.Value);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("AssigneeId is required and must be a valid value.", value.message.ToString());
         }
 
         [Fact]
@@ -214,5 +217,20 @@ namespace api.Tests
             var result = await _controller.CreateTask(taskDto);
             Assert.IsType<ObjectResult>(result); 
         }
+
+
+        [Fact]
+        public async System.Threading.Tasks.Task DeleteTask_ReturnsNotFound_WhenTaskNotExist()
+        {   
+           
+            var taskId = 1;
+
+            var result = await _controller.DeleteTask(taskId);
+
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var value = notFoundResult.Value as dynamic; 
+            Assert.Equal($"Task with ID {taskId} not found.", value.message.ToString());
+        }
+
     }
 }
