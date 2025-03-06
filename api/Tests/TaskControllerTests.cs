@@ -39,11 +39,11 @@ namespace api.Tests
         //         AssigneeId = assigneeId,
         //         TaskName = "Task 1",
         //         TaskDescription = "Description 1",
-        //         DueDate = DateTime.Now.AddDays(5),
+        //         DueDate = DateTime.UtcNow.AddDays(5),
         //         PriorityId = 1,
         //         StatusId = 1,
         //         ProjectId = 1,
-                
+
         //     };
 
         //     await _dbContext.Tasks.AddAsync(task);
@@ -81,7 +81,7 @@ namespace api.Tests
         //         AssigneeId = assigneeId,
         //         TaskName = "Task 1",
         //         TaskDescription = "Description 1",
-        //         DueDate = DateTime.Now.AddDays(5),
+        //         DueDate = DateTime.UtcNow.AddDays(5),
         //         PriorityId = 1,
         //         ProjectId = 1,
         //         StatusId = 1,
@@ -117,7 +117,7 @@ namespace api.Tests
             var taskDto = new TaskDTO
             {
                 AssigneeId = 1,
-                DueDate = DateTime.Now,
+                DueDate = DateTime.UtcNow,
                 PriorityId = 1,
                 ProjectId = 1,
                 TaskDescription = "Testing for when Taskname is empty",
@@ -140,7 +140,7 @@ namespace api.Tests
                 PriorityId = 0, 
                 AssigneeId = 1,
                 TaskDescription = "Testing for when PriorityId is invalid",
-                DueDate = DateTime.Now,
+                DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
 
@@ -160,7 +160,7 @@ namespace api.Tests
                 PriorityId = 1,
                 AssigneeId = 0,
                 TaskDescription = "Testing for when AssigneeId is Invalid",
-                DueDate = DateTime.Now,
+                DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
 
@@ -180,7 +180,7 @@ namespace api.Tests
                 PriorityId = 1,
                 AssigneeId = 1,
                 TaskDescription = "Testing for when AssigneeId is Invalid",
-                DueDate = DateTime.Now,
+                DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
 
@@ -200,7 +200,7 @@ namespace api.Tests
                 PriorityId = 1,
                 AssigneeId = 1,
                 TaskDescription = new string('t', 1001), // entering 1001 t's
-                DueDate = DateTime.Now,
+                DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
 
@@ -219,7 +219,7 @@ namespace api.Tests
                 PriorityId = 1,
                 AssigneeId = 1,
                 TaskDescription = "Testing for when PriorityId is invalid",
-                DueDate = DateTime.Now,
+                DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
 
@@ -227,6 +227,31 @@ namespace api.Tests
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var value = badRequestResult.Value as dynamic;
             Assert.Equal("Task name cannot exceed 255 charcacters.", value.message.ToString());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenDueDateIsInThePast()
+        {
+            var userId = 1;
+            var user = new User { Id = userId, GitHubId = "user" };
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing for when AssigneeId is Invalid",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = 1,
+            };
+
+            var result = await _controller.CreateTask(taskDto);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Due date cannot be in the past.", value.message.ToString());
         }
 
         [Fact]
