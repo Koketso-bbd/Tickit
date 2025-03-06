@@ -172,7 +172,26 @@ namespace api.Tests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskdNameLengthExceeds255()
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskNameLengthExceeds255()
+        {
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = 1,
+                TaskDescription = new string('t', 1001), // entering 1001 t's
+                DueDate = DateTime.Now,
+                ProjectId = 1,
+            };
+
+            var result = await _controller.CreateTask(taskDto);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Task Description cannot exceed a 1000 charcacters.", value.message.ToString());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskDescriptionLengthExceeds1000()
         {
             var taskDto = new TaskDTO
             {
@@ -189,7 +208,6 @@ namespace api.Tests
             var value = badRequestResult.Value as dynamic;
             Assert.Equal("Task name cannot exceed 255 charcacters.", value.message.ToString());
         }
-
 
         [Fact]
         public async System.Threading.Tasks.Task DeleteTask_ReturnsNotFound_WhenTaskNotExist()
