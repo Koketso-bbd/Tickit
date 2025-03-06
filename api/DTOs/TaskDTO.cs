@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using api.Models;
 
 namespace api.DTOs;
@@ -5,21 +6,11 @@ namespace api.DTOs;
 
 public class TaskDTO
 {
-    public int Id { get; set; }
-    
-    public required int AssigneeId { get; set; } 
-
-    public required string TaskName { get; set; }
-
-    public string? TaskDescription { get; set; }
-
+    [Required] public int AssigneeId { get; set; }
+    [Required] public string TaskName { get; set; }
+    [Required] public int PriorityId { get; set; }
+    [Required] public int ProjectId { get; set; }
+    public string? TaskDescription { get; set; } = "No description provided";
     public DateTime? DueDate { get; set; }
-
-    public required int PriorityId { get; set; }
-
-    public required int ProjectId { get; set; }
-
-    public required int StatusId { get; set; }
-
-    public List<TaskLabelDTO> TaskLabels { get; set; } = new List<TaskLabelDTO>();
+    public List<int>? ProjectLabelIds { get; set; }
 }
