@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 namespace api.Controllers
 {
@@ -51,20 +52,22 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("{userId}/notifications")]
+        [HttpGet("notifications")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Gets notifications for a user")]
-        public async Task<IActionResult> GetUserNotifications(int userId)
+        public async Task<IActionResult> GetUserNotifications()
         {
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
 
-                var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
-                if (!userExists) return StatusCode(404, new { message = "User not found"});
+                var user = await _context.Users
+                    .Where(u => u.GitHubId == userId)
+                    .FirstOrDefaultAsync();
 
                 var notifications = await _context.Notifications
-                    .Where(n => n.UserId == userId)
+                    .Where(n => n.UserId == user.Id)
                     .Select(n => new NotificationsDTO
                     {
                         Id = n.Id,
