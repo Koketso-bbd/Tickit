@@ -245,12 +245,12 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
-        public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(int id, string labelName)
+        public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(int projectId, string labelName)
         {
             if (labelName.IsNullOrEmpty()) return BadRequest(new { message = "labelName is required." });
-            if (id <= 0) return BadRequest(new { message = "ProjectID is required." });
+            if (projectId <= 0) return BadRequest(new { message = "ProjectID is required." });
 
-            var projectExists = await _context.Projects.AnyAsync(p => p.Id == id);
+            var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             if (!projectExists) return NotFound(new { message = "Project not found" });
 
             var label = await _context.Labels
@@ -259,13 +259,13 @@ namespace api.Controllers
 
             if (label != null)
             {
-                var projectLabelExist = await _context.ProjectLabels.AnyAsync(pl => pl.ProjectId == id && label.ID == pl.LabelId);
+                var projectLabelExist = await _context.ProjectLabels.AnyAsync(pl => pl.ProjectId == projectId && label.ID == pl.LabelId);
                 if (projectLabelExist) return BadRequest(new { message = "Project label already exists" });
             }
 
             try
             {
-                await _context.AddLabelToProject(id, labelName);
+                await _context.AddLabelToProject(projectId, labelName);
                 return Created();
             }
             catch (Exception ex)
@@ -280,14 +280,14 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
-        public async Task<IActionResult> DeleteProjectLabel(int id, string labelName)
+        public async Task<IActionResult> DeleteProjectLabel(int projectId, string labelName)
         {
             try
             {
                 if (labelName.IsNullOrEmpty()) return BadRequest(new { message = "labelName is required." });
-                if (id <= 0) return BadRequest(new { message = "ProjectID is required." });
+                if (projectId   <= 0) return BadRequest(new { message = "ProjectID is required." });
 
-                var projectExists = await _context.Projects.AnyAsync(p => p.Id == id);
+                var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
                 if (!projectExists) return NotFound(new { message = "Project not found" });
 
                 var label = await _context.Labels
@@ -296,7 +296,7 @@ namespace api.Controllers
                 if (label == null) return NotFound(new { message = "Label not found" });
 
                 var projectLabel = await _context.ProjectLabels
-                    .Where(pl => pl.ProjectId == id && label.ID == pl.LabelId).FirstOrDefaultAsync();
+                    .Where(pl => pl.ProjectId == projectId && label.ID == pl.LabelId).FirstOrDefaultAsync();
                 if (projectLabel == null) return NotFound(new { message = "Project label not found" });
 
                 _context.ProjectLabels.Remove(projectLabel);
