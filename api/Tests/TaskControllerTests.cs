@@ -172,6 +172,26 @@ namespace api.Tests
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsNotfound_WhenAssigneeIdDoesNotExist()
+        {
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = 1,
+                TaskDescription = "Testing for when AssigneeId is Invalid",
+                DueDate = DateTime.Now,
+                ProjectId = 1,
+            };
+
+            var result = await _controller.CreateTask(taskDto);
+
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal("Assignee does not exist.", value.message.ToString());
+        }
+
+        [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskNameLengthExceeds255()
         {
             var taskDto = new TaskDTO
