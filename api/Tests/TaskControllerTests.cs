@@ -102,7 +102,7 @@ namespace api.Tests
         // }
 
         [Fact]
-        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskdtoEmpty()
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskdtoNull()
         {
             TaskDTO? taskDTO = null;
             var result = await _controller.CreateTask(taskDTO);
@@ -267,5 +267,14 @@ namespace api.Tests
             Assert.Equal($"Task with ID {taskId} not found.", value.message.ToString());
         }
 
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateTask_ReturnsBadRequest_WhenTaskdtoEmpty()
+        {
+            TaskUpdateDTO? taskDTO = null;
+            var result = await _controller.UpdateTask(1, taskDTO);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Invalid task data.", value.message.ToString());
+        }
     }
 }
