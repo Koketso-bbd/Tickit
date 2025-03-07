@@ -136,11 +136,11 @@ public class TasksController : ControllerBase
             }
 
             await _context.CreateTaskAsync(
-                taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription ?? "No description provided",
+                assigneeId, taskDto.TaskName, taskDto.TaskDescription ?? "No description provided",
                 finalDueDate, priorityId, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
-                .Where(t => t.AssigneeId == taskDto.AssigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
+                .Where(t => t.AssigneeId == assigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
                 .OrderByDescending(t => t.Id)
                 .FirstOrDefaultAsync();
 
