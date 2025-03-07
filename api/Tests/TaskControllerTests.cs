@@ -449,5 +449,39 @@ namespace api.Tests
             var value = badRequestResult.Value as dynamic;
             Assert.Equal("AssigneeId is required and must be a valid value.", value.message.ToString());
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateTask_ReturnsNotFound_WhenTaskAssigneeDoesNotExist()
+        {
+            var userId = 1;
+            var taskId = 1;
+            var user = new User { Id = userId, GitHubId = "user" };
+            var task = new api.Models.Task
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = 1,
+                StatusId = 1,
+                Id = taskId,
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                AssigneeId = 2,
+                PriorityId = 1
+            };
+
+            var result = await _controller.UpdateTask(taskId, taskDto);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal("Assignee does not exist.", value.message.ToString());
+        }
     }
 }
