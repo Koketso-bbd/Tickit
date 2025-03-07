@@ -415,5 +415,39 @@ namespace api.Tests
             var value = badRequestResult.Value as dynamic;
             Assert.Equal("Priority must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'.", value.message.ToString());
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateTask_ReturnsBadRequest_WhenTaskAssigneeIdIsInvalid()
+        {
+            var userId = 1;
+            var taskId = 1;
+            var user = new User { Id = userId, GitHubId = "user" };
+            var task = new api.Models.Task
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = 1,
+                StatusId = 1,
+                Id = taskId,
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                AssigneeId = 0,
+                PriorityId = 1
+            };
+
+            var result = await _controller.UpdateTask(taskId, taskDto);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("AssigneeId is required and must be a valid value.", value.message.ToString());
+        }
     }
 }
