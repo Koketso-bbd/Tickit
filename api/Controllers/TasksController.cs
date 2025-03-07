@@ -82,8 +82,6 @@ public class TasksController : ControllerBase
                 return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
             if (taskDto.TaskDescription.Length > 1000)
                 return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
-            if (taskDto.AssigneeId <= 0)
-                return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
             if (taskDto.PriorityId.HasValue)
             {
                 if (!EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
