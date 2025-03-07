@@ -4,6 +4,8 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,6 +16,7 @@ namespace api.Tests
         private readonly DbContextOptions<TickItDbContext> _dbContextOptions;
         private readonly TickItDbContext _dbContext;
         private readonly TasksController _controller;
+        private readonly Mock<HttpContext> _mockHttpContext;
 
         public TaskControllerTests()
         {
@@ -22,6 +25,20 @@ namespace api.Tests
                 .Options;
             _dbContext = new TickItDbContext(_dbContextOptions);
             _controller = new TasksController(_dbContext);
+            _mockHttpContext = new Mock<HttpContext>();
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, "GitHub User 1")
+            };
+            var identity = new ClaimsIdentity(claims, "mock");
+            var user = new ClaimsPrincipal(identity);
+
+            _mockHttpContext.Setup(x => x.User).Returns(user);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
         }
 
         [Fact]
@@ -230,30 +247,50 @@ namespace api.Tests
             Assert.Equal("Task name cannot exceed 255 charcacters.", value.message.ToString());
         }
 
-        //[Fact]
-        //public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenDueDateIsInThePast()
-        //{
-        //    var userId = 1;
-        //    var user = new User { Id = userId, GitHubId = "user" };
-        //    await _dbContext.Users.AddAsync(user);
-        //    await _dbContext.SaveChangesAsync();
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenDueDateIsInThePast()
+        {
+            var userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
 
-        //    var taskDto = new TaskDTO
-        //    {
-        //        TaskName = "Task 1",
-        //        PriorityId = 1,
-        //        AssigneeId = userId,
-        //        TaskDescription = "Testing task",
-        //        DueDate = DateTime.UtcNow.AddDays(-1),
-        //        ProjectId = 1,
-        //    };
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
 
-        //    var result = await _controller.CreateTask(taskDto);
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 1
+            };
 
-        //    var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        //    var value = badRequestResult.Value as dynamic;
-        //    Assert.Equal("Due date cannot be in the past.", value.message.ToString());
-        //}
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = projectId,
+            };
+
+            var result = await _controller.CreateTask(taskDto);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Due date cannot be in the past.", value.message.ToString());
+        }
 
         [Fact]
         public async System.Threading.Tasks.Task DeleteTask_ReturnsNotFound_WhenTaskNotExist()
