@@ -71,7 +71,7 @@ public class TasksController : ControllerBase
     [SwaggerOperation(Summary = "Create a task in a project")]
     public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
     {
-        DateTime finalDueDate;
+        DateTime? finalDueDate;
         try
         {
             if (taskDto == null)
@@ -164,10 +164,23 @@ public class TasksController : ControllerBase
             if (taskDto.TaskName.Length > 255) return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
             else existingTask.TaskName = taskDto.TaskName;
 
-        if (taskDto.PriorityId.HasValue) 
-            if (taskDto.PriorityId < 1 || taskDto.PriorityId > 4)
-                return BadRequest(new { message = "Priority must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'." });
-            else existingTask.PriorityId = taskDto.PriorityId.Value;
+        if (taskDto.PriorityId.HasValue)
+        {
+            if (!Enum.IsDefined(typeof(TaskPriority), taskDto.PriorityId.Value))
+            {
+                string validPriorities = string.Join(", ", Enum.GetValues(typeof(TaskPriority))
+                                                            .Cast<TaskPriority>()
+                                                            .Select(p => $"{(int)p}='{p}'"));
+
+                return BadRequest(new { message = $"Priority must be one of the following: {validPriorities}." });
+            }
+
+            existingTask.PriorityId = taskDto.PriorityId.Value;
+        } else
+        {
+            existingTask.PriorityId = (int)TaskPriority.Low;
+        }
+
 
         if (taskDto.AssigneeId.HasValue) 
             if (taskDto.AssigneeId <= 0)
