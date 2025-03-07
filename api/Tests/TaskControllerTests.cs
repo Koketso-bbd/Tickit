@@ -308,10 +308,46 @@ namespace api.Tests
                 TaskDescription = "Testing task tasks"
             };
 
-            var result = await _controller.UpdateTask(2, taskDto);
+            var result = await _controller.UpdateTask(taskId, taskDto);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var value = notFoundResult.Value as dynamic;
             Assert.Equal($"Task with ID {taskId} not found.", value.message.ToString());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateTask_ReturnsBadRequest_WhenTaskNameExceeds255()
+        {
+            var userId = 1;
+            var taskId = 1;
+            var user = new User { Id = userId, GitHubId = "user" };
+            var task = new api.Models.Task
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = 1,
+                StatusId = 1,
+                Id = taskId,
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                TaskName = new string('t', 256),
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task tasks"
+            };
+
+            var result = await _controller.UpdateTask(taskId, taskDto);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Task name cannot exceed 255 charcacters.", value.message.ToString());
         }
     }
 }
