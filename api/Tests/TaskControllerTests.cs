@@ -211,49 +211,49 @@ namespace api.Tests
             Assert.Equal("Task Description cannot exceed a 1000 charcacters.", value.message.ToString());
         }
 
-        //[Fact]
-        //public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskDescriptionLengthExceeds1000()
-        //{
-        //    var taskDto = new TaskDTO
-        //    {
-        //        TaskName = new string('t', 256), // entering 256 t's
-        //        PriorityId = 1,
-        //        AssigneeId = 1,
-        //        TaskDescription = "Testing task",
-        //        DueDate = DateTime.UtcNow,
-        //        ProjectId = 1,
-        //    };
-
-        //    var result = await _controller.CreateTask(taskDto);
-        //    var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        //    var value = badRequestResult.Value as dynamic;
-        //    Assert.Equal("Task name cannot exceed 255 charcacters.", value.message.ToString());
-        //}
-
         [Fact]
-        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenDueDateIsInThePast()
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskDescriptionLengthExceeds1000()
         {
-            var userId = 1;
-            var user = new User { Id = userId, GitHubId = "user" };
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-
             var taskDto = new TaskDTO
             {
-                TaskName = "Task 1",
+                TaskName = new string('t', 256), // entering 256 t's
                 PriorityId = 1,
-                AssigneeId = userId,
+                AssigneeId = 1,
                 TaskDescription = "Testing task",
-                DueDate = DateTime.UtcNow.AddDays(-1),
+                DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
 
             var result = await _controller.CreateTask(taskDto);
-
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var value = badRequestResult.Value as dynamic;
-            Assert.Equal("Due date cannot be in the past.", value.message.ToString());
+            Assert.Equal("Task name cannot exceed 255 charcacters.", value.message.ToString());
         }
+
+        //[Fact]
+        //public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenDueDateIsInThePast()
+        //{
+        //    var userId = 1;
+        //    var user = new User { Id = userId, GitHubId = "user" };
+        //    await _dbContext.Users.AddAsync(user);
+        //    await _dbContext.SaveChangesAsync();
+
+        //    var taskDto = new TaskDTO
+        //    {
+        //        TaskName = "Task 1",
+        //        PriorityId = 1,
+        //        AssigneeId = userId,
+        //        TaskDescription = "Testing task",
+        //        DueDate = DateTime.UtcNow.AddDays(-1),
+        //        ProjectId = 1,
+        //    };
+
+        //    var result = await _controller.CreateTask(taskDto);
+
+        //    var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        //    var value = badRequestResult.Value as dynamic;
+        //    Assert.Equal("Due date cannot be in the past.", value.message.ToString());
+        //}
 
         [Fact]
         public async System.Threading.Tasks.Task DeleteTask_ReturnsNotFound_WhenTaskNotExist()
