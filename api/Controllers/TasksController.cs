@@ -136,7 +136,7 @@ public class TasksController : ControllerBase
             }
 
             await _context.CreateTaskAsync(
-                assigneeId, taskDto.TaskName, taskDto.TaskDescription ?? "No description provided",
+                assigneeId, taskDto.TaskName, taskDto.TaskDescription ?? null,
                 finalDueDate, priorityId, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks

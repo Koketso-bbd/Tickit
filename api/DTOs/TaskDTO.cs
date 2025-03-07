@@ -3,7 +3,6 @@ using api.Models;
 
 namespace api.DTOs;
 
-
 public class TaskDTO
 {
     [Required] public string TaskName { get; set; }
