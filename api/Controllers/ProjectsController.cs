@@ -171,10 +171,10 @@ namespace api.Controllers
 
                 var project = await _context.Projects.FindAsync(id);
 
+                if (project == null) return NotFound(new { message = $"Project with ID {id} not found." });
+
                 if (project.OwnerId != user.Id) 
                     return StatusCode(403, new { message = "Unauthorised access to this resource." });
-
-                if (project == null) return NotFound(new { message = $"Project with ID {id} not found." });
 
                 bool projectHasTasks = await _context.Tasks.AnyAsync(t => t.ProjectId == id);
                 bool projectHasUsers = await _context.UserProjects.AnyAsync(up => up.ProjectId == id);
