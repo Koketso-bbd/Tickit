@@ -46,49 +46,9 @@ namespace api.Tests
         {
             _dbContext?.Dispose();
         }
-        //Logic Correct , problem in TaskController
-        // [Fact]
-        // public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsOkResult_WhenTasksExist()
-        // {            
-        //     var assigneeId = 1;
-        //     var task = new Models.Task
-        //     {
-        //         Id = 1,
-        //         AssigneeId = assigneeId,
-        //         TaskName = "Task 1",
-        //         TaskDescription = "Description 1",
-        //         DueDate = DateTime.UtcNow.AddDays(5),
-        //         PriorityId = 1,
-        //         StatusId = 1,
-        //         ProjectId = 1,
 
-        //     };
-
-        //     await _dbContext.Tasks.AddAsync(task);
-        //     await _dbContext.SaveChangesAsync();
-
-        //     var result = await _controller.GetUserTasks(assigneeId);
-
-        //     var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        //     var returnValue = Assert.IsAssignableFrom<List<TaskResponseDTO>>(okResult.Value);
-        //     Assert.Single(returnValue);
-
-        //     var returnedTask = returnValue.First();
-        //     Assert.Equal(task.AssigneeId, returnedTask.AssigneeId);
-        //     Assert.Equal(task.TaskName, returnedTask.TaskName);
-        //     Assert.Equal(task.TaskDescription, returnedTask.TaskDescription);
-        //     Assert.Equal(task.DueDate, returnedTask.DueDate);
-        //     Assert.Equal(task.PriorityId, returnedTask.PriorityId);
-        //     Assert.Equal(task.ProjectId, returnedTask.ProjectId);
-
-        //     var label = returnedTask.TaskLabels.First();
-        //     Assert.Equal(task.TaskLabels.First().Id, label.ID);
-        //     Assert.Equal(task.TaskLabels.First().TaskId, label.TaskId);
-        //     Assert.Equal(task.TaskLabels.First().ProjectLabelId, label.ProjectLabelId);
-        // }
-
-        [Fact]
-        public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsNotFound_WhenTasksDoesNotExist()
+         [Fact]
+        public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsOkResult_WhenTasksExist()
         {
             var assigneeId = 1;
             var user = new User { Id = assigneeId, GitHubId = "GitHub User 1" };
@@ -110,6 +70,48 @@ namespace api.Tests
                 PriorityId = 1,
                 ProjectId = 1,
                 StatusId = 1,
+            };
+
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = assigneeId,
+                ProjectId = projectId,
+                RoleId = 1
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.GetUserTasks();
+
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsAssignableFrom<List<TaskResponseDTO>>(okResult.Value);
+            Assert.Single(returnValue);
+
+            var returnedTask = returnValue.First();
+            Assert.Equal(task.AssigneeId, returnedTask.AssigneeId);
+            Assert.Equal(task.TaskName, returnedTask.TaskName);
+            Assert.Equal(task.TaskDescription, returnedTask.TaskDescription);
+            Assert.Equal(task.DueDate, returnedTask.DueDate);
+            Assert.Equal(task.PriorityId, returnedTask.PriorityId);
+            Assert.Equal(task.ProjectId, returnedTask.ProjectId);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsNotFound_WhenTasksDoesNotExist()
+        {
+            var assigneeId = 1;
+            var user = new User { Id = assigneeId, GitHubId = "GitHub User 1" };
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = assigneeId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
             };
 
             var userProject = new UserProject
