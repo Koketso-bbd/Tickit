@@ -6,6 +6,7 @@ using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 namespace api.Controllers;
 
@@ -20,19 +21,28 @@ public class TasksController : ControllerBase
         _context = context;
     }
     
-    [HttpGet("{assigneeId}")]
+    [HttpGet()]
     [SwaggerOperation(Summary = "Get all the users' tasks based on the assignee ID")]
-    public async Task<ActionResult<IEnumerable<TaskResponseDTO>>> GetUserTasks(int assigneeId)
+    public async Task<ActionResult<IEnumerable<TaskResponseDTO>>> GetUserTasks()
     {
         try
         {
-            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == assigneeId);
+
+            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
+            if (currentUser == null) return Unauthorized(new { message = "User not found" });
+
+
+
+            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == currentUser.Id);
             if (!assigneeExists) 
             {
-                return NotFound(new { message = $"User with ID {assigneeId} does not exist." });
+                return NotFound(new { message = $"User with ID {currentUser.Id} does not exist." });
             }
+
             var tasks = await _context.Tasks
-                .Where(t => t.AssigneeId == assigneeId)
+                .Where(t => t.AssigneeId == currentUser.Id)
                 .Select(t => new TaskResponseDTO
                 {
                     TaskId = t.Id,
@@ -47,7 +57,7 @@ public class TasksController : ControllerBase
                 .ToListAsync();
 
             if (!tasks.Any()) 
-                return NotFound(new { message = $"No tasks found for user {assigneeId}." });
+                return NotFound(new { message = $"No tasks found for user {currentUser.Id}." });
 
             return Ok(tasks);
         }
@@ -79,6 +89,17 @@ public class TasksController : ControllerBase
 
             var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
             if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
+
+            var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            var currentUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
+
+            if (currentUser == null) return Unauthorized(new { message = "User not found or unauthorised" });
+
+            var userHasAccessToProject = await _context.UserProjects
+                        .AnyAsync(up => up.MemberId == currentUser.Id && up.ProjectId == taskDto.ProjectId);
+            if (!userHasAccessToProject)
+                return Unauthorized(new { message = "User does not have permission to create tasks for this project." });
 
             if (taskDto.DueDate.HasValue)
             {
@@ -191,6 +212,16 @@ public class TasksController : ControllerBase
         {
             return NotFound(new { message = $"Task with ID {taskid} not found." });
         }
+
+        var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
+        if (currentUser == null) return Unauthorized(new { message = "User not found" });
+
+        bool isAdmin = await _context.UserProjects
+                .AnyAsync(ur => ur.MemberId == currentUser.Id && ur.RoleId == 1);
+
+        if (!isAdmin) return Unauthorized(new { message = "Only admins can delete tasks." });
 
         using var transaction = await _context.Database.BeginTransactionAsync();
 

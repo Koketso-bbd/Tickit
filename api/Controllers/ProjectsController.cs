@@ -240,62 +240,50 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("{id}/labels")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [SwaggerOperation(Summary = "Get all labels for a project")]
-        public async Task<ActionResult<ProjectLabelDTO>> GetProjectLabels(int id)
-        {
-            try
-            {
-                var projectLabel = await _context.ProjectLabels
-                    .Where(pl => pl.ProjectId == id)
-                    .Select(pl => new ProjectLabelDTO
-                    {
-                        ID = pl.Id,
-                        LabelID = pl.LabelId,
-                        ProjectID = pl.ProjectId,
-                        LabelName = new LabelDTO { ID = pl.LabelId, LabelName = pl.Label.LabelName }
-                    })
-                    .ToListAsync();
-
-                if (projectLabel == null) return NotFound(new { message = $"Project with ID {id} not found" });
-
-                return Ok(projectLabel);
-            }
-            catch (Exception ex)
-            {
-                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("fetching project label", _logger, ex);
-                return StatusCode(statusCode, new { message = errorMessage });
-            }
-        }
-
         [HttpPost("{projectId}/labels")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
-        public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(int id, string labelName)
+        public async Task<ActionResult<ProjectLabelDTO>> AddProjectLabel(int projectId, string labelName)
         {
-            if (labelName.IsNullOrEmpty()) return BadRequest(new { message = "labelName is required." });
-            if (id <= 0) return BadRequest(new { message = "ProjectID is required." });
-
-            var projectExists = await _context.Projects.AnyAsync(p => p.Id == id);
-            if (!projectExists) return NotFound(new { message = "Project not found" });
-
-            var label = await _context.Labels
-                .Where(l => labelName == l.LabelName)
-                .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
-
-            if (label != null)
-            {
-                var projectLabelExist = await _context.ProjectLabels.AnyAsync(pl => pl.ProjectId == id && label.ID == pl.LabelId);
-                if (projectLabelExist) return BadRequest(new { message = "Project label already exists" });
-            }
-
             try
             {
-                await _context.AddLabelToProject(id, labelName);
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
+                if (user == null) return NotFound(new { message = "User not found." });
+
+                var userId = user.Id;
+
+                if (string.IsNullOrWhiteSpace(labelName)) return BadRequest(new { message = "Label name is required." });
+                if (projectId <= 0) return BadRequest(new { message = "Project ID is required." });
+
+                var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+                if (project == null) return NotFound(new { message = "Project not found." });
+
+                bool isProjectOwner = project.OwnerId == userId;
+                bool isAdmin = await _context.UserProjects
+                                    .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
+
+                if (!isProjectOwner && !isAdmin) 
+                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+
+                var label = await _context.Labels
+                    .Where(l => l.LabelName == labelName)
+                    .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName })
+                    .FirstOrDefaultAsync();
+
+                if (label != null)
+                {
+                    var projectLabelExists = await _context.ProjectLabels
+                        .AnyAsync(pl => pl.ProjectId == projectId && label.ID == pl.LabelId);
+
+                    if (projectLabelExists) return BadRequest(new { message = "Project label already exists." });
+                }
+
+                await _context.AddLabelToProject(projectId, labelName);
                 return Created();
             }
             catch (Exception ex)
@@ -309,25 +297,44 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [SwaggerOperation(Summary = "Add a label to project - create if it doesn't exist")]
-        public async Task<IActionResult> DeleteProjectLabel(int id, string labelName)
+        public async Task<IActionResult> DeleteProjectLabel(int projectId, string labelName)
         {
             try
             {
-                if (labelName.IsNullOrEmpty()) return BadRequest(new { message = "labelName is required." });
-                if (id <= 0) return BadRequest(new { message = "ProjectID is required." });
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
 
-                var projectExists = await _context.Projects.AnyAsync(p => p.Id == id);
-                if (!projectExists) return NotFound(new { message = "Project not found" });
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
+                if (user == null) return NotFound(new { message = "User not found." });
+
+                var userId = user.Id;
+
+                if (string.IsNullOrWhiteSpace(labelName)) return BadRequest(new { message = "Label name is required." });
+                if (projectId <= 0) return BadRequest(new { message = "Project ID is required." });
+
+                var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+                if (project == null) return NotFound(new { message = "Project not found." });
+
+                bool isProjectOwner = project.OwnerId == userId;
+                bool isAdmin = await _context.UserProjects
+                                    .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
+
+                if (!isProjectOwner && !isAdmin)
+                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
 
                 var label = await _context.Labels
-                    .Where(l => labelName == l.LabelName)
-                    .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName }).FirstOrDefaultAsync();
-                if (label == null) return NotFound(new { message = "Label not found" });
+                            .Where(l => l.LabelName == labelName)
+                            .Select(l => new LabelDTO { ID = l.Id, LabelName = l.LabelName })
+                            .FirstOrDefaultAsync();
+
+                if (label == null) return NotFound(new { message = "Label not found." });
 
                 var projectLabel = await _context.ProjectLabels
-                    .Where(pl => pl.ProjectId == id && label.ID == pl.LabelId).FirstOrDefaultAsync();
-                if (projectLabel == null) return NotFound(new { message = "Project label not found" });
+                    .Where(pl => pl.ProjectId == projectId && pl.LabelId == label.ID)
+                    .FirstOrDefaultAsync();
+
+                if (projectLabel == null) return NotFound(new { message = "Project label not found." });
 
                 _context.ProjectLabels.Remove(projectLabel);
                 await _context.SaveChangesAsync();
