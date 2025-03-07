@@ -483,5 +483,47 @@ namespace api.Tests
             var value = notFoundResult.Value as dynamic;
             Assert.Equal("Assignee does not exist.", value.message.ToString());
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateTask_ReturnsOk_WhenTaskNameIsUpdated()
+        {
+            var userId = 1;
+            var taskId = 1;
+            var taskName = "Task 1";
+            var newTaskName = "new task";
+            var user = new User { Id = userId, GitHubId = "user" };
+            var task = new api.Models.Task
+            {
+                TaskName = taskName,
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = 1,
+                StatusId = 1,
+                Id = taskId,
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                AssigneeId = userId,
+                PriorityId = 1,
+                TaskName = newTaskName
+            };
+
+            var result = await _controller.UpdateTask(taskId, taskDto);
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var value = okResult.Value as dynamic;
+            Assert.Equal($"Task with ID {taskId} updated successfully.", value.message.ToString());
+
+            var updatedTask = await _dbContext.Tasks
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+            Assert.NotNull(updatedTask);
+            Assert.Equal(newTaskName, updatedTask.TaskName);
+        }
     }
 }
