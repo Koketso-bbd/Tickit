@@ -5,6 +5,7 @@ using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using System.Security.Claims;
 using Xunit;
 using systemTasks = System.Threading.Tasks;
 
@@ -16,6 +17,7 @@ namespace api.Tests
         private readonly DbContextOptions<TickItDbContext> _dbContextOptions;
         private readonly TickItDbContext _dbContext;
         private readonly ProjectsController _controller;
+        private readonly Mock<HttpContext> _mockHttpContext;
 
         public ProjectsControllerTests()
         {
@@ -25,6 +27,20 @@ namespace api.Tests
             _dbContext = new TickItDbContext(_dbContextOptions);
             _loggerMock = new Mock<ILogger<ProjectsController>>();
             _controller = new ProjectsController(_dbContext, _loggerMock.Object);
+            _mockHttpContext = new Mock<HttpContext>();
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, "GitHub User 1")
+            };
+            var identity = new ClaimsIdentity(claims, "mock");
+            var user = new ClaimsPrincipal(identity);
+
+            _mockHttpContext.Setup(x => x.User).Returns(user);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
         }
 
         [Fact]
@@ -38,7 +54,7 @@ namespace api.Tests
         {
             var users = new List<User>
             {
-                new() { Id = 1, GitHubId = "owner123" },
+                new() { Id = 1, GitHubId = "GitHub User 1" },
                 new() { Id = 2, GitHubId = "user456" }
             };
 
@@ -148,6 +164,7 @@ namespace api.Tests
         [Fact]
         public async systemTasks.Task AddProject_ReturnsConflict_ProjectAlreadyExists()
         {
+            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
             var projectDTO = new CreateProjectDTO
             {
                 ProjectName = "project 1",
@@ -174,8 +191,6 @@ namespace api.Tests
         [Fact]
         public async systemTasks.Task DeleteProject_ReturnsNoContent_DeleteProject()
         {
-            var user = new User  { Id = 1, GitHubId = "owner123" };
-
             var projectId = 1;
             var project = new Project
             {
