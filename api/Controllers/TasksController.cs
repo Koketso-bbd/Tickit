@@ -187,7 +187,15 @@ public class TasksController : ControllerBase
 
         if (taskDto.ProjectLabelIds != null)
         {
-            existingTask.TaskLabels.RemoveAll(tl => !taskDto.ProjectLabelIds.Contains(tl.ProjectLabelId));
+            var existingLabels = existingTask.TaskLabels.ToList(); 
+
+            foreach (var label in existingLabels)
+            {
+                if (!taskDto.ProjectLabelIds.Contains(label.ProjectLabelId))
+                {
+                    _context.TaskLabels.Remove(label);
+                }
+            }
 
             foreach (var labelId in taskDto.ProjectLabelIds)
             {
