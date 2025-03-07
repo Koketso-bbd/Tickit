@@ -6,6 +6,7 @@ using Moq;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using api.DTOs;
+using System.Security.Claims;
 
 namespace api.Tests
 {
@@ -70,6 +71,20 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task GetUserNotifications_ReturnsListOfNotifications()
         {
+            Mock<HttpContext>  _mockHttpContext = new Mock<HttpContext>();
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, "GitHub User 1")
+            };
+            var identity = new ClaimsIdentity(claims, "mock");
+            var user = new ClaimsPrincipal(identity);
+
+            _mockHttpContext.Setup(x => x.User).Returns(user);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             var users = new List<User>
             {
                 new() { Id = 1, GitHubId = "GitHub User 1" },
@@ -95,7 +110,7 @@ namespace api.Tests
             await _dbContext.SaveChangesAsync();
 
             //User 1 notifications
-            var result1 = await _controller.GetUserNotifications(1);
+            var result1 = await _controller.GetUserNotifications();
             var okResult1 = Assert.IsType<OkObjectResult>(result1);
             var returnedNotifications1 = Assert.IsAssignableFrom<List<NotificationsDTO>>(okResult1.Value);
             
@@ -113,13 +128,6 @@ namespace api.Tests
             Assert.True(notification4.IsRead);
             Assert.Equal(12, notification4.TaskId);
             Assert.Equal(4, notification4.Id);
-
-            //User 2 notifications
-            var result2 = await _controller.GetUserNotifications(2);
-            var okResult2 = Assert.IsType<OkObjectResult>(result2);
-            var returnedNotifications2 = Assert.IsAssignableFrom<List<NotificationsDTO>>(okResult2.Value);
-
-            Assert.Equal(3, returnedNotifications2.Count);
         }
     }
 }

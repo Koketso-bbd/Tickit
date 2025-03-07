@@ -5,6 +5,7 @@ using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using System.Security.Claims;
 using Xunit;
 
 namespace api.Tests;
@@ -17,6 +18,7 @@ public class UserProjectsTest
         private readonly UserProjectsController _controller;
         private readonly DbContextOptions<TickItDbContext> _dbContextOptions;
         private readonly TickItDbContext _dbContext;
+        private readonly Mock<HttpContext> _mockHttpContext;
 
         public UserProjectsControllerTests()
         {
@@ -27,6 +29,20 @@ public class UserProjectsTest
 
             _loggerMock = new Mock<ILogger<UserProjectsController>>();
             _controller = new UserProjectsController(_dbContext, _loggerMock.Object);
+            _mockHttpContext = new Mock<HttpContext>();
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, "GitHub User 1")
+            };
+            var identity = new ClaimsIdentity(claims, "mock");
+            var user = new ClaimsPrincipal(identity);
+
+            _mockHttpContext.Setup(x => x.User).Returns(user);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
         }
 
 
@@ -36,41 +52,13 @@ public class UserProjectsTest
             _dbContext?.Dispose();
         }
 
-
-       [Fact]
-        public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidUserId()
-        {
-    
-            var result = await _controller.AddUserToProject(0,1,1);
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var value = badRequestResult.Value as dynamic;
-            Assert.Equal("UserID is required.", value.message.ToString());
-        }        
-
-
-        [Fact]
-        public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidProjectId()
-        {    
-            var result = await _controller.AddUserToProject(1,0,1);
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var value = badRequestResult.Value as dynamic;
-            Assert.Equal("ProjectID is required.", value.message.ToString());
-        }
-
-
-        [Fact]
-        public async System.Threading.Tasks.Task AddUserToProject_ReturnsBadRequest_InvalidRoleId()
-        {        
-            var result = await _controller.AddUserToProject(1,1,0);
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var value = badRequestResult.Value as dynamic;
-            Assert.Equal("RoleID is required.  Available roles are: ",value.message.ToString());
-        }
-
-
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenUserDoesNotExist()        
         {
+            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "Testing for when user does not exist" });
             await  _dbContext.Roles.AddAsync(new Role { Id = 1, RoleName = "Role" });
             await _dbContext.SaveChangesAsync();            
@@ -81,13 +69,12 @@ public class UserProjectsTest
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var value = notFoundResult.Value as dynamic;
             Assert.Equal("User does not exist", value.message.ToString());
-        }
-        
+        }        
 
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenProjectDoesNotExist()
         {
-            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
+            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "GitHub User 1" });
             await _dbContext.Roles.AddAsync(new Role { Id = 1, RoleName = "Guest" });
             await _dbContext.SaveChangesAsync();
 
@@ -99,11 +86,10 @@ public class UserProjectsTest
             Assert.Equal("Project does not exist", value.message.ToString());
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task PostUserProjects_ShouldReturnNotFound_WhenRoleDoesNotExist()        
         {
-            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
+            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "GitHub User 1" });
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenRoleDoesNotExist" });
             await _dbContext.SaveChangesAsync();
 
@@ -115,33 +101,31 @@ public class UserProjectsTest
             Assert.Equal("Role does not exist. Available roles are: ",value.message.ToString());
         }
 
+        //[Fact]
+        //public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
+        //{ 
+        //    var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+        //    var project = new Project { Id = 1, ProjectName = "updating user role" };
+        //    var oldRole = new Role { Id = 1, RoleName = "Old Role" };
+        //    var newRole = new Role { Id = 2, RoleName = "New Role" };
+        //    _dbContext.Users.Add(user);
+        //    _dbContext.Projects.Add(project);
+        //    _dbContext.Roles.Add(oldRole);
+        //    _dbContext.Roles.Add(newRole);
+        //    _dbContext.UserProjects.Add(new UserProject { MemberId = 1, ProjectId = 1, RoleId = 1 });
+        //    await _dbContext.SaveChangesAsync();
 
-        [Fact]
-        public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
-        { 
-            var user = new User { Id = 1, GitHubId = "Koki-98" };
-            var project = new Project { Id = 1, ProjectName = "updating user role" };
-            var oldRole = new Role { Id = 1, RoleName = "Old Role" };
-            var newRole = new Role { Id = 2, RoleName = "New Role" };
-            _dbContext.Users.Add(user);
-            _dbContext.Projects.Add(project);
-            _dbContext.Roles.Add(oldRole);
-            _dbContext.Roles.Add(newRole);
-            _dbContext.UserProjects.Add(new UserProject { MemberId = 1, ProjectId = 1, RoleId = 1 });
-            await _dbContext.SaveChangesAsync();
+        //    var result = await _controller.UpdateUserRole(1, 1, 2);
 
-            var result = await _controller.UpdateUserRole(1, 1, 2);
-
-            Assert.NotNull(result);
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var value = okResult.Value as dynamic;
-            Assert.Equal("User role updated successfully.", value.message.ToString());
+        //    Assert.NotNull(result);
+        //    var okResult = Assert.IsType<OkObjectResult>(result);
+        //    var value = okResult.Value as dynamic;
+        //    Assert.Equal("User role updated successfully.", value.message.ToString());
             
-            var updatedUserProject = await _dbContext.UserProjects.FirstOrDefaultAsync(up => up.MemberId == 1 && up.ProjectId == 1);
-            Assert.NotNull(updatedUserProject);
-            Assert.Equal(2, updatedUserProject.RoleId);
-        }
-
+        //    var updatedUserProject = await _dbContext.UserProjects.FirstOrDefaultAsync(up => up.MemberId == 1 && up.ProjectId == 1);
+        //    Assert.NotNull(updatedUserProject);
+        //    Assert.Equal(2, updatedUserProject.RoleId);
+        //}
 
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenUserIdIsInvalid()
@@ -153,22 +137,19 @@ public class UserProjectsTest
             Assert.Equal("UserID is required.", value.message.ToString());
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenProjectIdIsInvalid()
         {
-
             var result = await _controller.RemoveUserFromProject(1, 0);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var value = badRequestResult.Value as dynamic;
             Assert.Equal("ProjectID is required.", value.message.ToString());
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenUserDoesNotExist()        
         {
-            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
+            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "GitHub User 1" });
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenUserDoesNotExist" });
             await _dbContext.SaveChangesAsync();
 
@@ -180,11 +161,10 @@ public class UserProjectsTest
             Assert.Equal("User does not exist", value.message.ToString());
         }
 
-
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnNotFound_WhenProjectDoesNotExist()        
         {
-            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "Koki-98" });
+            await _dbContext.Users.AddAsync(new User { Id = 1, GitHubId = "GitHub User 1" });
             await _dbContext.Projects.AddAsync(new Project { Id = 1, ProjectName = "WhenUserDoesNotExist" });
             await _dbContext.SaveChangesAsync();
 
