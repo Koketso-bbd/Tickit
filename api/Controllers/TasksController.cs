@@ -68,8 +68,10 @@ public class TasksController : ControllerBase
     [SwaggerOperation(Summary = "Create a task in a project")]
     public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
     {
+        int defaultStatusId = 1;
         DateTime? finalDueDate;
         int priorityId;
+        int assigneeId;
         try
         {
             if (taskDto == null)
@@ -96,14 +98,26 @@ public class TasksController : ControllerBase
                 priorityId = (int)TaskPriority.Low;
             }
 
-            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
-            if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
-
             var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             var currentUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
 
             if (currentUser == null) return Unauthorized(new { message = "User not found or unauthorised" });
+            if (taskDto.AssigneeId.HasValue)
+            {
+                var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
+                if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
+                else assigneeId = taskDto.AssigneeId.Value;
+            }
+            else
+            {
+                var userId = await _context.Users
+                .Where(u => u.GitHubId == currentEmail)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+                assigneeId = userId;
+            }
 
             var userHasAccessToProject = await _context.UserProjects
                         .AnyAsync(up => up.MemberId == currentUser.Id && up.ProjectId == taskDto.ProjectId);
@@ -122,8 +136,6 @@ public class TasksController : ControllerBase
             {
                 finalDueDate = DateTime.UtcNow.AddDays(7);
             }
-
-            int defaultStatusId = 1;
 
             await _context.CreateTaskAsync(
                 taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription ?? "No description provided",
