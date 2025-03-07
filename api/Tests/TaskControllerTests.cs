@@ -4,6 +4,7 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace api.Tests
@@ -179,7 +180,7 @@ namespace api.Tests
                 TaskName = "Task 1",
                 PriorityId = 1,
                 AssigneeId = 1,
-                TaskDescription = "Testing for when AssigneeId is Invalid",
+                TaskDescription = "Testing task",
                 DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
@@ -218,7 +219,7 @@ namespace api.Tests
                 TaskName = new string('t', 256), // entering 256 t's
                 PriorityId = 1,
                 AssigneeId = 1,
-                TaskDescription = "Testing for when PriorityId is invalid",
+                TaskDescription = "Testing task",
                 DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
@@ -242,7 +243,7 @@ namespace api.Tests
                 TaskName = "Task 1",
                 PriorityId = 1,
                 AssigneeId = userId,
-                TaskDescription = "Testing for when AssigneeId is Invalid",
+                TaskDescription = "Testing task",
                 DueDate = DateTime.UtcNow.AddDays(-1),
                 ProjectId = 1,
             };
@@ -275,6 +276,42 @@ namespace api.Tests
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var value = badRequestResult.Value as dynamic;
             Assert.Equal("Invalid task data.", value.message.ToString());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateTask_ReturnsNotFound_WhenTaskDoesNotExist()
+        {
+            var userId = 1;
+            var taskId = 2;
+            var user = new User { Id = userId, GitHubId = "user" };
+            var task = new api.Models.Task
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = 1,
+                StatusId = 1,
+                Id = 1,
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task tasks"
+            };
+
+            var result = await _controller.UpdateTask(2, taskDto);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal($"Task with ID {taskId} not found.", value.message.ToString());
         }
     }
 }
