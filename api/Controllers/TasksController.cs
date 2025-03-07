@@ -27,13 +27,10 @@ public class TasksController : ControllerBase
     {
         try
         {
-
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
 
             var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
             if (currentUser == null) return Unauthorized(new { message = "User not found" });
-
-
 
             var assigneeExists = await _context.Users.AnyAsync(u => u.Id == currentUser.Id);
             if (!assigneeExists) 
@@ -72,6 +69,7 @@ public class TasksController : ControllerBase
     public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
     {
         DateTime? finalDueDate;
+        int priorityId;
         try
         {
             if (taskDto == null)
@@ -82,10 +80,21 @@ public class TasksController : ControllerBase
                 return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
             if (taskDto.TaskDescription.Length > 1000)
                 return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
-            if (taskDto.PriorityId < 1 || taskDto.PriorityId > 4)
-                return BadRequest(new { message = "Priority is required and must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'." });
             if (taskDto.AssigneeId <= 0)
                 return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
+            if (taskDto.PriorityId.HasValue)
+            {
+                if (!EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
+                {
+                    return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
+                }
+
+                priorityId = taskDto.PriorityId.Value;
+            }
+            else
+            {
+                priorityId = (int)TaskPriority.Low;
+            }
 
             var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
             if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
@@ -118,7 +127,7 @@ public class TasksController : ControllerBase
 
             await _context.CreateTaskAsync(
                 taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription ?? "No description provided",
-                finalDueDate, taskDto.PriorityId, taskDto.ProjectId, defaultStatusId);
+                finalDueDate, priorityId, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
                 .Where(t => t.AssigneeId == taskDto.AssigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
@@ -166,21 +175,17 @@ public class TasksController : ControllerBase
 
         if (taskDto.PriorityId.HasValue)
         {
-            if (!Enum.IsDefined(typeof(TaskPriority), taskDto.PriorityId.Value))
+            if (!EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
             {
-                string validPriorities = string.Join(", ", Enum.GetValues(typeof(TaskPriority))
-                                                            .Cast<TaskPriority>()
-                                                            .Select(p => $"{(int)p}='{p}'"));
-
-                return BadRequest(new { message = $"Priority must be one of the following: {validPriorities}." });
+                return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
             }
 
             existingTask.PriorityId = taskDto.PriorityId.Value;
-        } else
+        }
+        else
         {
             existingTask.PriorityId = (int)TaskPriority.Low;
         }
-
 
         if (taskDto.AssigneeId.HasValue) 
             if (taskDto.AssigneeId <= 0)
