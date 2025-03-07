@@ -21,19 +21,28 @@ public class TasksController : ControllerBase
         _context = context;
     }
     
-    [HttpGet("{assigneeId}")]
+    [HttpGet()]
     [SwaggerOperation(Summary = "Get all the users' tasks based on the assignee ID")]
-    public async Task<ActionResult<IEnumerable<TaskResponseDTO>>> GetUserTasks(int assigneeId)
+    public async Task<ActionResult<IEnumerable<TaskResponseDTO>>> GetUserTasks()
     {
         try
         {
-            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == assigneeId);
+
+            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
+            if (currentUser == null) return Unauthorized(new { message = "User not found" });
+
+
+
+            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == currentUser.Id);
             if (!assigneeExists) 
             {
-                return NotFound(new { message = $"User with ID {assigneeId} does not exist." });
+                return NotFound(new { message = $"User with ID {currentUser.Id} does not exist." });
             }
+
             var tasks = await _context.Tasks
-                .Where(t => t.AssigneeId == assigneeId)
+                .Where(t => t.AssigneeId == currentUser.Id)
                 .Select(t => new TaskResponseDTO
                 {
                     TaskId = t.Id,
@@ -48,7 +57,7 @@ public class TasksController : ControllerBase
                 .ToListAsync();
 
             if (!tasks.Any()) 
-                return NotFound(new { message = $"No tasks found for user {assigneeId}." });
+                return NotFound(new { message = $"No tasks found for user {currentUser.Id}." });
 
             return Ok(tasks);
         }
