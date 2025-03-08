@@ -1,4 +1,6 @@
-﻿namespace api.DTOs
+﻿using System.Text.Json.Serialization;
+
+namespace api.DTOs
 {
     public class ProjectDTO
     {
@@ -22,5 +24,11 @@
         public int ProjectID { get; set; }
 
         public required LabelDTO LabelName { get; set; }
+    }
+
+    public class ProjectWithTasksDTO : ProjectDTO
+    {
+        [JsonPropertyOrder(10)]
+        public List<TaskDTO> Tasks { get; set; } = new();
     }
 }
