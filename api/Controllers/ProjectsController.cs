@@ -105,8 +105,8 @@ namespace api.Controllers
                 bool isOwner = project.Owner.GitHubID == userId;
                 bool isAssignedUser = project.AssignedUsers.Any(u => u.GitHubID == userId);
 
-                if (!isOwner && !isAssignedUser) 
-                    return StatusCode(403, new {message="Unauthorised access to this resource."});
+                if (!isOwner && !isAssignedUser)
+                    return NotFound(new { message = "Project not found" });
 
                 return Ok(project);
             }
@@ -135,8 +135,8 @@ namespace api.Controllers
                 if (user == null) 
                     return Unauthorized(new { message = "User not found" });
 
-                if (request.OwnerID != user.Id) 
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                if (request.OwnerID != user.Id)
+                    return NotFound(new { message = "Project not found" });
 
                 bool projectExists = await _context.Projects
                 .AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == request.OwnerID);
