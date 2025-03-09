@@ -212,29 +212,28 @@ namespace api.Tests
             Assert.Null(deletedProject);
         }
 
-        // currently throwing a 500 internal error, look at later
-        //[Fact]
-        //public async systemTasks.Task DeleteProject_ReturnsNotFound_ProjectDoesNotExist()
-        //{
-        //    var user = new User { Id = 1, GitHubId = "GitHub User 1" };
-        //    var projectId = 1;
-        //    var project = new Project
-        //    {
-        //        Id = projectId,
-        //        OwnerId = 1,
-        //        ProjectName = "project 1",
-        //        ProjectDescription = "project description for project 1"
-        //    };
+        [Fact]
+        public async systemTasks.Task DeleteProject_ReturnsNotFound_ProjectDoesNotExist()
+        {
+            var userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
 
-        //    await _dbContext.Projects.AddAsync(project);
-        //    await _dbContext.Users.AddAsync(user);
-        //    await _dbContext.SaveChangesAsync();
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
 
-        //    var result = await _controller.DeleteProject(2);
-        //    var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-        //    var response = notFoundResult.Value as dynamic;
-        //    Assert.Equal("Project with ID 1 not found.", response.message.ToString());
-        //}
+            var result = await _controller.DeleteProject(projectId);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var response = notFoundResult.Value as dynamic;
+            Assert.Equal($"Project with ID {projectId} not found.", response.message.ToString());
+        }
 
         //[Fact]
         //public async systemTasks.Task GetUsersProjects_ReturnsOk_ListOfProjects()
