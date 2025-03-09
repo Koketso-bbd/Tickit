@@ -38,7 +38,7 @@ namespace api.Controllers
                 var userId = User.FindFirst(ClaimTypes.Email)?.Value;
 
                 var projects = await _context.Projects
-                    .Where(p => p.Owner.GitHubId == userId)
+                    .Where(p => p.Owner.GitHubId == userId || p.UserProjects.Any(up => up.Member.GitHubId == userId))
                     .Select(p => new ProjectDTO
                     {
                         ID = p.Id,
