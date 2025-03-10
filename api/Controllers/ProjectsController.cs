@@ -84,8 +84,9 @@ namespace api.Controllers
                             .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
                             .ToList(),
                         Tasks = p.Tasks
-                            .Select(t => new TaskDTO
+                            .Select(t => new TaskResponseDTO
                             {
+                                TaskId = t.Id,
                                 AssigneeId = t.AssigneeId,
                                 TaskName = t.TaskName,
                                 PriorityId = t.PriorityId,
