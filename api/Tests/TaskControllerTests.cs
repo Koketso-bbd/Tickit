@@ -185,22 +185,30 @@ namespace api.Tests
 
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsNotfound_WhenAssigneeIdDoesNotExist()
+        {
+
+            var user = new User
             {
+                Id = 1,
+                GitHubId = "GitHub User 1"
+            };
             var taskDto = new TaskDTO
             {
                 TaskName = "Task 1",
                 PriorityId = 1,
-                AssigneeId = 1,
+                AssigneeId = 2,
                 TaskDescription = "Testing task",
                 DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
 
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
             var result = await _controller.CreateTask(taskDto);
 
-            var notFoundResult = Assert.IsType<ObjectResult>(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var value = notFoundResult.Value as dynamic;
-            Assert.Equal("An unexpected error occurred while creating the task. Please try again later.", value.message.ToString());
+            Assert.Equal("Assignee does not exist.", value.message.ToString());
         }
 
         [Fact]
