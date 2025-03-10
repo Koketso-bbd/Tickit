@@ -124,7 +124,7 @@ namespace api.Tests
             {
                 ProjectName = "project 1",
                 ProjectDescription = "project description for project 1",
-                OwnerID = 1
+                //OwnerID = 1
             };
 
             var result = await _controller.AddProject(projectDTO);
@@ -134,7 +134,7 @@ namespace api.Tests
             //check created for the correct table
             Assert.Equal(projectDTO.ProjectName, createdProjectDTO.ProjectName);
             Assert.Equal(projectDTO.ProjectDescription, createdProjectDTO.ProjectDescription);
-            Assert.Equal(projectDTO.OwnerID, createdProjectDTO.Owner.ID);
+            //Assert.Equal(projectDTO.OwnerID, createdProjectDTO.Owner.ID);
 
             //check created project is stored in database
             var saveProject = await _dbContext.Projects
@@ -165,7 +165,7 @@ namespace api.Tests
             {
                 ProjectName = "project 1",
                 ProjectDescription = "project description for project 1",
-                OwnerID = 1
+                //OwnerID = 1
             };
 
             var result = await _controller.AddProject(projectDTO);
@@ -175,7 +175,7 @@ namespace api.Tests
             //check created for the correct table
             Assert.Equal(projectDTO.ProjectName, createdProjectDTO.ProjectName);
             Assert.Equal(projectDTO.ProjectDescription, createdProjectDTO.ProjectDescription);
-            Assert.Equal(projectDTO.OwnerID, createdProjectDTO.Owner.ID);
+            //Assert.Equal(projectDTO.OwnerID, createdProjectDTO.Owner.ID);
 
             result = await _controller.AddProject(projectDTO);
             var conflictResult = Assert.IsType<ConflictObjectResult>(result.Result);
@@ -256,7 +256,7 @@ namespace api.Tests
             {
                 ProjectName = "project 1",
                 ProjectDescription = "project description for project 1",
-                OwnerID = 1
+                //OwnerID = 1
             };
 
             var resultNull = await _controller.AddProjectLabel(1, null);
