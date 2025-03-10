@@ -22,9 +22,21 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet("{taskId}")]
-    public async Task<ActionResult<Models.Task>> GetTask(int taskId)
+    public async Task<ActionResult<TaskDTO>> GetTask(int taskId)
     {
-        var task = await _context.Tasks.FindAsync(taskId);
+        var task = await _context.Tasks
+            .Where(t => t.Id == taskId)
+            .Select(t => new TaskDTO
+            {
+                TaskName = t.TaskName,
+                ProjectId = t.ProjectId,
+                AssigneeId = t.AssigneeId,
+                PriorityId = t.PriorityId,
+                TaskDescription = t.TaskDescription ?? "No description provided",
+                DueDate = t.DueDate,
+                ProjectLabelIds = t.TaskLabels.Select(tl => tl.ProjectLabelId).ToList()
+            })
+            .FirstOrDefaultAsync();
 
         if (task == null)
         {
@@ -33,6 +45,7 @@ public class TasksController : ControllerBase
 
         return Ok(task);
     }
+
     
     [HttpGet()]
     [SwaggerOperation(Summary = "Get all the users' tasks based on the assignee ID")]
