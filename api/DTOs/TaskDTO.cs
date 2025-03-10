@@ -5,8 +5,8 @@ namespace api.DTOs;
 
 public class TaskDTO
 {
-    [Required] public string TaskName { get; set; }
-    [Required] public int ProjectId { get; set; }
+    public string TaskName { get; set; }
+    public int ProjectId { get; set; }
     public int? AssigneeId { get; set; } = null;
     public int? PriorityId { get; set; } = null;
     public string? TaskDescription { get; set; } = "No description provided";
