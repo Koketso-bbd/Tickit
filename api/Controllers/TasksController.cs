@@ -20,6 +20,19 @@ public class TasksController : ControllerBase
     {
         _context = context;
     }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Models.Task>> GetTask(int id)
+    {
+        var task = await _context.Tasks.FindAsync(id);
+
+        if (task == null)
+        {
+            return NotFound($"Task with ID {id} not found.");
+        }
+
+        return Ok(task);
+    }
     
     [HttpGet()]
     [SwaggerOperation(Summary = "Get all the users' tasks based on the assignee ID")]
