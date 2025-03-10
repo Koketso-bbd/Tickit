@@ -56,10 +56,21 @@ builder.Services.AddDbContext<TickItDbContext>(options =>
 
 builder.Services.AddControllers();
 
-
 builder.Services.AddRouting(options =>
 {
     options.LowercaseUrls = true; 
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins",
+        builder =>
+        {
+            builder.WithOrigins("https://localhost:7151")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -104,7 +115,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
+
+app.UseCors("AllowSpecificOrigins");
 
 app.MapControllers();
 
