@@ -4,6 +4,8 @@ using api.DTOs;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,6 +16,7 @@ namespace api.Tests
         private readonly DbContextOptions<TickItDbContext> _dbContextOptions;
         private readonly TickItDbContext _dbContext;
         private readonly TasksController _controller;
+        private readonly Mock<HttpContext> _mockHttpContext;
 
         public TaskControllerTests()
         {
@@ -22,6 +25,20 @@ namespace api.Tests
                 .Options;
             _dbContext = new TickItDbContext(_dbContextOptions);
             _controller = new TasksController(_dbContext);
+            _mockHttpContext = new Mock<HttpContext>();
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, "GitHub User 1")
+            };
+            var identity = new ClaimsIdentity(claims, "mock");
+            var user = new ClaimsPrincipal(identity);
+
+            _mockHttpContext.Setup(x => x.User).Returns(user);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
         }
 
         [Fact]
@@ -29,78 +46,92 @@ namespace api.Tests
         {
             _dbContext?.Dispose();
         }
-        //Logic Correct , problem in TaskController
-        // [Fact]
-        // public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsOkResult_WhenTasksExist()
-        // {            
-        //     var assigneeId = 1;
-        //     var task = new Models.Task
-        //     {
-        //         Id = 1,
-        //         AssigneeId = assigneeId,
-        //         TaskName = "Task 1",
-        //         TaskDescription = "Description 1",
-        //         DueDate = DateTime.UtcNow.AddDays(5),
-        //         PriorityId = 1,
-        //         StatusId = 1,
-        //         ProjectId = 1,
 
-        //     };
+         [Fact]
+        public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsOkResult_WhenTasksExist()
+        {
+            var assigneeId = 1;
+            var user = new User { Id = assigneeId, GitHubId = "GitHub User 1" };
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = assigneeId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+            var task = new Models.Task
+            {
+                Id = 1,
+                AssigneeId = assigneeId,
+                TaskName = "Task 1",
+                TaskDescription = "Description 1",
+                DueDate = DateTime.UtcNow.AddDays(5),
+                PriorityId = 1,
+                ProjectId = 1,
+                StatusId = 1,
+            };
 
-        //     await _dbContext.Tasks.AddAsync(task);
-        //     await _dbContext.SaveChangesAsync();
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = assigneeId,
+                ProjectId = projectId,
+                RoleId = 1
+            };
 
-        //     var result = await _controller.GetUserTasks(assigneeId);
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
 
-        //     var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        //     var returnValue = Assert.IsAssignableFrom<List<TaskResponseDTO>>(okResult.Value);
-        //     Assert.Single(returnValue);
+            var result = await _controller.GetUserTasks();
 
-        //     var returnedTask = returnValue.First();
-        //     Assert.Equal(task.AssigneeId, returnedTask.AssigneeId);
-        //     Assert.Equal(task.TaskName, returnedTask.TaskName);
-        //     Assert.Equal(task.TaskDescription, returnedTask.TaskDescription);
-        //     Assert.Equal(task.DueDate, returnedTask.DueDate);
-        //     Assert.Equal(task.PriorityId, returnedTask.PriorityId);
-        //     Assert.Equal(task.ProjectId, returnedTask.ProjectId);
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsAssignableFrom<List<TaskResponseDTO>>(okResult.Value);
+            Assert.Single(returnValue);
 
-        //     var label = returnedTask.TaskLabels.First();
-        //     Assert.Equal(task.TaskLabels.First().Id, label.ID);
-        //     Assert.Equal(task.TaskLabels.First().TaskId, label.TaskId);
-        //     Assert.Equal(task.TaskLabels.First().ProjectLabelId, label.ProjectLabelId);
-        // }
+            var returnedTask = returnValue.First();
+            Assert.Equal(task.AssigneeId, returnedTask.AssigneeId);
+            Assert.Equal(task.TaskName, returnedTask.TaskName);
+            Assert.Equal(task.TaskDescription, returnedTask.TaskDescription);
+            Assert.Equal(task.DueDate, returnedTask.DueDate);
+            Assert.Equal(task.PriorityId, returnedTask.PriorityId);
+            Assert.Equal(task.ProjectId, returnedTask.ProjectId);
+        }
 
-        // [Fact]
-        // public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsNotFound_WhenTasksDoesNotExist()
-        // {            
-        //     var assigneeId = 1;
-        //     var assigneeId2 = 2;
+        [Fact]
+        public async System.Threading.Tasks.Task GetTasksByAssigneeId_ReturnsNotFound_WhenTasksDoesNotExist()
+        {
+            var assigneeId = 1;
+            var user = new User { Id = assigneeId, GitHubId = "GitHub User 1" };
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = assigneeId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
 
-        //     var task = new Models.Task
-        //     {
-        //         Id = 1,
-        //         AssigneeId = assigneeId,
-        //         TaskName = "Task 1",
-        //         TaskDescription = "Description 1",
-        //         DueDate = DateTime.UtcNow.AddDays(5),
-        //         PriorityId = 1,
-        //         ProjectId = 1,
-        //         StatusId = 1,
-        //         TaskLabels = new List<TaskLabel>
-        //         {
-        //             new TaskLabel { Id = 1, TaskId = 1, ProjectLabelId = 1 }
-        //         }
-        //     };
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = assigneeId,
+                ProjectId = projectId,
+                RoleId = 1
+            };
 
-        //     await _dbContext.Tasks.AddAsync(task);
-        //     await _dbContext.SaveChangesAsync();
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
 
-        //     var result = await _controller.GetUserTasks(assigneeId2);
+            var result = await _controller.GetUserTasks();
 
-        //     var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-        //     var value = notFoundResult.Value as dynamic;
-        //     Assert.Equal($"No tasks found for user {assigneeId2}.",value.message.ToString()); 
-        // }
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            var value = notFoundResult.Value as dynamic;
+            Assert.Equal($"No tasks found for user {assigneeId}.", value.message.ToString());
+        }
 
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskdtoNull()
@@ -230,30 +261,50 @@ namespace api.Tests
             Assert.Equal("Task name cannot exceed 255 charcacters.", value.message.ToString());
         }
 
-        //[Fact]
-        //public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenDueDateIsInThePast()
-        //{
-        //    var userId = 1;
-        //    var user = new User { Id = userId, GitHubId = "user" };
-        //    await _dbContext.Users.AddAsync(user);
-        //    await _dbContext.SaveChangesAsync();
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenDueDateIsInThePast()
+        {
+            var userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
 
-        //    var taskDto = new TaskDTO
-        //    {
-        //        TaskName = "Task 1",
-        //        PriorityId = 1,
-        //        AssigneeId = userId,
-        //        TaskDescription = "Testing task",
-        //        DueDate = DateTime.UtcNow.AddDays(-1),
-        //        ProjectId = 1,
-        //    };
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
 
-        //    var result = await _controller.CreateTask(taskDto);
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 1
+            };
 
-        //    var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        //    var value = badRequestResult.Value as dynamic;
-        //    Assert.Equal("Due date cannot be in the past.", value.message.ToString());
-        //}
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = projectId,
+            };
+
+            var result = await _controller.CreateTask(taskDto);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Due date cannot be in the past.", value.message.ToString());
+        }
 
         [Fact]
         public async System.Threading.Tasks.Task DeleteTask_ReturnsNotFound_WhenTaskNotExist()

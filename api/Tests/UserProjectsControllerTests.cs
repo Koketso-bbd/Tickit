@@ -101,31 +101,31 @@ public class UserProjectsTest
             Assert.Equal("Role does not exist. Available roles are: ",value.message.ToString());
         }
 
-        //[Fact]
-        //public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
-        //{ 
-        //    var user = new User { Id = 1, GitHubId = "GitHub User 1" };
-        //    var project = new Project { Id = 1, ProjectName = "updating user role" };
-        //    var oldRole = new Role { Id = 1, RoleName = "Old Role" };
-        //    var newRole = new Role { Id = 2, RoleName = "New Role" };
-        //    _dbContext.Users.Add(user);
-        //    _dbContext.Projects.Add(project);
-        //    _dbContext.Roles.Add(oldRole);
-        //    _dbContext.Roles.Add(newRole);
-        //    _dbContext.UserProjects.Add(new UserProject { MemberId = 1, ProjectId = 1, RoleId = 1 });
-        //    await _dbContext.SaveChangesAsync();
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
+        {
+            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            var project = new Project { Id = 1, ProjectName = "updating user role" };
+            var oldRole = new Role { Id = 1, RoleName = "Old Role" };
+            var newRole = new Role { Id = 2, RoleName = "New Role" };
+            _dbContext.Users.Add(user);
+            _dbContext.Projects.Add(project);
+            _dbContext.Roles.Add(oldRole);
+            _dbContext.Roles.Add(newRole);
+            _dbContext.UserProjects.Add(new UserProject { MemberId = 1, ProjectId = 1, RoleId = 1 });
+            await _dbContext.SaveChangesAsync();
 
-        //    var result = await _controller.UpdateUserRole(1, 1, 2);
+            var result = await _controller.UpdateUserRole(1, 1, 2);
 
-        //    Assert.NotNull(result);
-        //    var okResult = Assert.IsType<OkObjectResult>(result);
-        //    var value = okResult.Value as dynamic;
-        //    Assert.Equal("User role updated successfully.", value.message.ToString());
-            
-        //    var updatedUserProject = await _dbContext.UserProjects.FirstOrDefaultAsync(up => up.MemberId == 1 && up.ProjectId == 1);
-        //    Assert.NotNull(updatedUserProject);
-        //    Assert.Equal(2, updatedUserProject.RoleId);
-        //}
+            Assert.NotNull(result);
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var value = okResult.Value as dynamic;
+            Assert.Equal("User role updated successfully.", value.message.ToString());
+
+            var updatedUserProject = await _dbContext.UserProjects.FirstOrDefaultAsync(up => up.MemberId == 1 && up.ProjectId == 1);
+            Assert.NotNull(updatedUserProject);
+            Assert.Equal(2, updatedUserProject.RoleId);
+        }
 
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserFromProject_ShouldReturnBadRequest_WhenUserIdIsInvalid()
