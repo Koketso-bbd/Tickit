@@ -94,7 +94,6 @@ public class TasksController : ControllerBase
     public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
     {
         int defaultStatusId = 1;
-        int assigneeId;
         try
         {
             if (taskDto == null)
@@ -118,16 +117,6 @@ public class TasksController : ControllerBase
             {
                 var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
                 if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
-                else assigneeId = taskDto.AssigneeId.Value;
-            }
-            else
-            {
-                var userId = await _context.Users
-                .Where(u => u.GitHubId == currentEmail)
-                .Select(u => u.Id)
-                .FirstOrDefaultAsync();
-
-                assigneeId = userId;
             }
 
             var userHasAccessToProject = await _context.UserProjects
@@ -140,11 +129,11 @@ public class TasksController : ControllerBase
                     return BadRequest(new { message = "Due date cannot be in the past." });
 
             await _context.CreateTaskAsync(
-                assigneeId, taskDto.TaskName, taskDto.TaskDescription ?? null,
+                taskDto.AssigneeId.Value, taskDto.TaskName, taskDto.TaskDescription ?? null,
                 taskDto.DueDate.Value, taskDto.PriorityId.Value, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
-                .Where(t => t.AssigneeId == assigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
+                .Where(t => t.AssigneeId == taskDto.AssigneeId.Value && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
                 .OrderByDescending(t => t.Id)
                 .FirstOrDefaultAsync();
 
