@@ -261,7 +261,7 @@ public class TasksController : ControllerBase
         if (currentUser == null) return Unauthorized(new { message = "User not found" });
 
         bool isAdmin = await _context.UserProjects
-                .AnyAsync(ur => ur.MemberId == currentUser.Id && ur.RoleId == 1);
+                .AnyAsync(ur => ur.MemberId == currentUser.Id && ur.ProjectId == task.ProjectId);
 
         if (!isAdmin) return Unauthorized(new { message = "Only admins can delete tasks." });
 
