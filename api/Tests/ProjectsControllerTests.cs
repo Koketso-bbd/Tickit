@@ -333,5 +333,15 @@ namespace api.Tests
             var response = notFoundResult.Value as dynamic;
             Assert.Equal("Project not found.", response.message.ToString());
         }
+
+        [Fact]
+        public async systemTasks.Task UpdateProject_ShouldReturnBadRequest_WhenProjectInvalid()
+        {
+            UpdateProjectDTO? updateProject = null;
+            var result = await _controller.UpdateProject(0,updateProject);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Invalid update data",value.message.ToString());
+        }
     }
 }
