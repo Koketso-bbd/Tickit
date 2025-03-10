@@ -27,13 +27,10 @@ public class TasksController : ControllerBase
     {
         try
         {
-
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
 
             var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
             if (currentUser == null) return Unauthorized(new { message = "User not found" });
-
-
 
             var assigneeExists = await _context.Users.AnyAsync(u => u.Id == currentUser.Id);
             if (!assigneeExists) 
@@ -71,7 +68,10 @@ public class TasksController : ControllerBase
     [SwaggerOperation(Summary = "Create a task in a project")]
     public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
     {
-        DateTime finalDueDate;
+        int defaultStatusId = 1;
+        DateTime? finalDueDate;
+        int priorityId;
+        int assigneeId;
         try
         {
             if (taskDto == null)
@@ -82,19 +82,40 @@ public class TasksController : ControllerBase
                 return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
             if (taskDto.TaskDescription.Length > 1000)
                 return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
-            if (taskDto.PriorityId < 1 || taskDto.PriorityId > 4)
-                return BadRequest(new { message = "Priority is required and must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'." });
-            if (taskDto.AssigneeId <= 0)
-                return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
+            if (taskDto.PriorityId.HasValue)
+            {
+                if (!EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
+                {
+                    return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
+                }
 
-            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
-            if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
+                priorityId = taskDto.PriorityId.Value;
+            }
+            else
+            {
+                priorityId = (int)TaskPriority.Low;
+            }
 
             var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             var currentUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
 
             if (currentUser == null) return Unauthorized(new { message = "User not found or unauthorised" });
+            if (taskDto.AssigneeId.HasValue)
+            {
+                var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
+                if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
+                else assigneeId = taskDto.AssigneeId.Value;
+            }
+            else
+            {
+                var userId = await _context.Users
+                .Where(u => u.GitHubId == currentEmail)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+                assigneeId = userId;
+            }
 
             var userHasAccessToProject = await _context.UserProjects
                         .AnyAsync(up => up.MemberId == currentUser.Id && up.ProjectId == taskDto.ProjectId);
@@ -114,14 +135,12 @@ public class TasksController : ControllerBase
                 finalDueDate = DateTime.UtcNow.AddDays(7);
             }
 
-            int defaultStatusId = 1;
-
             await _context.CreateTaskAsync(
-                taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription ?? "No description provided",
-                finalDueDate, taskDto.PriorityId, taskDto.ProjectId, defaultStatusId);
+                assigneeId, taskDto.TaskName, taskDto.TaskDescription ?? null,
+                finalDueDate, priorityId, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
-                .Where(t => t.AssigneeId == taskDto.AssigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
+                .Where(t => t.AssigneeId == assigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
                 .OrderByDescending(t => t.Id)
                 .FirstOrDefaultAsync();
 
@@ -144,7 +163,7 @@ public class TasksController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = $"An unexpected error occurred while creating the task. Please try again later: {ex.Message}" });
+            return StatusCode(500, new { message = "An unexpected error occurred while creating the task. Please try again later." });
         }
     }
 
@@ -162,29 +181,49 @@ public class TasksController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(taskDto.TaskName)) 
             if (taskDto.TaskName.Length > 255) return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
-            existingTask.TaskName = taskDto.TaskName;
+            else existingTask.TaskName = taskDto.TaskName;
 
-        if (taskDto.PriorityId.HasValue) 
-            if (taskDto.PriorityId < 1 || taskDto.PriorityId > 4)
-                return BadRequest(new { message = "Priority must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'." });
+        if (taskDto.PriorityId.HasValue)
+        {
+            if (!EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
+            {
+                return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
+            }
+
             existingTask.PriorityId = taskDto.PriorityId.Value;
+        }
+        else
+        {
+            existingTask.PriorityId = (int)TaskPriority.Low;
+        }
 
         if (taskDto.AssigneeId.HasValue) 
             if (taskDto.AssigneeId <= 0)
                 return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
-            var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
-            if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
-            existingTask.AssigneeId = taskDto.AssigneeId.Value;
+            else  
+            {
+                var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
+                if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
+                else existingTask.AssigneeId = taskDto.AssigneeId.Value;
+            }
 
         if (!string.IsNullOrWhiteSpace(taskDto.TaskDescription)) 
-        if (taskDto.TaskDescription.Length > 1000) return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
-            existingTask.TaskDescription = taskDto.TaskDescription;
+            if (taskDto.TaskDescription.Length > 1000) return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
+            else existingTask.TaskDescription = taskDto.TaskDescription;
 
         if (taskDto.DueDate.HasValue) existingTask.DueDate = taskDto.DueDate.Value;
 
         if (taskDto.ProjectLabelIds != null)
         {
-            existingTask.TaskLabels.RemoveAll(tl => !taskDto.ProjectLabelIds.Contains(tl.ProjectLabelId));
+            var existingLabels = existingTask.TaskLabels.ToList(); 
+
+            foreach (var label in existingLabels)
+            {
+                if (!taskDto.ProjectLabelIds.Contains(label.ProjectLabelId))
+                {
+                    _context.TaskLabels.Remove(label);
+                }
+            }
 
             foreach (var labelId in taskDto.ProjectLabelIds)
             {

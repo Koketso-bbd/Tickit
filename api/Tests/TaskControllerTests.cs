@@ -179,43 +179,31 @@ namespace api.Tests
             var result = await _controller.CreateTask(taskDto);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var value = badRequestResult.Value as dynamic;
-            Assert.Equal("Priority is required and must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'.", value.message.ToString());
+            Assert.Equal($"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}.", value.message.ToString());
         }
 
-
-        [Fact]
-        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenAssigneeIdIsInvalid()
-        {
-            var taskDto = new TaskDTO
-            {
-                TaskName = "Task 1",
-                PriorityId = 1,
-                AssigneeId = 0,
-                TaskDescription = "Testing for when AssigneeId is Invalid",
-                DueDate = DateTime.UtcNow,
-                ProjectId = 1,
-            };
-
-            var result = await _controller.CreateTask(taskDto);
-
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var value = badRequestResult.Value as dynamic;
-            Assert.Equal("AssigneeId is required and must be a valid value.", value.message.ToString());
-        }
 
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsNotfound_WhenAssigneeIdDoesNotExist()
         {
+
+            var user = new User
+            {
+                Id = 1,
+                GitHubId = "GitHub User 1"
+            };
             var taskDto = new TaskDTO
             {
                 TaskName = "Task 1",
                 PriorityId = 1,
-                AssigneeId = 1,
+                AssigneeId = 2,
                 TaskDescription = "Testing task",
                 DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
 
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
             var result = await _controller.CreateTask(taskDto);
 
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
@@ -464,7 +452,7 @@ namespace api.Tests
             var result = await _controller.UpdateTask(taskId, taskDto);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var value = badRequestResult.Value as dynamic;
-            Assert.Equal("Priority must be between 1 and 4, where 1='Low', 2='Medium', 3='High', and 4='Urgent'.", value.message.ToString());
+            Assert.Equal($"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}.", value.message.ToString());
         }
 
         [Fact]
