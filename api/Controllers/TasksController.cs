@@ -98,6 +98,12 @@ public class TasksController : ControllerBase
         {
             if (taskDto == null)
                 return BadRequest(new { message = "Task data cannot be null." });
+
+            var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
+            if (currentUser == null) 
+                return Unauthorized(new { message = "User not found or unauthorized." });
+
             if (string.IsNullOrWhiteSpace(taskDto.TaskName))
                 return BadRequest(new { message = "Task name is required." });
             if (taskDto.TaskName.Length > 255)
@@ -107,12 +113,8 @@ public class TasksController : ControllerBase
             if (taskDto.PriorityId.HasValue)
                 if (!EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
                     return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
-            
-            var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            var currentUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
 
-            if (currentUser == null) return Unauthorized(new { message = "User not found or unauthorised" });
+
             if (taskDto.AssigneeId.HasValue)
             {
                 var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
@@ -154,7 +156,7 @@ public class TasksController : ControllerBase
 
             return CreatedAtAction(nameof(CreateTask), new { taskId = createdTask.Id }, new { message = "Task created successfully." });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return StatusCode(500, new { message = "An unexpected error occurred while creating the task. Please try again later." });
         }
