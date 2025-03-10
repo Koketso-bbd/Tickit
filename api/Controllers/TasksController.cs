@@ -126,16 +126,16 @@ public class TasksController : ControllerBase
                 return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
             if (taskDto.AssigneeId.HasValue)
             {
-                var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
-                if (!assigneeExists) 
-                    return NotFound(new { message = "Assignee does not exist." });
+                var userIsPartOfProject = await _context.UserProjects.AnyAsync(u => u.MemberId == taskDto.AssigneeId);
+                if (!userIsPartOfProject)
+                    return NotFound(new { message = $"User with ID {taskDto.AssigneeId} is not part of this project." });
             }
             if (taskDto.DueDate.HasValue && taskDto.DueDate.Value < DateTime.UtcNow)
                 return BadRequest(new { message = "Due date cannot be in the past." });
 
             await _context.CreateTaskAsync(
-            taskDto.AssigneeId ?? default, taskDto.TaskName, taskDto.TaskDescription,
-            taskDto.DueDate, taskDto.PriorityId ?? default, taskDto.ProjectId, defaultStatusId);
+            taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription,
+            taskDto.DueDate, taskDto.PriorityId.Value, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
                 .Where(t => t.AssigneeId == taskDto.AssigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
