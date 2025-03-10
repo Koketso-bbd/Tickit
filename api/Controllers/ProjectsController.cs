@@ -187,7 +187,7 @@ namespace api.Controllers
                 if (project == null) return NotFound(new { message = $"Project with ID {id} not found." });
 
                 if (project.OwnerId != user.Id) 
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You don't have permission to modify this project" });
 
                 bool projectHasTasks = await _context.Tasks.AnyAsync(t => t.ProjectId == id);
                 bool projectHasUsers = await _context.UserProjects.AnyAsync(up => up.ProjectId == id);
@@ -242,7 +242,7 @@ namespace api.Controllers
                     .Where(p => p.Owner.GitHubID == userId || p.AssignedUsers.Any(u => u.GitHubID == userId));
 
                 if (authorisedProjects.Count() == 0) 
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You don't have permission to modify this project" });
 
                 return Ok(authorisedProjects);
             }
@@ -281,7 +281,7 @@ namespace api.Controllers
                                     .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
 
                 if (!isProjectOwner && !isAdmin) 
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You don't have permission to modify this project" });
 
                 var label = await _context.Labels
                     .Where(l => l.LabelName == labelName)
@@ -395,7 +395,6 @@ namespace api.Controllers
                     return StatusCode(403, new { message = "Unauthorized access to this resource" });
                 }
 
-                // Update the project details
                 project.ProjectName = updateProjectDto.ProjectName ?? project.ProjectName;
                 project.ProjectDescription = updateProjectDto.ProjectDescription ?? project.ProjectDescription;
 
