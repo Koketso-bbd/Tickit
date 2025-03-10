@@ -135,7 +135,6 @@ public class TasksController : ControllerBase
                     return NotFound(new { message = $"User with ID {taskDto.AssigneeId} is not part of this project." });
             }
 
-            Console.WriteLine("priority", taskDto.PriorityId);
             if (taskDto.DueDate.HasValue && taskDto.DueDate.Value < DateTime.UtcNow)
                 return BadRequest(new { message = "Due date cannot be in the past." });
 
