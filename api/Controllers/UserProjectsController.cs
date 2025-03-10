@@ -131,9 +131,9 @@ namespace api.Controllers
                 bool isRemovingSelf = currentUserId == userId;
                 bool isProjectOwner = project.OwnerId == currentUserId;
                 bool isAdmin = await _context.UserProjects
-                    .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1);
+                    .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1 && ur.ProjectId == project.Id) || isRemovingSelf || isProjectOwner;
 
-                if (!isRemovingSelf && !isProjectOwner && !isAdmin)
+                if (!isAdmin)
                 {
                     return StatusCode(403, new { message = "You do not have permission to remove users from this project" });
                 }
@@ -194,9 +194,9 @@ namespace api.Controllers
 
                 bool isProjectOwner = project.OwnerId == currentUserId;
                 bool isAdmin = await _context.UserProjects
-                        .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1);
+                        .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1 && ur.ProjectId == project.Id) || isProjectOwner;
 
-                if (!isProjectOwner && !isAdmin)
+                if (!isAdmin)
                 {
                     return StatusCode(403, new { message = "You do not have permission to modify this project" });
                 }
