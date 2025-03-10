@@ -75,11 +75,11 @@ public class TasksController : ControllerBase
                 .Select(t => new TaskResponseDTO
                 {
                     TaskId = t.Id,
-                    AssigneeId = t.AssigneeId,
+                    AssigneeId = t.AssigneeId ?? 0,
                     TaskName = t.TaskName,
                     TaskDescription = t.TaskDescription,
                     DueDate = t.DueDate,
-                    PriorityId = t.PriorityId,
+                    PriorityId = t.PriorityId ?? 0,
                     ProjectId = t.ProjectId,
                     ProjectLabelIds = t.TaskLabels.Select(tl => tl.ProjectLabelId).ToList()
                 })
@@ -139,8 +139,8 @@ public class TasksController : ControllerBase
                 return BadRequest(new { message = "Due date cannot be in the past." });
 
             await _context.CreateTaskAsync(
-            taskDto.AssigneeId, taskDto.TaskName, taskDto.TaskDescription,
-            taskDto.DueDate, taskDto.PriorityId.Value, taskDto.ProjectId, defaultStatusId);
+            taskDto.AssigneeId ?? null, taskDto.TaskName, taskDto.TaskDescription,
+            taskDto.DueDate, taskDto.PriorityId ?? null, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
                 .Where(t => t.AssigneeId == taskDto.AssigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
