@@ -26,26 +26,26 @@ public class TasksController : ControllerBase
     {
         try
         {
-        var task = await _context.Tasks
-            .Where(t => t.Id == taskId)
-            .Select(t => new TaskDTO
+            var task = await _context.Tasks
+                .Where(t => t.Id == taskId)
+                .Select(t => new TaskDTO
+                {
+                    TaskName = t.TaskName,
+                    ProjectId = t.ProjectId,
+                    AssigneeId = t.AssigneeId,
+                    PriorityId = t.PriorityId,
+                    TaskDescription = t.TaskDescription ?? "No description provided",
+                    DueDate = t.DueDate,
+                    ProjectLabelIds = t.TaskLabels.Select(tl => tl.ProjectLabelId).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (task == null)
             {
-                TaskName = t.TaskName,
-                ProjectId = t.ProjectId,
-                AssigneeId = t.AssigneeId,
-                PriorityId = t.PriorityId,
-                TaskDescription = t.TaskDescription ?? "No description provided",
-                DueDate = t.DueDate,
-                ProjectLabelIds = t.TaskLabels.Select(tl => tl.ProjectLabelId).ToList()
-            })
-            .FirstOrDefaultAsync();
+                return NotFound($"Task with ID {taskId} not found.");
+            }
 
-        if (task == null)
-        {
-            return NotFound($"Task with ID {taskId} not found.");
-        }
-
-        return Ok(task);
+            return Ok(task);
         }
         catch (Exception ex)
         {
@@ -105,6 +105,9 @@ public class TasksController : ControllerBase
         {
             if (taskDto == null)
                 return BadRequest(new { message = "Task data cannot be null." });
+            
+            if (taskDto.ProjectId <= 0)
+            return BadRequest(new { message = "Project ID is required and must be greater than zero." });
 
             var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
@@ -112,7 +115,7 @@ public class TasksController : ControllerBase
                 return Unauthorized(new { message = "User not found or unauthorized." });
 
             var userHasAccessToProject = await _context.UserProjects
-            .AnyAsync(up => up.MemberId == currentUser.Id && up.ProjectId == taskDto.ProjectId);
+            .AnyAsync(up => up.MemberId == currentUser.Id || up.RoleId == 1 && up.ProjectId == taskDto.ProjectId);
             if (!userHasAccessToProject)
                 return Unauthorized(new { message = "User does not have permission to create tasks for this project." });
 
@@ -130,6 +133,8 @@ public class TasksController : ControllerBase
                 if (!userIsPartOfProject)
                     return NotFound(new { message = $"User with ID {taskDto.AssigneeId} is not part of this project." });
             }
+
+            Console.WriteLine("priority", taskDto.PriorityId);
             if (taskDto.DueDate.HasValue && taskDto.DueDate.Value < DateTime.UtcNow)
                 return BadRequest(new { message = "Due date cannot be in the past." });
 
@@ -159,9 +164,9 @@ public class TasksController : ControllerBase
         }
             return CreatedAtAction(nameof(CreateTask), new { taskId = createdTask.Id }, new { message = "Task created successfully." });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return StatusCode(500, new { message = "An unexpected error occurred while creating the task. Please try again later." });
+            return StatusCode(500, new { message = $"An unexpected error occurred while creating the task. Please try again later. {ex.Message}" });
         }
     }
 
