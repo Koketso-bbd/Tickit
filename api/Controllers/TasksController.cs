@@ -45,7 +45,6 @@ public class TasksController : ControllerBase
 
         return Ok(task);
     }
-
     
     [HttpGet()]
     [SwaggerOperation(Summary = "Get all the users' tasks based on the assignee ID")]
@@ -109,19 +108,9 @@ public class TasksController : ControllerBase
             if (taskDto.TaskDescription.Length > 1000)
                 return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
             if (taskDto.PriorityId.HasValue)
-            {
                 if (!EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
-                {
                     return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
-                }
-
-                priorityId = taskDto.PriorityId.Value;
-            }
-            else
-            {
-                priorityId = (int)TaskPriority.Low;
-            }
-
+            
             var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             var currentUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
@@ -163,7 +152,7 @@ public class TasksController : ControllerBase
 
             await _context.CreateTaskAsync(
                 assigneeId, taskDto.TaskName, taskDto.TaskDescription ?? null,
-                finalDueDate, priorityId, taskDto.ProjectId, defaultStatusId);
+                finalDueDate, taskDto.PriorityId.Value, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
                 .Where(t => t.AssigneeId == assigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
