@@ -94,8 +94,6 @@ public class TasksController : ControllerBase
     public async Task<IActionResult> CreateTask([FromBody] TaskDTO taskDto)
     {
         int defaultStatusId = 1;
-        DateTime? finalDueDate;
-        int priorityId;
         int assigneeId;
         try
         {
@@ -138,21 +136,12 @@ public class TasksController : ControllerBase
                 return Unauthorized(new { message = "User does not have permission to create tasks for this project." });
 
             if (taskDto.DueDate.HasValue)
-            {
                 if (taskDto.DueDate.Value < DateTime.UtcNow) 
-                {
                     return BadRequest(new { message = "Due date cannot be in the past." });
-                }
-                finalDueDate = taskDto.DueDate.Value;
-            }
-            else
-            {
-                finalDueDate = DateTime.UtcNow.AddDays(7);
-            }
 
             await _context.CreateTaskAsync(
                 assigneeId, taskDto.TaskName, taskDto.TaskDescription ?? null,
-                finalDueDate, taskDto.PriorityId.Value, taskDto.ProjectId, defaultStatusId);
+                taskDto.DueDate.Value, taskDto.PriorityId.Value, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
                 .Where(t => t.AssigneeId == assigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
