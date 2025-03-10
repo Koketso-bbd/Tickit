@@ -31,4 +31,10 @@ namespace api.DTOs
         [JsonPropertyOrder(10)]
         public List<TaskDTO> Tasks { get; set; } = new();
     }
+
+    public class  UpdateProjectDTO
+    {
+        public string? ProjectName { get; set; }
+        public string? ProjectDescription { get; set; }
+    }
 }
