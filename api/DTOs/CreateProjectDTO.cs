@@ -4,6 +4,5 @@
     {
         public string ProjectName { get; set; }
         public string ProjectDescription { get; set; }
-        public int OwnerID { get; set; }
     }
 }

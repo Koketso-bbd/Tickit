@@ -136,18 +136,15 @@ namespace api.Controllers
                 if (user == null) 
                     return Unauthorized(new { message = "User not found" });
 
-                if (request.OwnerID != user.Id)
-                    return NotFound(new { message = "Project not found" });
-
                 bool projectExists = await _context.Projects
-                .AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == request.OwnerID);
+                .AnyAsync(p => p.ProjectName == request.ProjectName && p.OwnerId == user.Id);
                 if (projectExists) return Conflict(new { message = "A project with this name already exists for this owner" });
 
                 var project = new Project
                 {
                     ProjectName = request.ProjectName,
                     ProjectDescription = request.ProjectDescription,
-                    OwnerId = request.OwnerID
+                    OwnerId = user.Id
                 };
 
                 _context.Projects.Add(project);
@@ -158,7 +155,7 @@ namespace api.Controllers
                     ID = project.Id,
                     ProjectName = project.ProjectName,
                     ProjectDescription = project.ProjectDescription,
-                    Owner = new UserDTO { ID = project.OwnerId },
+                    Owner = new UserDTO { ID = project.OwnerId, GitHubID = project.Owner.GitHubId },
                 };
 
                 return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, responseDto);
