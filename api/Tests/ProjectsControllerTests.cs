@@ -92,7 +92,7 @@ namespace api.Tests
             //project 1
             var result1 = await _controller.GetProjectById(1);
             var okResult1 = Assert.IsType<OkObjectResult>(result1.Result);
-            var returnedProject1 = Assert.IsType<ProjectDTO>(okResult1.Value);
+            var returnedProject1 = Assert.IsType<ProjectWithTasksDTO>(okResult1.Value);
             var assignees1 = returnedProject1.AssignedUsers;
 
             Assert.Equal(1, returnedProject1.ID);
