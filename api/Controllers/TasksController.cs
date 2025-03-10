@@ -104,6 +104,11 @@ public class TasksController : ControllerBase
             if (currentUser == null) 
                 return Unauthorized(new { message = "User not found or unauthorized." });
 
+            var userHasAccessToProject = await _context.UserProjects
+            .AnyAsync(up => up.MemberId == currentUser.Id && up.ProjectId == taskDto.ProjectId);
+            if (!userHasAccessToProject)
+                return Unauthorized(new { message = "User does not have permission to create tasks for this project." });
+
             if (string.IsNullOrWhiteSpace(taskDto.TaskName))
                 return BadRequest(new { message = "Task name is required." });
             if (taskDto.TaskName.Length > 255)
@@ -120,11 +125,6 @@ public class TasksController : ControllerBase
                 var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
                 if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
             }
-
-            var userHasAccessToProject = await _context.UserProjects
-                        .AnyAsync(up => up.MemberId == currentUser.Id && up.ProjectId == taskDto.ProjectId);
-            if (!userHasAccessToProject)
-                return Unauthorized(new { message = "User does not have permission to create tasks for this project." });
 
             if (taskDto.DueDate.HasValue)
                 if (taskDto.DueDate.Value < DateTime.UtcNow) 
