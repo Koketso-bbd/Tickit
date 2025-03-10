@@ -346,7 +346,7 @@ namespace api.Tests
             var user = new User
             {
                 Id = userId,
-                GitHubId ="GitHub User 1"
+                GitHubId = "GitHub User 1"
             };
             var project = new Project
             {
@@ -405,6 +405,46 @@ namespace api.Tests
             var Unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
             var response = Unauthorized.Value as dynamic;
             Assert.Equal("User not found", response.message.ToString());
+        }
+
+        [Fact]
+        public async systemTasks.Task UpdateProject_Returns403_WhenUserLacksPermission()
+        {
+            var userId = 1;
+            var ownerId = 2;
+            var projectId = 1;
+
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = ownerId,
+                ProjectName = "Testing No Permission",
+                ProjectDescription = "Project description for No Permission"
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            var updateProjectDto = new UpdateProjectDTO
+            {
+                ProjectName = "Updated Name",
+                ProjectDescription = "Updated Description"
+            };
+
+            
+            var result = await _controller.UpdateProject(projectId, updateProjectDto);
+
+            var statusCodeResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(403, statusCodeResult.StatusCode);
+            var response = statusCodeResult.Value as dynamic;
+            Assert.Equal("You don't have permission to modify this project", response.message.ToString());
         }
 
     }
