@@ -290,7 +290,6 @@ public class TasksController : ControllerBase
 
             return Ok(new { message = $"Task with ID {taskid} successfully deleted." });
         }
-        catch (DbUpdateException dbEx)
         {
             await transaction.RollbackAsync();
             return StatusCode(500, new { message = $"Database error occurred while deleting task: {dbEx.Message}" });
