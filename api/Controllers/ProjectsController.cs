@@ -167,43 +167,87 @@ namespace api.Controllers
             }  
         }
 
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [SwaggerOperation(Summary = "Delete a project based on project ID")]
-        public async Task<IActionResult> DeleteProject(int id)
-        {               
+        [HttpDelete("{projectId}")]
+        [SwaggerOperation(Summary = "Delete a project based on the project ID")]
+        public async Task<IActionResult> DeleteProject(int projectId)
+        {
+            var project = await _context.Projects.FindAsync(projectId);
+            if (project == null)
+            {
+                return NotFound(new { message = $"Project with ID {projectId} not found." });
+            }
+
+            var currentEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == currentEmail);
+            if (currentUser == null) return Unauthorized(new { message = "User not found" });
+
+            bool isAdmin = await _context.UserProjects
+                    .AnyAsync(up => up.ProjectId == project.Id && up.MemberId == currentUser.Id && up.RoleId == 1);
+
+            if (!isAdmin) return Unauthorized(new { message = "Only admins can delete projects." });
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
-                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
-
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userId);
-
-                var project = await _context.Projects.FindAsync(id);
-
-                if (project == null) return NotFound(new { message = $"Project with ID {id} not found." });
-
-                if (project.OwnerId != user.Id) 
-                    return StatusCode(403, new { message = "You don't have permission to delete this project" });
-
-                bool projectHasTasks = await _context.Tasks.AnyAsync(t => t.ProjectId == id);
-                bool projectHasUsers = await _context.UserProjects.AnyAsync(up => up.ProjectId == id);
-
-                if (projectHasTasks || projectHasUsers)
+                var tasks = await _context.Tasks.Where(t => t.ProjectId == projectId).ToListAsync();
+                foreach (var task in tasks)
                 {
-                    return BadRequest(new { message = "Cannot delete project because it has tasks or users." });
+                    var statusTracks = await _context.StatusTracks.Where(st => st.TaskId == task.Id).ToListAsync();
+                    if (statusTracks.Count != 0)
+                    {
+                        _context.StatusTracks.RemoveRange(statusTracks);
+                    }
+
+                    var notifications = await _context.Notifications.Where(n => n.TaskId == task.Id).ToListAsync();
+                    if (notifications.Count != 0)
+                    {
+                        _context.Notifications.RemoveRange(notifications);
+                    }
+
+                    var taskLabels = await _context.TaskLabels.Where(tl => tl.TaskId == task.Id).ToListAsync();
+                    if (taskLabels.Count != 0)
+                    {
+                        _context.TaskLabels.RemoveRange(taskLabels);
+                    }
+
+                    _context.Tasks.Remove(task);
+                }
+
+                var projectNotifications = await _context.Notifications.Where(n => n.ProjectId == projectId).ToListAsync();
+                if (projectNotifications.Count != 0)
+                {
+                    _context.Notifications.RemoveRange(projectNotifications);
+                }
+
+                var projectLabels = await _context.ProjectLabels.Where(pl => pl.ProjectId == projectId).ToListAsync();
+                if (projectLabels.Count != 0)
+                {
+                    _context.ProjectLabels.RemoveRange(projectLabels);
+                }
+
+                var userProjects = await _context.UserProjects.Where(up => up.ProjectId == projectId).ToListAsync();
+                if (userProjects.Count != 0)
+                {
+                    _context.UserProjects.RemoveRange(userProjects);
                 }
 
                 _context.Projects.Remove(project);
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
                 return NoContent();
             }
+            catch (DbUpdateException dbEx)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { message = $"Database error occurred while deleting project: {dbEx.Message}" });
+            }
             catch (Exception ex)
             {
-                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("deleting project", _logger, ex);
-                return StatusCode(statusCode, new { message = errorMessage });
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { message = $"An unexpected error occurred while deleting project: {ex.Message}" });
             }
         }
 
