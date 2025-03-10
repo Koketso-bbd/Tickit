@@ -84,8 +84,9 @@ namespace api.Controllers
                             .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
                             .ToList(),
                         Tasks = p.Tasks
-                            .Select(t => new TaskDTO
+                            .Select(t => new TaskResponseDTO
                             {
+                                TaskId = t.Id,
                                 AssigneeId = t.AssigneeId,
                                 TaskName = t.TaskName,
                                 PriorityId = t.PriorityId,
@@ -187,7 +188,7 @@ namespace api.Controllers
                 if (project == null) return NotFound(new { message = $"Project with ID {id} not found." });
 
                 if (project.OwnerId != user.Id) 
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You don't have permission to delete this project" });
 
                 bool projectHasTasks = await _context.Tasks.AnyAsync(t => t.ProjectId == id);
                 bool projectHasUsers = await _context.UserProjects.AnyAsync(up => up.ProjectId == id);
@@ -242,7 +243,7 @@ namespace api.Controllers
                     .Where(p => p.Owner.GitHubID == userId || p.AssignedUsers.Any(u => u.GitHubID == userId));
 
                 if (authorisedProjects.Count() == 0) 
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You don't have permission to access this project" });
 
                 return Ok(authorisedProjects);
             }
@@ -281,7 +282,7 @@ namespace api.Controllers
                                     .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
 
                 if (!isProjectOwner && !isAdmin) 
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You don't have permission to modify this project" });
 
                 var label = await _context.Labels
                     .Where(l => l.LabelName == labelName)
@@ -334,7 +335,7 @@ namespace api.Controllers
                                     .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
 
                 if (!isProjectOwner && !isAdmin)
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You don't have permission to modify this project" });
 
                 var label = await _context.Labels
                             .Where(l => l.LabelName == labelName)
@@ -357,6 +358,63 @@ namespace api.Controllers
             catch (Exception ex)
             {
                 var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("deleting project", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
+            }
+        }
+
+        [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [SwaggerOperation(Summary = "Update project details")]
+        public async Task<IActionResult> UpdateProject(int id, [FromBody] UpdateProjectDTO updateProjectDto)
+        {
+            if (updateProjectDto == null)
+            {
+                return BadRequest(new { message = "Invalid update data" });
+            }
+
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                var project = await _context.Projects.FindAsync(id);
+                if (project == null)
+                {
+                    return NotFound(new { message = $"Project with ID {id} not found" });
+                }
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userId);
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "User not found" });
+                }
+
+                if (project.OwnerId != user.Id)
+                {
+                    return StatusCode(403, new { message = "You don't have permission to modify this project" });
+                }
+
+                project.ProjectName = updateProjectDto.ProjectName ?? project.ProjectName;
+                project.ProjectDescription = updateProjectDto.ProjectDescription ?? project.ProjectDescription;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new ProjectDTO
+                {
+                    ID = project.Id,
+                    ProjectName = project.ProjectName,
+                    ProjectDescription = project.ProjectDescription,
+                    Owner = new UserDTO { ID = project.OwnerId, GitHubID = user.GitHubId },
+                    AssignedUsers = project.UserProjects
+                        .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
+                        .ToList()
+                });
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("updating project", _logger, ex);
                 return StatusCode(statusCode, new { message = errorMessage });
             }
         }

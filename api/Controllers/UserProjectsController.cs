@@ -71,7 +71,7 @@ namespace api.Controllers
 
                 if (!isProjectOwner && !isAdmin)
                 {
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You don't have permission to add users to this project" });
                 }
 
                 await _context.Database.ExecuteSqlRawAsync(
@@ -135,7 +135,7 @@ namespace api.Controllers
 
                 if (!isRemovingSelf && !isProjectOwner && !isAdmin)
                 {
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You do not have permission to remove users from this project" });
                 }
 
                 await _context.Database.ExecuteSqlRawAsync(
@@ -198,7 +198,7 @@ namespace api.Controllers
 
                 if (!isProjectOwner && !isAdmin)
                 {
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You do not have permission to modify this project" });
                 }
 
                 userProject.RoleId = newRoleId;
