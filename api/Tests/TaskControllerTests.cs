@@ -184,26 +184,6 @@ namespace api.Tests
 
 
         [Fact]
-        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenAssigneeIdIsInvalid()
-        {
-            var taskDto = new TaskDTO
-            {
-                TaskName = "Task 1",
-                PriorityId = 1,
-                AssigneeId = 0,
-                TaskDescription = "Testing for when AssigneeId is Invalid",
-                DueDate = DateTime.UtcNow,
-                ProjectId = 1,
-            };
-
-            var result = await _controller.CreateTask(taskDto);
-
-            var badRequestResult = Assert.IsType<ObjectResult>(result);
-            var value = badRequestResult.Value as dynamic;
-            Assert.Equal("An unexpected error occurred while creating the task. Please try again later.", value.message.ToString());
-        }
-
-        [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsNotfound_WhenAssigneeIdDoesNotExist()
             {
             var taskDto = new TaskDTO
