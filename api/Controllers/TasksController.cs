@@ -112,23 +112,20 @@ public class TasksController : ControllerBase
             if (string.IsNullOrWhiteSpace(taskDto.TaskName))
                 return BadRequest(new { message = "Task name is required." });
             if (taskDto.TaskName.Length > 255)
-                return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
-            if (taskDto.TaskDescription.Length > 1000)
-                return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
-            if (taskDto.PriorityId.HasValue)
-                if (!EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
-                    return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
-
-
+                return BadRequest(new { message = "Task name cannot exceed 255 characters." });
+            if (taskDto.TaskDescription?.Length > 1000)
+                return BadRequest(new { message = "Task description cannot exceed 1000 characters." });
+            if (taskDto.PriorityId.HasValue && !EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
+                return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
             if (taskDto.AssigneeId.HasValue)
             {
                 var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
-                if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
+                if (!assigneeExists) 
+                    return NotFound(new { message = "Assignee does not exist." });
             }
+            if (taskDto.DueDate.HasValue && taskDto.DueDate.Value < DateTime.UtcNow)
+                return BadRequest(new { message = "Due date cannot be in the past." });
 
-            if (taskDto.DueDate.HasValue)
-                if (taskDto.DueDate.Value < DateTime.UtcNow) 
-                    return BadRequest(new { message = "Due date cannot be in the past." });
 
             await _context.CreateTaskAsync(
                 taskDto.AssigneeId.Value, taskDto.TaskName, taskDto.TaskDescription ?? null,
