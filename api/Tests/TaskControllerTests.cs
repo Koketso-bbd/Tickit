@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace api.Tests
@@ -107,14 +106,6 @@ namespace api.Tests
                 ProjectDescription = "project description for project 1"
             };
 
-            //var userProject = new UserProject
-            //{
-            //    Id = 1,
-            //    MemberId = assigneeId,
-            //    ProjectId = projectId,
-            //    RoleId = 1
-            //};
-
             await _dbContext.Users.AddAsync(user);
             await _dbContext.Projects.AddAsync(project);
             await _dbContext.SaveChangesAsync();
@@ -212,7 +203,7 @@ namespace api.Tests
                 TaskName = "Task 1",
                 PriorityId = 1,
                 AssigneeId = 1,
-                TaskDescription = new string('t', 1001), // entering 1001 t's
+                TaskDescription = new string('t', 1001),
                 DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
@@ -228,7 +219,7 @@ namespace api.Tests
         {
             var taskDto = new TaskDTO
             {
-                TaskName = new string('t', 256), // entering 256 t's
+                TaskName = new string('t', 256),
                 PriorityId = 1,
                 AssigneeId = 1,
                 TaskDescription = "Testing task",
