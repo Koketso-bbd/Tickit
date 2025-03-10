@@ -107,7 +107,7 @@ namespace api.Controllers
                 bool isAssignedUser = project.AssignedUsers.Any(u => u.GitHubID == userId);
 
                 if (!isOwner && !isAssignedUser)
-                    return NotFound(new { message = "Project not found" });
+                    return StatusCode(403, new { message = "You don't have permission to access this project" });
 
                 return Ok(project);
             }
@@ -322,7 +322,7 @@ namespace api.Controllers
                 bool isAdmin = await _context.UserProjects
                                     .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
 
-                if (!isProjectOwner && !isAdmin) 
+                if (!isProjectOwner || !isAdmin) 
                     return StatusCode(403, new { message = "You don't have permission to modify this project" });
 
                 var label = await _context.Labels
@@ -375,7 +375,7 @@ namespace api.Controllers
                 bool isAdmin = await _context.UserProjects
                                     .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
 
-                if (!isProjectOwner && !isAdmin)
+                if (!isProjectOwner || !isAdmin)
                     return StatusCode(403, new { message = "You don't have permission to modify this project" });
 
                 var label = await _context.Labels
