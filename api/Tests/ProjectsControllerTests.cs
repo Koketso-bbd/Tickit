@@ -252,13 +252,6 @@ namespace api.Tests
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
 
-            var projectDTO = new CreateProjectDTO
-            {
-                ProjectName = "project 1",
-                ProjectDescription = "project description for project 1",
-                OwnerID = 1
-            };
-
             var resultNull = await _controller.AddProjectLabel(1, null);
             var badRequestResultNull = Assert.IsType<BadRequestObjectResult>(resultNull.Result);
             var responseNull = badRequestResultNull.Value as dynamic;
@@ -378,5 +371,41 @@ namespace api.Tests
             var response = notFoundResult.Value as dynamic;
             Assert.Equal($"Project with ID {projectId2} not found", response.message.ToString());
         }
+
+        [Fact]
+        public async systemTasks.Task UpdateTask_ReturnsUnauthorized_WhenUserDoesNotExist()
+        {
+            var userId = 1;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = userId,
+                GitHubId ="Unauthorized-user"
+            };
+
+             var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "testing Unauthorized-user",
+                ProjectDescription = "project description for Unauthorized-user"
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            UpdateProjectDTO updateProject = new UpdateProjectDTO
+            {
+                ProjectName = "testing updateTask2",
+                ProjectDescription = "project description for updateTask2"
+            };
+            
+            var result = await _controller.UpdateProject(projectId,updateProject);
+            var Unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = Unauthorized.Value as dynamic;
+            Assert.Equal("User not found", response.message.ToString());
+        }
+
     }
 }
