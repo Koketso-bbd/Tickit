@@ -21,14 +21,14 @@ public class TasksController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Models.Task>> GetTask(int id)
+    [HttpGet("{taskId}")]
+    public async Task<ActionResult<Models.Task>> GetTask(int taskId)
     {
-        var task = await _context.Tasks.FindAsync(id);
+        var task = await _context.Tasks.FindAsync(taskId);
 
         if (task == null)
         {
-            return NotFound($"Task with ID {id} not found.");
+            return NotFound($"Task with ID {taskId} not found.");
         }
 
         return Ok(task);
