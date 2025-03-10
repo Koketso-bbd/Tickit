@@ -447,5 +447,48 @@ namespace api.Tests
             Assert.Equal("You don't have permission to modify this project", response.message.ToString());
         }
 
+        [Fact]
+        public async systemTasks.Task UpdateProject_ReturnsOk_WhenProjectSuccessfullyUpdated()
+        {
+           
+            var userId = 1;
+            var projectId = 1;
+
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "Testing successfully updated",
+                ProjectDescription = "Project description for successfully updated"
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            var updateProjectDto = new UpdateProjectDTO
+            {
+                ProjectName = "Updated Name",
+                ProjectDescription = "Updated Description"
+            };
+
+            
+            var result = await _controller.UpdateProject(projectId, updateProjectDto);
+
+            
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var response = Assert.IsType<ProjectDTO>(okResult.Value);
+
+            var returnedproject = response;
+            Assert.Equal(returnedproject.ProjectName, response.ProjectName);
+            Assert.Equal(returnedproject.ProjectDescription, response.ProjectDescription);
+            Assert.Equal(userId, response.Owner.ID);
+        }
     }
 }
