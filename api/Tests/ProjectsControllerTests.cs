@@ -89,7 +89,7 @@ namespace api.Tests
             await _dbContext.Users.AddRangeAsync(users);
             await _dbContext.SaveChangesAsync();
 
-            //project 1
+           
             var result1 = await _controller.GetProjectById(1);
             var okResult1 = Assert.IsType<OkObjectResult>(result1.Result);
             var returnedProject1 = Assert.IsType<ProjectWithTasksDTO>(okResult1.Value);
@@ -235,47 +235,7 @@ namespace api.Tests
             Assert.Equal($"Project with ID {projectId} not found.", response.message.ToString());
         }
 
-        //[Fact]
-        //public async systemTasks.Task GetUsersProjects_ReturnsOk_ListOfProjects()
-        //{
-        //    int userId = 1;
-        //    User user = new User { Id = userId, GitHubId = "Github User 1" };
-        //    string projectName1 = "project 1";
-        //    string projectDescription1 = "project description for project 1";
-        //    string projectName2 = "project 2";
-        //    string projectDescription2 = "project description for project 2";
-        //    var projects = new List<Project>
-        //    {
-        //        new()
-        //        {
-        //            Id = 1,
-        //            OwnerId = userId,
-        //            ProjectName = projectName1,
-        //            ProjectDescription = projectDescription1,
-        //        },
-
-        //        new()
-        //        {
-        //            Id = 2,
-        //            OwnerId = userId,
-        //            ProjectName = projectName2,
-        //            ProjectDescription = projectDescription2
-        //        }
-        //    };
-
-        //    await _dbContext.Users.AddAsync(user);
-        //    await _dbContext.Projects.AddRangeAsync(projects);
-        //    await _dbContext.SaveChangesAsync();
-
-        //    var result = await _controller.GetUsersProjects(userId);
-        //    var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        //    var returnedProjects = Assert.IsAssignableFrom<IEnumerable<ProjectDTO>>(okResult.Value);
-
-        //    Assert.Equal(2, returnedProjects.Count());
-        //    Assert.Contains(returnedProjects, p => p.ID == 1 && p.ProjectName == projectName1 && p.ProjectDescription == projectDescription1 && p.Owner.ID == userId);
-        //    Assert.Contains(returnedProjects, p => p.ID == 2 && p.ProjectName == projectName2 && p.ProjectDescription == projectDescription2 && p.Owner.ID == userId);
-        //}
-
+        
         [Fact]
         public async systemTasks.Task GetUsersProjects_ReturnsNotFound_UserDoesNotExist()
         {
@@ -317,12 +277,6 @@ namespace api.Tests
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
 
-            var projectDTO = new CreateProjectDTO
-            {
-                ProjectName = "project 1",
-                ProjectDescription = "project description for project 1",
-                OwnerID = 1
-            };
 
             var result1 = await _controller.AddProjectLabel(0, "label 1");
             var badRequestResult1 = Assert.IsType<BadRequestObjectResult>(result1.Result);
@@ -342,13 +296,6 @@ namespace api.Tests
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
 
-            var projectDTO = new CreateProjectDTO
-            {
-                ProjectName = "project 1",
-                ProjectDescription = "project description for project 1",
-                OwnerID = 1
-            };
-
             var result = await _controller.AddProjectLabel(1, "label 1");
             var notFoundResult= Assert.IsType<NotFoundObjectResult>(result.Result);
             var response = notFoundResult.Value as dynamic;
@@ -362,12 +309,6 @@ namespace api.Tests
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
 
-            var projectDTO = new CreateProjectDTO
-            {
-                ProjectName = "project 1",
-                ProjectDescription = "project description for project 1",
-                OwnerID = 1
-            };
 
             var result1 = await _controller.DeleteProjectLabel(0, "label 1");
             var badRequestResult1 = Assert.IsType<BadRequestObjectResult>(result1);
@@ -386,14 +327,7 @@ namespace api.Tests
             var user = new User { Id = 1, GitHubId = "GitHub User 1" };
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
-
-            var projectDTO = new CreateProjectDTO
-            {
-                ProjectName = "project 1",
-                ProjectDescription = "project description for project 1",
-                OwnerID = 1
-            };
-
+          
             var result = await _controller.DeleteProjectLabel(1, "label 1");
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var response = notFoundResult.Value as dynamic;
