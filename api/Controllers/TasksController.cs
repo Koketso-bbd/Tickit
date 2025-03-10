@@ -24,6 +24,8 @@ public class TasksController : ControllerBase
     [HttpGet("{taskId}")]
     public async Task<ActionResult<TaskDTO>> GetTask(int taskId)
     {
+        try
+        {
         var task = await _context.Tasks
             .Where(t => t.Id == taskId)
             .Select(t => new TaskDTO
@@ -44,8 +46,13 @@ public class TasksController : ControllerBase
         }
 
         return Ok(task);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = $"An internal server error occurred: {ex.Message}" });
+        }
     }
-    
+
     [HttpGet()]
     [SwaggerOperation(Summary = "Get all the users' tasks based on the assignee ID")]
     public async Task<ActionResult<IEnumerable<TaskResponseDTO>>> GetUserTasks()
