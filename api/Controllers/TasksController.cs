@@ -126,31 +126,30 @@ public class TasksController : ControllerBase
             if (taskDto.DueDate.HasValue && taskDto.DueDate.Value < DateTime.UtcNow)
                 return BadRequest(new { message = "Due date cannot be in the past." });
 
-
             await _context.CreateTaskAsync(
-                taskDto.AssigneeId.Value, taskDto.TaskName, taskDto.TaskDescription ?? null,
-                taskDto.DueDate.Value, taskDto.PriorityId.Value, taskDto.ProjectId, defaultStatusId);
+            taskDto.AssigneeId ?? default, taskDto.TaskName, taskDto.TaskDescription,
+            taskDto.DueDate, taskDto.PriorityId ?? default, taskDto.ProjectId, defaultStatusId);
 
             var createdTask = await _context.Tasks
-                .Where(t => t.AssigneeId == taskDto.AssigneeId.Value && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
+                .Where(t => t.AssigneeId == taskDto.AssigneeId && t.TaskName == taskDto.TaskName && t.ProjectId == taskDto.ProjectId)
                 .OrderByDescending(t => t.Id)
                 .FirstOrDefaultAsync();
 
             if (createdTask == null)
                 return StatusCode(500, new { message = "Task was not found after insertion." });
+                
 
-            if (taskDto.ProjectLabelIds != null && taskDto.ProjectLabelIds.Any() && !taskDto.ProjectLabelIds.Contains(0))
+        if (taskDto.ProjectLabelIds?.Any() == true && !taskDto.ProjectLabelIds.Contains(0))
+        {
+            var taskLabels = taskDto.ProjectLabelIds.Select(labelId => new TaskLabel
             {
-                var taskLabels = taskDto.ProjectLabelIds.Select(labelId => new TaskLabel
-                {
-                    TaskId = createdTask.Id,
-                    ProjectLabelId = labelId
-                }).ToList();
+                TaskId = createdTask.Id,
+                ProjectLabelId = labelId
+            }).ToList();
 
-                await _context.TaskLabels.AddRangeAsync(taskLabels);
-                await _context.SaveChangesAsync();
-            }
-
+            await _context.TaskLabels.AddRangeAsync(taskLabels);
+            await _context.SaveChangesAsync();
+        }
             return CreatedAtAction(nameof(CreateTask), new { taskId = createdTask.Id }, new { message = "Task created successfully." });
         }
         catch (Exception)
