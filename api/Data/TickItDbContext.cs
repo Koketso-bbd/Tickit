@@ -49,7 +49,7 @@ public partial class TickItDbContext : DbContext
 
     public async Task<int> CreateTaskAsync(
         int? assigneeID, string taskName, string? taskDescription, DateTime? dueDate,
-        int priorityID, int projectID, int statusID)
+        int? priorityID, int projectID, int statusID)
     {
         var parameters = new[]
         {
@@ -57,7 +57,7 @@ public partial class TickItDbContext : DbContext
             new SqlParameter("@TaskName", taskName),
             new SqlParameter("@TaskDescription", taskDescription ?? (object)DBNull.Value),
             new SqlParameter("@DueDate", dueDate ?? (object)DBNull.Value),
-            new SqlParameter("@PriorityID", priorityID),
+            new SqlParameter("@PriorityID", priorityID ?? (object)DBNull.Value),
             new SqlParameter("@ProjectID", projectID),
             new SqlParameter("@StatusID", statusID),
         };

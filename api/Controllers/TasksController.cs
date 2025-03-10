@@ -149,7 +149,6 @@ public class TasksController : ControllerBase
 
             if (createdTask == null)
                 return StatusCode(500, new { message = "Task was not found after insertion." });
-                
 
         if (taskDto.ProjectLabelIds?.Any() == true && !taskDto.ProjectLabelIds.Contains(0))
         {
@@ -174,6 +173,12 @@ public class TasksController : ControllerBase
     [SwaggerOperation(Summary = "Update a task in a project based on task ID")]
     public async Task<IActionResult> UpdateTask(int taskid, [FromBody] TaskUpdateDTO taskDto)
     {
+        var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
+        if (currentUser == null) return Unauthorized(new { message = "User not found" });
+        
+        
         if (taskDto == null) return BadRequest(new { message = "Invalid task data." });
 
         var existingTask = await _context.Tasks
@@ -181,6 +186,10 @@ public class TasksController : ControllerBase
             .FirstOrDefaultAsync(t => t.Id == taskid);
 
         if (existingTask == null) return NotFound(new { message = $"Task with ID {taskid} not found." });
+        bool isAllowed = await _context.UserProjects
+                .AnyAsync(ur => ur.MemberId == currentUser.Id || ur.RoleId == 1 && ur.ProjectId == existingTask.ProjectId);
+
+        if (!isAllowed) return Unauthorized(new { message = "Only admins or people assigned to them can update tasks." });
 
         if (!string.IsNullOrWhiteSpace(taskDto.TaskName)) 
             if (taskDto.TaskName.Length > 255) return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
@@ -261,7 +270,7 @@ public class TasksController : ControllerBase
         if (currentUser == null) return Unauthorized(new { message = "User not found" });
 
         bool isAdmin = await _context.UserProjects
-                .AnyAsync(ur => ur.MemberId == currentUser.Id && ur.ProjectId == task.ProjectId);
+                .AnyAsync(ur => ur.MemberId == currentUser.Id && ur.RoleId == 1 && ur.ProjectId == task.ProjectId);
 
         if (!isAdmin) return Unauthorized(new { message = "Only admins can delete tasks." });
 
