@@ -72,13 +72,6 @@ namespace api.Tests
                 StatusId = 1,
             };
 
-            var userProject = new UserProject
-            {
-                Id = 1,
-                MemberId = assigneeId,
-                ProjectId = projectId,
-                RoleId = 1
-            };
 
             await _dbContext.Users.AddAsync(user);
             await _dbContext.Projects.AddAsync(project);
@@ -114,13 +107,13 @@ namespace api.Tests
                 ProjectDescription = "project description for project 1"
             };
 
-            var userProject = new UserProject
-            {
-                Id = 1,
-                MemberId = assigneeId,
-                ProjectId = projectId,
-                RoleId = 1
-            };
+            //var userProject = new UserProject
+            //{
+            //    Id = 1,
+            //    MemberId = assigneeId,
+            //    ProjectId = projectId,
+            //    RoleId = 1
+            //};
 
             await _dbContext.Users.AddAsync(user);
             await _dbContext.Projects.AddAsync(project);
@@ -564,5 +557,7 @@ namespace api.Tests
             Assert.NotNull(updatedTask);
             Assert.Equal(newTaskName, updatedTask.TaskName);
         }
+
+       
     }
 }
