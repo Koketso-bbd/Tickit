@@ -343,5 +343,40 @@ namespace api.Tests
             var value = badRequestResult.Value as dynamic;
             Assert.Equal("Invalid update data",value.message.ToString());
         }
+
+        [Fact]
+        public async systemTasks.Task UpdateTask_ReturnsNotFound_WhenProjectNotExist()
+        {   
+            var projectId = 1;
+            var projectId2 = 2;
+            var userId = 1;
+            var user = new User
+            {
+                Id = userId,
+                GitHubId ="GitHub User 1"
+            };
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "testing updateTask1",
+                ProjectDescription = "project description for updateTask1"
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            UpdateProjectDTO updateProject = new UpdateProjectDTO
+            {
+                ProjectName = "testing updateTask2",
+                ProjectDescription = "project description for updateTask2"
+            };
+            
+            var result = await _controller.UpdateProject(projectId2,updateProject);
+            var notFoundResult= Assert.IsType<NotFoundObjectResult>(result);
+            var response = notFoundResult.Value as dynamic;
+            Assert.Equal($"Project with ID {projectId2} not found", response.message.ToString());
+        }
     }
 }
