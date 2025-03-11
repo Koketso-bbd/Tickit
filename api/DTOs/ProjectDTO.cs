@@ -29,6 +29,12 @@ namespace api.DTOs
     public class ProjectWithTasksDTO : ProjectDTO
     {
         [JsonPropertyOrder(10)]
-        public List<TaskDTO> Tasks { get; set; } = new();
+        public List<TaskResponseDTO> Tasks { get; set; } = new();
+    }
+
+    public class  UpdateProjectDTO
+    {
+        public string? ProjectName { get; set; }
+        public string? ProjectDescription { get; set; }
     }
 }
