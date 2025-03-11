@@ -68,7 +68,7 @@ public class TasksController : ControllerBase
             if (currentUser == null) return Unauthorized(new { message = "User not found" });
 
             var assigneeExists = await _context.Users.AnyAsync(u => u.Id == currentUser.Id);
-            if (!assigneeExists)
+            if (!assigneeExists) 
             {
                 return NotFound(new { message = $"User with ID {currentUser.Id} does not exist." });
             }
@@ -89,7 +89,7 @@ public class TasksController : ControllerBase
                 })
                 .ToListAsync();
 
-            if (!tasks.Any())
+            if (!tasks.Any()) 
                 return NotFound(new { message = $"No tasks found for user {currentUser.Id}." });
 
             return Ok(tasks);
@@ -123,18 +123,23 @@ public class TasksController : ControllerBase
             if (!userHasAccessToProject)
                 return Unauthorized(new { message = "User does not have permission to create tasks for this project." });
 
-            if (taskDto.DueDate.HasValue)
+            if (string.IsNullOrWhiteSpace(taskDto.TaskName))
+                return BadRequest(new { message = "Task name is required." });
+            if (taskDto.TaskName.Length > 255)
+                return BadRequest(new { message = "Task name cannot exceed 255 characters." });
+            if (taskDto.TaskDescription?.Length > 1000)
+                return BadRequest(new { message = "Task description cannot exceed 1000 characters." });
+            if (taskDto.PriorityId.HasValue && !EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
+                return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
+            if (taskDto.AssigneeId.HasValue)
             {
-                if (taskDto.DueDate.Value < DateTime.UtcNow)
-                {
-                    return BadRequest(new { message = "Due date cannot be in the past." });
-                }
-                finalDueDate = taskDto.DueDate.Value;
+                var userIsPartOfProject = await _context.UserProjects.AnyAsync(u => u.MemberId == taskDto.AssigneeId);
+                if (!userIsPartOfProject)
+                    return NotFound(new { message = $"User with ID {taskDto.AssigneeId} is not part of this project." });
             }
-            else
-            {
-                finalDueDate = DateTime.UtcNow.AddDays(7);
-            }
+
+            if (taskDto.DueDate.HasValue && taskDto.DueDate.Value < DateTime.UtcNow)
+                return BadRequest(new { message = "Due date cannot be in the past." });
 
             await _context.CreateTaskAsync(
             taskDto.AssigneeId ?? null, taskDto.TaskName, taskDto.TaskDescription,
@@ -176,6 +181,7 @@ public class TasksController : ControllerBase
         var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
         if (currentUser == null) return Unauthorized(new { message = "User not found" });
         
+
         if (taskDto == null) return BadRequest(new { message = "Invalid task data." });
 
         var existingTask = await _context.Tasks
@@ -188,7 +194,7 @@ public class TasksController : ControllerBase
 
         if (!isAllowed) return Unauthorized(new { message = "Only admins or people assigned to them can update tasks." });
 
-        if (!string.IsNullOrWhiteSpace(taskDto.TaskName))
+        if (!string.IsNullOrWhiteSpace(taskDto.TaskName)) 
             if (taskDto.TaskName.Length > 255) return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
             else existingTask.TaskName = taskDto.TaskName;
 
@@ -220,17 +226,17 @@ public class TasksController : ControllerBase
             existingTask.PriorityId = (int)TaskPriority.Low;
         }
 
-        if (taskDto.AssigneeId.HasValue)
+        if (taskDto.AssigneeId.HasValue) 
             if (taskDto.AssigneeId <= 0)
                 return BadRequest(new { message = "AssigneeId is required and must be a valid value." });
-            else
+            else  
             {
                 var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
                 if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
                 else existingTask.AssigneeId = taskDto.AssigneeId.Value;
             }
 
-        if (!string.IsNullOrWhiteSpace(taskDto.TaskDescription))
+        if (!string.IsNullOrWhiteSpace(taskDto.TaskDescription)) 
             if (taskDto.TaskDescription.Length > 1000) return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
             else existingTask.TaskDescription = taskDto.TaskDescription;
 
@@ -238,7 +244,7 @@ public class TasksController : ControllerBase
 
         if (taskDto.ProjectLabelIds != null)
         {
-            var existingLabels = existingTask.TaskLabels.ToList();
+            var existingLabels = existingTask.TaskLabels.ToList(); 
 
             foreach (var label in existingLabels)
             {
@@ -308,7 +314,7 @@ public class TasksController : ControllerBase
             }
 
             _context.Tasks.Remove(task);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();  
             await transaction.CommitAsync();
 
             return Ok(new { message = $"Task with ID {taskid} successfully deleted." });
