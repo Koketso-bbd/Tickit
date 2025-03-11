@@ -4,7 +4,7 @@ public partial class Task
 {
     public int Id { get; set; }
 
-    public required int AssigneeId { get; set; }
+    public int? AssigneeId { get; set; }
 
     public required string TaskName { get; set; }
 
@@ -12,7 +12,7 @@ public partial class Task
 
     public DateTime? DueDate { get; set; }
 
-    public required int PriorityId { get; set; }
+    public int? PriorityId { get; set; }
 
     public required int ProjectId { get; set; }
 
