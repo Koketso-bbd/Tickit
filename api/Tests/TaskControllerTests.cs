@@ -226,29 +226,49 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsNotfound_WhenAssigneeIdDoesNotExist()
         {
-
+            var assigneeID = 1;
+            var assigneeID2 = 2;
+            var projectId = 1;
             var user = new User
             {
                 Id = 1,
                 GitHubId = "GitHub User 1"
             };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = assigneeID,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = assigneeID,
+                ProjectId = projectId,
+                RoleId = 2,
+            };
+
             var taskDto = new TaskDTO
             {
                 TaskName = "Task 1",
                 PriorityId = 1,
-                AssigneeId = 2,
+                AssigneeId = assigneeID2,
                 TaskDescription = "Testing task",
                 DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
 
             await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
             await _dbContext.SaveChangesAsync();
             var result = await _controller.CreateTask(taskDto);
 
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var value = notFoundResult.Value as dynamic;
-            Assert.Equal("Assignee does not exist.", value.message.ToString());
+            Assert.Equal($"User with ID {taskDto.AssigneeId} is not part of this project.", value.message.ToString());
         }
 
         [Fact]
@@ -263,6 +283,7 @@ namespace api.Tests
                 DueDate = DateTime.UtcNow,
                 ProjectId = 1,
             };
+
 
             var result = await _controller.CreateTask(taskDto);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
