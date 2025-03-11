@@ -334,5 +334,18 @@ public class UserProjectsTest
             Assert.Equal("User not found in the system", value.message.ToString());
             Assert.Equal(forbidenResult.StatusCode, 401);
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateUserRole_ReturnsBadRequest_UserIdRequired()
+        {
+            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.UpdateUserRole(0, 1, 1);
+            var forbidenResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("UserID is required", value.message.ToString());
+        }
     }
 }
