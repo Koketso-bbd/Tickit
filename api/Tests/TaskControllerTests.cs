@@ -479,7 +479,29 @@ namespace api.Tests
         {
             var userId = 1;
             var taskId = 2;
-            var user = new User { Id = userId, GitHubId = "user" };
+            var assigneeID = 1;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = 1,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = assigneeID,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = assigneeID,
+                ProjectId = projectId,
+                RoleId = 2,
+            };
+
             var task = new api.Models.Task
             {
                 TaskName = "Task 1",
@@ -492,9 +514,6 @@ namespace api.Tests
                 Id = 1,
             };
 
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.Tasks.AddAsync(task);
-            await _dbContext.SaveChangesAsync();
 
             TaskUpdateDTO taskDto = new TaskUpdateDTO
             {
@@ -504,6 +523,11 @@ namespace api.Tests
                 TaskDescription = "Testing task tasks"
             };
 
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
             var result = await _controller.UpdateTask(taskId, taskDto);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var value = notFoundResult.Value as dynamic;
