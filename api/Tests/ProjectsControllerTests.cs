@@ -375,7 +375,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async systemTasks.Task UpdateTask_ReturnsUnauthorized_WhenUserDoesNotExist()
+        public async systemTasks.Task UpdateProject_ReturnsUnauthorized_WhenUserDoesNotExist()
         {
             var userId = 1;
             var projectId = 1;
