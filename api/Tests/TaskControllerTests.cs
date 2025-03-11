@@ -886,7 +886,80 @@ namespace api.Tests
             Assert.NotNull(updatedTask);
             Assert.Equal(newTaskName, updatedTask.TaskName);
         }
+        [Fact]
+        public async System.Threading.Tasks.Task updateTask_ShouldReturnUnauthorized_WhenUserNotAssignedToTask()
+        {
+            
+            var userId = 1;
+            var unassignedUserId = 2;
+            var taskId = 1;
+            var taskName = "Task 1";
+            var newTaskName = "new task";
+            var projectId = 1;
 
-       
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var unassignedUser = new User
+            {
+                Id = unassignedUserId,
+                GitHubId = "GitHub User 2"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            //var userProject = new api.Models.UserProject
+            //{
+            //    MemberId = userId,
+            //    ProjectId = projectId,
+            //    RoleId = 2,
+            //};
+
+            var task = new api.Models.Task
+            {
+                TaskName = taskName,
+                PriorityId = 1,
+                AssigneeId = unassignedUserId, 
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = projectId,
+                StatusId = 1,
+                Id = taskId,
+            };
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                AssigneeId = unassignedUserId, 
+                PriorityId = 1,
+                TaskName = newTaskName
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Users.AddAsync(unassignedUser);
+            await _dbContext.Projects.AddAsync(project);
+            //await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+          
+            var result = await _controller.UpdateTask(taskId, taskDto);
+
+            
+            var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = unauthorizedResult.Value as dynamic;
+            Assert.Equal("Only people assigned to them can update tasks.", response.message.ToString());
+        }
+
+
+
     }
 }
