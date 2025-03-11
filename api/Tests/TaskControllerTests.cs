@@ -1118,5 +1118,53 @@ namespace api.Tests
             Assert.Equal("User not found or unauthorized.", response.message.ToString());
         }
 
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsUnauthorized_WhenUserIsNotInProject()
+        {
+            var userId = 1;
+            var userId2 = 2;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var user2 = new User
+            {
+                Id = userId2,
+                GitHubId = "GitHub User 2"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = projectId,
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Users.AddAsync(user2);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.CreateTask(taskDto);
+            var Unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = Unauthorized.Value as dynamic;
+            Assert.Equal("User does not have permission to create tasks for this project.", response.message.ToString());
+        }
+
     }
 }
