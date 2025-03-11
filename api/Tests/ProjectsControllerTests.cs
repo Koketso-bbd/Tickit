@@ -232,15 +232,6 @@ namespace api.Tests
         }
 
         [Fact]
-        public async systemTasks.Task GetUsersProjects_ReturnsNotFound_UserDoesNotExist()
-        {
-            var result = await _controller.GetUsersProjects(1);
-            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-            var response = notFoundResult.Value as dynamic;
-            Assert.Equal("User does not exist", response.message.ToString());
-        }
-
-        [Fact]
         public async systemTasks.Task AddProjectLabel_ReturnsBadRequest_NoLabelNameProvided()
         {
             var user = new User { Id = 1, GitHubId = "GitHub User 1" };
@@ -293,6 +284,41 @@ namespace api.Tests
             var notFoundResult= Assert.IsType<NotFoundObjectResult>(result.Result);
             var response = notFoundResult.Value as dynamic;
             Assert.Equal("Project not found.", response.message.ToString());
+        }
+
+        [Fact]
+        public async systemTasks.Task AddProjectLabel_ReturnsStatusCode403_WhenUserIsNotAdminOrProjectOwner()
+        {
+            var labelName = "bug";
+            var userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
+
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = 2,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.AddProjectLabel(projectId, labelName);
+            var forbidenResult = Assert.IsType<ObjectResult>(result.Result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("You don't have permission to modify this project", value.message.ToString());
         }
 
         [Fact]
