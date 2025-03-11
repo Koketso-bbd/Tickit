@@ -146,6 +146,7 @@ public class UserProjectsTest
             var forbidenResult = Assert.IsType<ObjectResult>(result);
             var value = forbidenResult.Value as dynamic;
             Assert.Equal("You don't have permission to add users to this project", value.message.ToString());
+            Assert.Equal(forbidenResult.StatusCode, 403);
         }
 
         [Fact]

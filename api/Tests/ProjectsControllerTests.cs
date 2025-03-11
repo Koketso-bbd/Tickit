@@ -319,6 +319,7 @@ namespace api.Tests
             var forbidenResult = Assert.IsType<ObjectResult>(result.Result);
             var value = forbidenResult.Value as dynamic;
             Assert.Equal("You don't have permission to modify this project", value.message.ToString());
+            Assert.Equal(forbidenResult.StatusCode, 403);
         }
 
         [Fact]
@@ -385,6 +386,7 @@ namespace api.Tests
             var forbidenResult = Assert.IsType<ObjectResult>(result);
             var value = forbidenResult.Value as dynamic;
             Assert.Equal("You don't have permission to modify this project", value.message.ToString());
+            Assert.Equal(forbidenResult.StatusCode, 403);
         }
 
         [Fact]
