@@ -474,6 +474,61 @@ namespace api.Tests
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task DeleteTask_ReturnsUnauthorized_WhenNotAdminDeleteTask()
+        {
+            var userId = 1;
+            var taskId = 1;
+            var projectId = 1;
+
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2
+            };
+
+
+            var taskDto = new api.Models.Task
+            {   
+                Id = taskId,
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = projectId,
+                StatusId = 1
+                
+            };
+
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.Tasks.AddAsync(taskDto);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.DeleteTask(taskId);
+            var unAuthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            var value = unAuthorized.Value as dynamic;
+            Assert.Equal("Only admins can delete tasks.", value.message.ToString());
+        }
+
+
+        [Fact]
         public async System.Threading.Tasks.Task UpdateTask_ReturnsBadRequest_WhenTaskdtoEmpty()
         {
 
