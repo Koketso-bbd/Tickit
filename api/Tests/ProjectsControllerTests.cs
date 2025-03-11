@@ -353,6 +353,41 @@ namespace api.Tests
         }
 
         [Fact]
+        public async systemTasks.Task DeleteProjectLabel_ReturnsStatusCode403_WhenUserIsNotAdminOrProjectOwner()
+        {
+            var labelName = "bug";
+            var userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
+
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = 2,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.DeleteProjectLabel(projectId, labelName);
+            var forbidenResult = Assert.IsType<ObjectResult>(result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("You don't have permission to modify this project", value.message.ToString());
+        }
+
+        [Fact]
         public async systemTasks.Task UpdateProject_ShouldReturnBadRequest_WhenProjectInvalid()
         {
             UpdateProjectDTO? updateProject = null;
