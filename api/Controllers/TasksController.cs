@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 
 namespace api.Controllers;
 
@@ -32,6 +33,7 @@ public class TasksController : ControllerBase
                 .Select(t => new TaskDTO
                 {
                     TaskName = t.TaskName,
+                    StatusId = t.StatusId,
                     ProjectId = t.ProjectId,
                     AssigneeId = t.AssigneeId,
                     PriorityId = t.PriorityId,
@@ -78,6 +80,7 @@ public class TasksController : ControllerBase
                     TaskId = t.Id,
                     AssigneeId = t.AssigneeId ?? 0,
                     TaskName = t.TaskName,
+                    StatusId = t.StatusId,
                     TaskDescription = t.TaskDescription,
                     DueDate = t.DueDate,
                     PriorityId = t.PriorityId ?? 0,
@@ -177,7 +180,6 @@ public class TasksController : ControllerBase
 
         var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.GitHubId == userEmail);
         if (currentUser == null) return Unauthorized(new { message = "User not found" });
-        
         
         if (taskDto == null) return BadRequest(new { message = "Invalid task data." });
 

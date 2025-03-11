@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 public class TaskUpdateDTO
 {
     public int? AssigneeId { get; set; }
@@ -7,4 +9,9 @@ public class TaskUpdateDTO
     public string? TaskDescription { get; set; }
     public DateTime? DueDate { get; set; }
     public List<int>? ProjectLabelIds { get; set; }
+
+    public static explicit operator JsonElement(TaskUpdateDTO v)
+    {
+        throw new NotImplementedException();
+    }
 }
