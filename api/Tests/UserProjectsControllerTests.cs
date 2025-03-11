@@ -102,6 +102,53 @@ public class UserProjectsTest
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task AddUserToProject_ReturnsStatusCode403_WhenUserIsNotAdminOrProjectOwner()
+        {
+            var labelName = "bug";
+            var userId = 1;
+            var userId2 = 2;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
+            var user2 = new User { Id = userId2, GitHubId = "GitHub User 2" };
+
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = 2,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var roleId = 2;
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = roleId
+            };
+
+            var roles = new List<Role>
+            {
+                new() { Id = 1 , RoleName = "Admin"},
+                new() { Id = 2 , RoleName = "Collaborator"},
+                new() { Id = 3 , RoleName = "Viewer"},
+            };
+
+            await _dbContext.Roles.AddRangeAsync(roles);
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Users.AddAsync(user2);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.AddUserToProject(userId2, projectId, roleId);
+            var forbidenResult = Assert.IsType<ObjectResult>(result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("You don't have permission to add users to this project", value.message.ToString());
+        }
+
+        [Fact]
         public async System.Threading.Tasks.Task UpdateUserRoleInProject_ShouldReturnOk_WhenUserAndRoleExist()
         {
             var user = new User { Id = 1, GitHubId = "GitHub User 1" };
