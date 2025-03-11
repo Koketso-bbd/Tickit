@@ -386,5 +386,18 @@ public class UserProjectsTest
             var value = forbidenResult.Value as dynamic;
             Assert.Equal("User does not exist", value.message.ToString());
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateUserRole_ReturnsNotFound_WhenProjectDoesNotExist()
+        {
+            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.UpdateUserRole(1, 1, 1);
+            var forbidenResult = Assert.IsType<NotFoundObjectResult>(result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("Project does not exist", value.message.ToString());
+        }
     }
 }
