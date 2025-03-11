@@ -411,6 +411,56 @@ namespace api.Tests
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenProjectIDNotGiven()
+        {
+            var userId = 1;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2,
+            };
+
+
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = 0,
+            };
+
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.CreateTask(taskDto);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Project ID is required and must be greater than zero.", value.message.ToString());
+        }
+
+
+        [Fact]
         public async System.Threading.Tasks.Task DeleteTask_ReturnsNotFound_WhenTaskNotExist()
         {   
            
@@ -422,6 +472,61 @@ namespace api.Tests
             var value = notFoundResult.Value as dynamic; 
             Assert.Equal($"Task with ID {taskId} not found.", value.message.ToString());
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task DeleteTask_ReturnsUnauthorized_WhenNotAdminDeleteTask()
+        {
+            var userId = 1;
+            var taskId = 1;
+            var projectId = 1;
+
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2
+            };
+
+
+            var taskDto = new api.Models.Task
+            {   
+                Id = taskId,
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = projectId,
+                StatusId = 1
+                
+            };
+
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.Tasks.AddAsync(taskDto);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.DeleteTask(taskId);
+            var unAuthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            var value = unAuthorized.Value as dynamic;
+            Assert.Equal("Only admins can delete tasks.", value.message.ToString());
+        }
+
 
         [Fact]
         public async System.Threading.Tasks.Task UpdateTask_ReturnsBadRequest_WhenTaskdtoEmpty()
@@ -887,6 +992,284 @@ namespace api.Tests
             Assert.Equal(newTaskName, updatedTask.TaskName);
         }
 
-       
+        [Fact]
+        public async System.Threading.Tasks.Task updateTask_ShouldReturnUnauthorized_WhenUserNotAssignedToTask()
+        {
+            
+            var userId = 1;
+            var unassignedUserId = 2;
+            var taskId = 1;
+            var taskName = "Task 1";
+            var newTaskName = "new task";
+            var projectId = 1;
+
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var unassignedUser = new User
+            {
+                Id = unassignedUserId,
+                GitHubId = "GitHub User 2"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+           
+            var task = new api.Models.Task
+            {
+                TaskName = taskName,
+                PriorityId = 1,
+                AssigneeId = unassignedUserId, 
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = projectId,
+                StatusId = 1,
+                Id = taskId,
+            };
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                AssigneeId = unassignedUserId, 
+                PriorityId = 1,
+                TaskName = newTaskName
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Users.AddAsync(unassignedUser);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+          
+            var result = await _controller.UpdateTask(taskId, taskDto);
+
+            
+            var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = unauthorizedResult.Value as dynamic;
+            Assert.Equal("Only people assigned to them can update tasks.", response.message.ToString());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateTask_ReturnsBadRequest_WhenTaskStatusIsInvalid()
+        {
+            var userId = 1;
+            var taskId = 1;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = 1,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2,
+            };
+
+            var task = new api.Models.Task
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = projectId,
+                StatusId = 1,
+                Id = taskId,
+            };
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                AssigneeId = userId,
+                StatusId = 5
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.UpdateTask(taskId, taskDto);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal($"Task Status must be one of the following: {EnumHelper.GetEnumValidValues<TaskStatus>()}.", value.message.ToString());
+        }
+
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateTask_ReturnsBadRequest_WhenTaskStatusIsDowngraded()
+        {
+            var userId = 1;
+            var taskId = 1;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = 1,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2,
+            };
+
+            var task = new api.Models.Task
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = projectId,
+                StatusId = 3,
+                Id = taskId,
+            };
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                AssigneeId = userId,
+                StatusId = 2
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.UpdateTask(taskId, taskDto);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal($"Task Status cannot be downgraded, current status is {task.StatusId}", value.message.ToString());
+        }
+
+
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsUnauthorized_WhenUserDoesNotExist()
+        {
+            var userId = 1;
+            var projectId = 1;
+            var user = new User 
+            { 
+                Id = userId,
+                GitHubId = "unAuthorized user"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 1
+            };
+
+
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = projectId,
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.CreateTask(taskDto);
+            var Unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = Unauthorized.Value as dynamic;
+            Assert.Equal("User not found or unauthorized.", response.message.ToString());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsUnauthorized_WhenUserIsNotInProject()
+        {
+            var userId = 1;
+            var userId2 = 2;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var user2 = new User
+            {
+                Id = userId2,
+                GitHubId = "GitHub User 2"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = projectId,
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Users.AddAsync(user2);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.CreateTask(taskDto);
+            var Unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = Unauthorized.Value as dynamic;
+            Assert.Equal("User does not have permission to create tasks for this project.", response.message.ToString());
+        }
+
     }
 }
