@@ -219,7 +219,7 @@ public class TasksController : ControllerBase
                     return BadRequest(new { message = $"Priority must be one of the following: {EnumHelper.GetEnumValidValues<TaskPriority>()}." });
                 }
 
-                existingTask.PriorityId = taskDto.PriorityId.Value;
+                existingTask.PriorityId = taskDto.PriorityId.Value==null ? null : taskDto.PriorityId.Value;
             }
             else
             {
@@ -233,14 +233,14 @@ public class TasksController : ControllerBase
                 {
                     var assigneeExists = await _context.Users.AnyAsync(u => u.Id == taskDto.AssigneeId);
                     if (!assigneeExists) return NotFound(new { message = "Assignee does not exist." });
-                    else existingTask.AssigneeId = taskDto.AssigneeId.Value;
+                    else existingTask.AssigneeId = taskDto.AssigneeId.Value==null ? null : taskDto.AssigneeId.Value;
                 }
 
             if (!string.IsNullOrWhiteSpace(taskDto.TaskDescription)) 
                 if (taskDto.TaskDescription.Length > 1000) return BadRequest(new { message = "Task Description cannot exceed a 1000 charcacters." });
                 else existingTask.TaskDescription = taskDto.TaskDescription;
 
-            if (taskDto.DueDate.HasValue) existingTask.DueDate = taskDto.DueDate.Value;
+            if (taskDto.DueDate.HasValue) existingTask.DueDate = taskDto.DueDate.Value==null ? null : taskDto.DueDate.Value;
 
             if (taskDto.ProjectLabelIds != null)
             {
