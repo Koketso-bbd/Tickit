@@ -10,8 +10,4 @@ public class TaskUpdateDTO
     public DateTime? DueDate { get; set; }
     public List<int>? ProjectLabelIds { get; set; }
 
-    public static explicit operator JsonElement(TaskUpdateDTO v)
-    {
-        throw new NotImplementedException();
-    }
 }
