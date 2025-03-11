@@ -257,7 +257,7 @@ namespace api.Tests
                 AssigneeId = assigneeID2,
                 TaskDescription = "Testing task",
                 DueDate = DateTime.UtcNow,
-                ProjectId = 1,
+                ProjectId = projectId,
             };
 
             await _dbContext.Users.AddAsync(user);
@@ -274,21 +274,49 @@ namespace api.Tests
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskNameLengthExceeds255()
         {
+
+            var assigneeID = 1;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = 1,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = assigneeID,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = assigneeID,
+                ProjectId = projectId,
+                RoleId = 2,
+            };
+
             var taskDto = new TaskDTO
             {
                 TaskName = "Task 1",
                 PriorityId = 1,
-                AssigneeId = 1,
+                AssigneeId = assigneeID,
                 TaskDescription = new string('t', 1001),
                 DueDate = DateTime.UtcNow,
-                ProjectId = 1,
+                ProjectId = projectId,
             };
 
 
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
             var result = await _controller.CreateTask(taskDto);
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var value = badRequestResult.Value as dynamic;
-            Assert.Equal("Task Description cannot exceed a 1000 charcacters.", value.message.ToString());
+            Assert.Equal("Task description cannot exceed 1000 characters.", value.message.ToString());
         }
 
         [Fact]
