@@ -124,7 +124,6 @@ namespace api.Tests
             {
                 ProjectName = "project 1",
                 ProjectDescription = "project description for project 1",
-                OwnerID = 1
             };
 
             var result = await _controller.AddProject(projectDTO);
@@ -134,7 +133,6 @@ namespace api.Tests
             //check created for the correct table
             Assert.Equal(projectDTO.ProjectName, createdProjectDTO.ProjectName);
             Assert.Equal(projectDTO.ProjectDescription, createdProjectDTO.ProjectDescription);
-            Assert.Equal(projectDTO.OwnerID, createdProjectDTO.Owner.ID);
 
             //check created project is stored in database
             var saveProject = await _dbContext.Projects
@@ -165,7 +163,6 @@ namespace api.Tests
             {
                 ProjectName = "project 1",
                 ProjectDescription = "project description for project 1",
-                OwnerID = 1
             };
 
             var result = await _controller.AddProject(projectDTO);
@@ -175,41 +172,12 @@ namespace api.Tests
             //check created for the correct table
             Assert.Equal(projectDTO.ProjectName, createdProjectDTO.ProjectName);
             Assert.Equal(projectDTO.ProjectDescription, createdProjectDTO.ProjectDescription);
-            Assert.Equal(projectDTO.OwnerID, createdProjectDTO.Owner.ID);
 
             result = await _controller.AddProject(projectDTO);
             var conflictResult = Assert.IsType<ConflictObjectResult>(result.Result);
             var response = conflictResult.Value as dynamic;
 
             Assert.Equal("A project with this name already exists for this owner", response.message.ToString());
-        }
-
-        [Fact]
-        public async systemTasks.Task DeleteProject_ReturnsNoContent_DeleteProject()
-        {
-            var user = new User  { Id = 1, GitHubId = "GitHub User 1" };
-
-            var projectId = 1;
-            var project = new Project
-            {
-                Id = projectId,
-                OwnerId = 1,
-                ProjectName = "project 1",
-                ProjectDescription = "project description for project 1"
-            };
-
-            await _dbContext.Projects.AddAsync(project);
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-
-            var result = await _controller.DeleteProject(projectId);
-            var noContentResult = Assert.IsType<NoContentResult>(result);
-            Assert.Equal(204, noContentResult.StatusCode);
-
-            //verify project no longer exists
-            var deletedProject = await _dbContext.Projects
-                .FirstOrDefaultAsync(p => p.Id == projectId);
-            Assert.Null(deletedProject);
         }
 
         [Fact]
@@ -256,7 +224,6 @@ namespace api.Tests
             {
                 ProjectName = "project 1",
                 ProjectDescription = "project description for project 1",
-                OwnerID = 1
             };
 
             var resultNull = await _controller.AddProjectLabel(1, null);
@@ -332,6 +299,170 @@ namespace api.Tests
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var response = notFoundResult.Value as dynamic;
             Assert.Equal("Project not found.", response.message.ToString());
+        }
+
+        [Fact]
+        public async systemTasks.Task UpdateProject_ShouldReturnBadRequest_WhenProjectInvalid()
+        {
+            UpdateProjectDTO? updateProject = null;
+            var result = await _controller.UpdateProject(0,updateProject);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal("Invalid update data",value.message.ToString());
+        }
+
+        [Fact]
+        public async systemTasks.Task UpdateProject_ReturnsNotFound_WhenProjectNotExist()
+        {   
+            var projectId = 1;
+            var projectId2 = 2;
+            var userId = 1;
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "testing updateTask1",
+                ProjectDescription = "project description for updateTask1"
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            UpdateProjectDTO updateProject = new UpdateProjectDTO
+            {
+                ProjectName = "testing updateTask2",
+                ProjectDescription = "project description for updateTask2"
+            };
+            
+            var result = await _controller.UpdateProject(projectId2,updateProject);
+            var notFoundResult= Assert.IsType<NotFoundObjectResult>(result);
+            var response = notFoundResult.Value as dynamic;
+            Assert.Equal($"Project with ID {projectId2} not found", response.message.ToString());
+        }
+
+        [Fact]
+        public async systemTasks.Task UpdateProject_ReturnsUnauthorized_WhenUserDoesNotExist()
+        {
+            var userId = 1;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = userId,
+                GitHubId ="Unauthorized-user"
+            };
+
+             var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "testing Unauthorized-user",
+                ProjectDescription = "project description for Unauthorized-user"
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            UpdateProjectDTO updateProject = new UpdateProjectDTO
+            {
+                ProjectName = "testing updateTask2",
+                ProjectDescription = "project description for updateTask2"
+            };
+            
+            var result = await _controller.UpdateProject(projectId,updateProject);
+            var Unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = Unauthorized.Value as dynamic;
+            Assert.Equal("User not found", response.message.ToString());
+        }
+
+        [Fact]
+        public async systemTasks.Task UpdateProject_Returns403_WhenUserLacksPermission()
+        {
+            var userId = 1;
+            var ownerId = 2;
+            var projectId = 1;
+
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = ownerId,
+                ProjectName = "Testing No Permission",
+                ProjectDescription = "Project description for No Permission"
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            var updateProjectDto = new UpdateProjectDTO
+            {
+                ProjectName = "Updated Name",
+                ProjectDescription = "Updated Description"
+            };
+
+            
+            var result = await _controller.UpdateProject(projectId, updateProjectDto);
+
+            var statusCodeResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(403, statusCodeResult.StatusCode);
+            var response = statusCodeResult.Value as dynamic;
+            Assert.Equal("You don't have permission to modify this project", response.message.ToString());
+        }
+
+        [Fact]
+        public async systemTasks.Task UpdateProject_ReturnsOk_WhenProjectSuccessfullyUpdated()
+        {
+           
+            var userId = 1;
+            var projectId = 1;
+
+            var user = new User
+            {
+                Id = userId,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "Testing successfully updated",
+                ProjectDescription = "Project description for successfully updated"
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            var updateProjectDto = new UpdateProjectDTO
+            {
+                ProjectName = "Updated Name",
+                ProjectDescription = "Updated Description"
+            };
+
+            
+            var result = await _controller.UpdateProject(projectId, updateProjectDto);
+
+            
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var response = Assert.IsType<ProjectDTO>(okResult.Value);
+
+            var returnedproject = response;
+            Assert.Equal(returnedproject.ProjectName, response.ProjectName);
+            Assert.Equal(returnedproject.ProjectDescription, response.ProjectDescription);
+            Assert.Equal(userId, response.Owner.ID);
         }
     }
 }

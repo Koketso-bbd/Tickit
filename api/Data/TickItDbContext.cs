@@ -137,6 +137,8 @@ public partial class TickItDbContext : DbContext
 
         modelBuilder.Entity<Project>(entity =>
         {
+            entity.ToTable(tb => tb.HasTrigger("trg_AfterProjectInsert"));
+
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.OwnerId).HasColumnName("OwnerID");
             entity.Property(e => e.ProjectDescription).HasMaxLength(1500);

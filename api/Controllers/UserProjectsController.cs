@@ -71,7 +71,7 @@ namespace api.Controllers
 
                 if (!isProjectOwner && !isAdmin)
                 {
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You don't have permission to add users to this project" });
                 }
 
                 await _context.Database.ExecuteSqlRawAsync(
@@ -131,11 +131,11 @@ namespace api.Controllers
                 bool isRemovingSelf = currentUserId == userId;
                 bool isProjectOwner = project.OwnerId == currentUserId;
                 bool isAdmin = await _context.UserProjects
-                    .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1);
+                    .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1 && ur.ProjectId == project.Id) || isRemovingSelf || isProjectOwner;
 
-                if (!isRemovingSelf && !isProjectOwner && !isAdmin)
+                if (!isAdmin)
                 {
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You do not have permission to remove users from this project" });
                 }
 
                 await _context.Database.ExecuteSqlRawAsync(
@@ -194,11 +194,11 @@ namespace api.Controllers
 
                 bool isProjectOwner = project.OwnerId == currentUserId;
                 bool isAdmin = await _context.UserProjects
-                        .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1);
+                        .AnyAsync(ur => ur.MemberId == currentUserId && ur.RoleId == 1 && ur.ProjectId == project.Id) || isProjectOwner;
 
-                if (!isProjectOwner && !isAdmin)
+                if (!isAdmin)
                 {
-                    return StatusCode(403, new { message = "Unauthorised access to this resource." });
+                    return StatusCode(403, new { message = "You do not have permission to modify this project" });
                 }
 
                 userProject.RoleId = newRoleId;
