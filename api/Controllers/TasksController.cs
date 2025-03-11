@@ -197,7 +197,9 @@ public class TasksController : ControllerBase
 
         if (taskDto.StatusId.HasValue)
         {
-            
+            if (taskDto.StatusId.Value < existingTask.StatusId) 
+                return BadRequest(new { message = $"Task Status cannot be downgraded, current status is {existingTask.StatusId}"});
+            else existingTask.StatusId = taskDto.StatusId.Value;
         }
 
         if (taskDto.PriorityId.HasValue)
