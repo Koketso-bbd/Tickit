@@ -54,7 +54,11 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddDbContext<TickItDbContext>(options =>
     options.UseSqlServer($"Server={databaseServer};Database={databaseName};User Id={databaseUserId};Password={databasePassword};TrustServerCertificate=True"));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+.AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 
 builder.Services.AddRouting(options =>
 {
