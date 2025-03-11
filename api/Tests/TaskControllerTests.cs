@@ -1068,5 +1068,55 @@ namespace api.Tests
             Assert.Equal($"Task Status cannot be downgraded, current status is {task.StatusId}", value.message.ToString());
         }
 
+
+        [Fact]
+        public async System.Threading.Tasks.Task CreateTask_ReturnsUnauthorized_WhenUserDoesNotExist()
+        {
+            var userId = 1;
+            var projectId = 1;
+            var user = new User 
+            { 
+                Id = userId,
+                GitHubId = "unAuthorized user"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 1
+            };
+
+
+            var taskDto = new TaskDTO
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing task",
+                DueDate = DateTime.UtcNow.AddDays(-1),
+                ProjectId = projectId,
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.CreateTask(taskDto);
+            var Unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = Unauthorized.Value as dynamic;
+            Assert.Equal("User not found or unauthorized.", response.message.ToString());
+        }
+
     }
 }
