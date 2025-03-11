@@ -195,6 +195,11 @@ public class TasksController : ControllerBase
             if (taskDto.TaskName.Length > 255) return BadRequest(new { message = "Task name cannot exceed 255 charcacters." });
             else existingTask.TaskName = taskDto.TaskName;
 
+        if (taskDto.StatusId.HasValue)
+        {
+            
+        }
+
         if (taskDto.PriorityId.HasValue)
         {
             if (!EnumHelper.IsValidEnumValue<TaskPriority>(taskDto.PriorityId.Value))
