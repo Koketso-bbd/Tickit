@@ -276,9 +276,9 @@ namespace api.Controllers
 
                 bool isProjectOwner = project.OwnerId == userId;
                 bool isAdmin = await _context.UserProjects
-                                    .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
+                                    .AnyAsync(up => up.MemberId == userId && up.RoleId == 1 && up.ProjectId == projectId);
 
-                if (!isProjectOwner || !isAdmin) 
+                if (!isProjectOwner && !isAdmin) 
                     return StatusCode(403, new { message = "You don't have permission to modify this project" });
 
                 var label = await _context.Labels
@@ -329,9 +329,9 @@ namespace api.Controllers
 
                 bool isProjectOwner = project.OwnerId == userId;
                 bool isAdmin = await _context.UserProjects
-                                    .AnyAsync(up => up.MemberId == userId && up.RoleId == 1);
+                                    .AnyAsync(up => up.MemberId == userId && up.RoleId == 1 && up.ProjectId == projectId);
 
-                if (!isProjectOwner || !isAdmin)
+                if (!isProjectOwner && !isAdmin)
                     return StatusCode(403, new { message = "You don't have permission to modify this project" });
 
                 var label = await _context.Labels
