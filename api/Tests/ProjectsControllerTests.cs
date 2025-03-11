@@ -340,7 +340,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async systemTasks.Task UpdateTask_ReturnsNotFound_WhenProjectNotExist()
+        public async systemTasks.Task UpdateProject_ReturnsNotFound_WhenProjectNotExist()
         {   
             var projectId = 1;
             var projectId2 = 2;
