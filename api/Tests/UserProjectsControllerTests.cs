@@ -390,14 +390,38 @@ public class UserProjectsTest
         [Fact]
         public async System.Threading.Tasks.Task UpdateUserRole_ReturnsNotFound_WhenProjectDoesNotExist()
         {
-            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            int userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
 
-            var result = await _controller.UpdateUserRole(1, 1, 1);
+            var result = await _controller.UpdateUserRole(userId, 1, 1);
             var forbidenResult = Assert.IsType<NotFoundObjectResult>(result);
             var value = forbidenResult.Value as dynamic;
             Assert.Equal("Project does not exist", value.message.ToString());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateUserRole_ReturnsNotFound_WhenRoleDoesNotExist()
+        {
+            int userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
+
+            int projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "Project name",
+            };
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.UpdateUserRole(userId, projectId, 1);
+            var forbidenResult = Assert.IsType<NotFoundObjectResult>(result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("Role does not exist. Available roles: ", value.message.ToString());
         }
     }
 }
