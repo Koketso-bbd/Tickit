@@ -104,7 +104,6 @@ public class UserProjectsTest
         [Fact]
         public async System.Threading.Tasks.Task AddUserToProject_ReturnsStatusCode403_WhenUserIsNotAdminOrProjectOwner()
         {
-            var labelName = "bug";
             var userId = 1;
             var userId2 = 2;
             var user = new User { Id = userId, GitHubId = "GitHub User 1" };
@@ -227,7 +226,6 @@ public class UserProjectsTest
         [Fact]
         public async System.Threading.Tasks.Task RemoveUserToProject_ReturnsStatusCode403_WhenUserIsNotAdminOrProjectOwner()
         {
-            var labelName = "bug";
             var userId = 1;
             var userId2 = 2;
             var user = new User { Id = userId, GitHubId = "GitHub User 1" };
@@ -325,6 +323,16 @@ public class UserProjectsTest
             var value = forbidenResult.Value as dynamic;
             Assert.Equal("You do not have permission to modify this project", value.message.ToString());
             Assert.Equal(forbidenResult.StatusCode, 403);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateUserRole_ReturnsUnauthorized()
+        {
+            var result = await _controller.UpdateUserRole(1, 1, 1);
+            var forbidenResult = Assert.IsType<UnauthorizedObjectResult>(result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("User not found in the system", value.message.ToString());
+            Assert.Equal(forbidenResult.StatusCode, 401);
         }
     }
 }
