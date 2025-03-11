@@ -272,5 +272,15 @@ public class UserProjectsTest
             Assert.Equal("You do not have permission to remove users from this project", value.message.ToString());
             Assert.Equal(forbidenResult.StatusCode, 403);
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task RemoveUserToProject_ReturnsUnauthorized()
+        {
+            var result = await _controller.RemoveUserFromProject(1, 1);
+            var forbidenResult = Assert.IsType<UnauthorizedObjectResult>(result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("User not found.", value.message.ToString());
+            Assert.Equal(forbidenResult.StatusCode, 401);
+        }
     }
 }
