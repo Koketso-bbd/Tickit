@@ -129,17 +129,44 @@ namespace api.Tests
 
         [Fact]
         public async System.Threading.Tasks.Task CreateTask_ReturnsBadRequest_WhenTaskNameIsEmpty()
-        { 
+        {
+            var assigneeID = 1;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = assigneeID,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = assigneeID,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = assigneeID,
+                ProjectId = projectId,
+                RoleId = 2,
+            };
+
             var taskDto = new TaskDTO
             {
-                AssigneeId = 1,
+                AssigneeId =assigneeID,
                 DueDate = DateTime.UtcNow,
                 PriorityId = 1,
-                ProjectId = 1,
+                ProjectId = projectId,
                 TaskDescription = "Testing for when Taskname is empty",
                 TaskName = "", 
             };
-            
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
             var result = await _controller.CreateTask(taskDto);
 
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
