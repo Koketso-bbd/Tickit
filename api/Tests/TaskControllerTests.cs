@@ -1010,5 +1010,63 @@ namespace api.Tests
             Assert.Equal($"Task Status must be one of the following: {EnumHelper.GetEnumValidValues<TaskStatus>()}.", value.message.ToString());
         }
 
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateTask_ReturnsBadRequest_WhenTaskStatusIsDowngraded()
+        {
+            var userId = 1;
+            var taskId = 1;
+            var projectId = 1;
+            var user = new User
+            {
+                Id = 1,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2,
+            };
+
+            var task = new api.Models.Task
+            {
+                TaskName = "Task 1",
+                PriorityId = 1,
+                AssigneeId = userId,
+                TaskDescription = "Testing tasks",
+                DueDate = DateTime.UtcNow.AddDays(1),
+                ProjectId = projectId,
+                StatusId = 3,
+                Id = taskId,
+            };
+
+            TaskUpdateDTO taskDto = new TaskUpdateDTO
+            {
+                AssigneeId = userId,
+                StatusId = 2
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.UpdateTask(taskId, taskDto);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = badRequestResult.Value as dynamic;
+            Assert.Equal($"Task Status cannot be downgraded, current status is {task.StatusId}", value.message.ToString());
+        }
+
     }
 }
