@@ -360,5 +360,18 @@ public class UserProjectsTest
             var value = forbidenResult.Value as dynamic;
             Assert.Equal("ProjectID is required", value.message.ToString());
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UpdateUserRole_ReturnsBadRequest_RoleIdRequired()
+        {
+            var user = new User { Id = 1, GitHubId = "GitHub User 1" };
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.UpdateUserRole(1, 1, 0);
+            var forbidenResult = Assert.IsType<BadRequestObjectResult>(result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("RoleID is required. Available roles: ", value.message.ToString());
+        }
     }
 }
