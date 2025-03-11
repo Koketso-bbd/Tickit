@@ -816,6 +816,7 @@ namespace api.Tests
             await _dbContext.UserProjects.AddAsync(userProject);
             await _dbContext.Tasks.AddAsync(task);
             await _dbContext.SaveChangesAsync();
+
             var result = await _controller.UpdateTask(taskId, taskDto);
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var value = notFoundResult.Value as dynamic;
@@ -829,7 +830,27 @@ namespace api.Tests
             var taskId = 1;
             var taskName = "Task 1";
             var newTaskName = "new task";
-            var user = new User { Id = userId, GitHubId = "user" };
+            var projectId = 1;
+            var user = new User
+            {
+                Id = 1,
+                GitHubId = "GitHub User 1"
+            };
+
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new api.Models.UserProject
+            {
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2,
+            };
             var task = new api.Models.Task
             {
                 TaskName = taskName,
@@ -837,14 +858,10 @@ namespace api.Tests
                 AssigneeId = userId,
                 TaskDescription = "Testing tasks",
                 DueDate = DateTime.UtcNow.AddDays(1),
-                ProjectId = 1,
+                ProjectId = projectId,
                 StatusId = 1,
                 Id = taskId,
             };
-
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.Tasks.AddAsync(task);
-            await _dbContext.SaveChangesAsync();
 
             TaskUpdateDTO taskDto = new TaskUpdateDTO
             {
@@ -852,6 +869,12 @@ namespace api.Tests
                 PriorityId = 1,
                 TaskName = newTaskName
             };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.Tasks.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
 
             var result = await _controller.UpdateTask(taskId, taskDto);
             var okResult = Assert.IsType<OkObjectResult>(result);
