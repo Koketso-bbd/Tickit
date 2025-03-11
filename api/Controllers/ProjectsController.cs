@@ -251,50 +251,6 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("/api/users/{id}/projects")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [SwaggerOperation(Summary = "Get all projects a user is in based on UserID")]
-        public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetUsersProjects(int id)
-        {
-
-            try
-            {
-                var userId = User.FindFirst(ClaimTypes.Email)?.Value;
-
-                var userExists = await _context.Users.AnyAsync(u => u.Id == id);
-                if (!userExists) return NotFound(new { message = "User does not exist" });
-
-                var projects = await _context.Projects
-                    .Where(p => p.OwnerId == id || p.UserProjects.Any(up => up.MemberId == id))
-                    .Select(p => new ProjectDTO
-                    {
-                        ID = p.Id,
-                        ProjectName = p.ProjectName,
-                        ProjectDescription = p.ProjectDescription,
-                        Owner = new UserDTO { ID = p.OwnerId, GitHubID = p.Owner.GitHubId },
-                        AssignedUsers = p.UserProjects
-                                    .Select(up => new UserDTO { ID = up.MemberId, GitHubID = up.Member.GitHubId })
-                                    .ToList()
-                    }).ToListAsync();
-
-                if (projects == null) return NotFound(new { message = $"No projects found for user with ID {id}" });
-
-                var authorisedProjects = projects
-                    .Where(p => p.Owner.GitHubID == userId || p.AssignedUsers.Any(u => u.GitHubID == userId));
-
-                if (authorisedProjects.Count() == 0) 
-                    return StatusCode(403, new { message = "You don't have permission to access this project" });
-
-                return Ok(authorisedProjects);
-            }
-            catch (Exception ex)
-            {
-                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("fetching user's projects", _logger, ex);
-                return StatusCode(statusCode, new { message = errorMessage });
-            }
-        }
-
         [HttpPost("{projectId}/labels")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
