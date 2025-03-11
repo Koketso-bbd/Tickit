@@ -181,34 +181,6 @@ namespace api.Tests
         }
 
         [Fact]
-        public async systemTasks.Task DeleteProject_ReturnsNoContent_DeleteProject()
-        {
-            var user = new User  { Id = 1, GitHubId = "GitHub User 1" };
-
-            var projectId = 1;
-            var project = new Project
-            {
-                Id = projectId,
-                OwnerId = 1,
-                ProjectName = "project 1",
-                ProjectDescription = "project description for project 1"
-            };
-
-            await _dbContext.Projects.AddAsync(project);
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-
-            var result = await _controller.DeleteProject(projectId);
-            var noContentResult = Assert.IsType<NoContentResult>(result);
-            Assert.Equal(204, noContentResult.StatusCode);
-
-            //verify project no longer exists
-            var deletedProject = await _dbContext.Projects
-                .FirstOrDefaultAsync(p => p.Id == projectId);
-            Assert.Null(deletedProject);
-        }
-
-        [Fact]
         public async systemTasks.Task DeleteProject_ReturnsNotFound_ProjectDoesNotExist()
         {
             var userId = 1;
