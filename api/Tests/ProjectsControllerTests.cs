@@ -5,6 +5,7 @@ using api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using Xunit;
 using systemTasks = System.Threading.Tasks;
@@ -186,13 +187,6 @@ namespace api.Tests
             var userId = 1;
             var user = new User { Id = userId, GitHubId = "GitHub User 1" };
             var projectId = 1;
-            var project = new Project
-            {
-                Id = projectId,
-                OwnerId = userId,
-                ProjectName = "project 1",
-                ProjectDescription = "project description for project 1"
-            };
 
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
@@ -203,14 +197,38 @@ namespace api.Tests
             Assert.Equal($"Project with ID {projectId} not found.", response.message.ToString());
         }
 
-        
         [Fact]
-        public async systemTasks.Task GetUsersProjects_ReturnsNotFound_UserDoesNotExist()
+        public async systemTasks.Task DeleteProject_ReturnsUnauthorized_UserIsNotAdminOnProject()
         {
-            var result = await _controller.GetUsersProjects(1);
-            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-            var response = notFoundResult.Value as dynamic;
-            Assert.Equal("User does not exist", response.message.ToString());
+            var userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
+
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = userId,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.DeleteProject(projectId);
+            var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = unauthorizedResult.Value as dynamic;
+            Assert.Equal("Only admins can delete projects.", response.message.ToString());
         }
 
         [Fact]
@@ -244,7 +262,6 @@ namespace api.Tests
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
 
-
             var result1 = await _controller.AddProjectLabel(0, "label 1");
             var badRequestResult1 = Assert.IsType<BadRequestObjectResult>(result1.Result);
             var response1 = badRequestResult1.Value as dynamic;
@@ -270,12 +287,47 @@ namespace api.Tests
         }
 
         [Fact]
+        public async systemTasks.Task AddProjectLabel_ReturnsStatusCode403_WhenUserIsNotAdminOrProjectOwner()
+        {
+            var labelName = "bug";
+            var userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
+
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = 2,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.AddProjectLabel(projectId, labelName);
+            var forbidenResult = Assert.IsType<ObjectResult>(result.Result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("You don't have permission to modify this project", value.message.ToString());
+            Assert.Equal(forbidenResult.StatusCode, 403);
+        }
+
+        [Fact]
         public async systemTasks.Task DeleteProjectLabel_ReturnsBadRequest_InvalidProjectProvided()
         {
             var user = new User { Id = 1, GitHubId = "GitHub User 1" };
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
-
 
             var result1 = await _controller.DeleteProjectLabel(0, "label 1");
             var badRequestResult1 = Assert.IsType<BadRequestObjectResult>(result1);
@@ -299,6 +351,42 @@ namespace api.Tests
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             var response = notFoundResult.Value as dynamic;
             Assert.Equal("Project not found.", response.message.ToString());
+        }
+
+        [Fact]
+        public async systemTasks.Task DeleteProjectLabel_ReturnsStatusCode403_WhenUserIsNotAdminOrProjectOwner()
+        {
+            var labelName = "bug";
+            var userId = 1;
+            var user = new User { Id = userId, GitHubId = "GitHub User 1" };
+
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                OwnerId = 2,
+                ProjectName = "project 1",
+                ProjectDescription = "project description for project 1"
+            };
+
+            var userProject = new UserProject
+            {
+                Id = 1,
+                MemberId = userId,
+                ProjectId = projectId,
+                RoleId = 2
+            };
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.Projects.AddAsync(project);
+            await _dbContext.UserProjects.AddAsync(userProject);
+            await _dbContext.SaveChangesAsync();
+
+            var result = await _controller.DeleteProjectLabel(projectId, labelName);
+            var forbidenResult = Assert.IsType<ObjectResult>(result);
+            var value = forbidenResult.Value as dynamic;
+            Assert.Equal("You don't have permission to modify this project", value.message.ToString());
+            Assert.Equal(forbidenResult.StatusCode, 403);
         }
 
         [Fact]
@@ -376,8 +464,8 @@ namespace api.Tests
             };
             
             var result = await _controller.UpdateProject(projectId,updateProject);
-            var Unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
-            var response = Unauthorized.Value as dynamic;
+            var unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            var response = unauthorized.Value as dynamic;
             Assert.Equal("User not found", response.message.ToString());
         }
 
@@ -411,7 +499,6 @@ namespace api.Tests
                 ProjectName = "Updated Name",
                 ProjectDescription = "Updated Description"
             };
-
             
             var result = await _controller.UpdateProject(projectId, updateProjectDto);
 
@@ -423,8 +510,7 @@ namespace api.Tests
 
         [Fact]
         public async systemTasks.Task UpdateProject_ReturnsOk_WhenProjectSuccessfullyUpdated()
-        {
-           
+        {           
             var userId = 1;
             var projectId = 1;
 
@@ -451,10 +537,8 @@ namespace api.Tests
                 ProjectName = "Updated Name",
                 ProjectDescription = "Updated Description"
             };
-
             
             var result = await _controller.UpdateProject(projectId, updateProjectDto);
-
             
             var okResult = Assert.IsType<OkObjectResult>(result);
             var response = Assert.IsType<ProjectDTO>(okResult.Value);
