@@ -1,0 +1,20 @@
+<aside class="side-nav">
+    <section class="user-info">
+        <img src="" alt="">
+        <p>User Name</p>
+    </section>
+
+    <nav>
+        <ul>
+            <li><a routerLink="projects">Projects</a></li>
+            <li><a routerLink="tasks">Tasks</a></li>
+            <li><a routerLink="notifications">Notifications</a></li>
+        </ul>
+    </nav>
+
+    <button class="logout-button" (click)="logout()">Logout</button>
+</aside>
+
+<main>
+    <router-outlet/>
+</main>
