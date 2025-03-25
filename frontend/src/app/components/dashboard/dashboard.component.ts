@@ -8,7 +8,7 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
-  userName: string = localStorage.getItem('fullname') ?? '';
+  userName: string = localStorage.getItem('name') ?? '';
   userImage: string = localStorage.getItem('picture') ?? '';
   
   constructor(private router: Router) { }
@@ -16,7 +16,7 @@ export class DashboardComponent {
   logout() {
     localStorage.removeItem('jwt');
     localStorage.removeItem('email');
-    localStorage.removeItem('fullname');
+    localStorage.removeItem('name');
     localStorage.removeItem('picture');
     this.router.navigate(['/']);
    }
