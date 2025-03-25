@@ -1,7 +1,18 @@
-<section *ngIf="projects.length < 0; else noProjects">
-
-</section>
-
+<section *ngIf="projects.length > 0; else noProjects" class="project-container">
+    <article *ngFor="let project of projects" class="project-card">
+      <header>
+        <h2>{{ project.projectName }}</h2>
+      </header>
+      <p>{{ project.projectDescription }}</p>
+      <p>{{ project.owner.gitHubID }}</p>
+  
+      <section>
+        <h3>Assigned Users:</h3>
+        <p>{{ project.assignedUsers.length }}</p>
+      </section>
+    </article>
+  </section>
+  
 <ng-template #noProjects>
     <h1>Welcome to TickIt</h1>
     <p>No Projects were found.</p>
