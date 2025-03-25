@@ -1,0 +1,130 @@
+.task-board {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    
+    > header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      
+      h1 {
+        margin: 0;
+      }
+    }
+  }
+  
+  .task-columns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    height: calc(100vh - 100px);
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+  }
+  
+  .column {
+    display: flex;
+    flex-direction: column;
+    background-color: #f4f5f7;
+    border-radius: 0.25rem;
+    
+    > header {
+      padding: 1rem;
+      background-color: #e4e6ea;
+      border-top-left-radius: 0.25rem;
+      border-top-right-radius: 0.25rem;
+      
+      h2 {
+        margin: 0;
+        font-size: 1rem;
+        text-transform: uppercase;
+      }
+    }
+  }
+  
+  .task-list {
+    padding: 1rem;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 200px;
+  }
+  
+  .task-card {
+    background-color: white;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    
+    > header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+      
+      h3 {
+        margin: 0;
+        font-size: 1rem;
+        word-break: break-word;
+      }
+    }
+    
+    p {
+      margin: 0.5rem 0;
+      color: #666;
+      font-size: 0.875rem;
+    }
+    
+    footer {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 0.5rem;
+      
+      time, address {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-style: normal;
+      }
+      
+      .task-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+    }
+  }
+  
+  .priority-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    
+    &.priority-low {
+      background-color: #e0f2f1;
+      color: #00796b;
+    }
+    
+    &.priority-medium {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    &.priority-high {
+      background-color: #fff8e1;
+      color: #ffa000;
+    }
+    
+    &.priority-urgent {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  }

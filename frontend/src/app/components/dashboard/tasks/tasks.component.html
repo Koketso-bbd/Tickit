@@ -1,1 +1,175 @@
-<p>tasks works!</p>
+<main class="task-board">
+    <header>
+      <h1>Task Board</h1>
+      <button (click)="openTaskForm()">Create New Task</button>
+    </header>
+  
+    <section class="task-columns">
+      <!-- Unconfirmed Column -->
+      <section class="column">
+        <header>
+          <h2>Unconfirmed</h2>
+        </header>
+        <section 
+          class="task-list" 
+          (dragover)="allowDrop($event)" 
+          (drop)="dropTask($event, 'unconfirmed')"
+        >
+          <article 
+            class="task-card" 
+            *ngFor="let task of unconfirmedTasks$ | async" 
+            draggable="true" 
+            (dragstart)="dragStart($event, task)"
+          >
+            <header>
+              <h3>{{ task.name }}</h3>
+              <span class="priority-badge priority-{{ task.priority }}">{{ task.priority }}</span>
+            </header>
+            <p *ngIf="task.description">{{ task.description }}</p>
+            <footer>
+              <time *ngIf="task.dueDate">Due: {{ task.dueDate | date }}</time>
+              <address *ngIf="task.assignee">Assigned to: {{ task.assignee }}</address>
+              <div class="task-actions">
+                <button (click)="openTaskForm(task)">Edit</button>
+                <button (click)="acknowledgeTask(task.id)" class="acknowledge-btn">Acknowledge</button>
+              </div>
+            </footer>
+          </article>
+        </section>
+      </section>
+  
+      <!-- To Do Column -->
+      <section class="column">
+        <header>
+          <h2>To Do</h2>
+        </header>
+        <section 
+          class="task-list" 
+          (dragover)="allowDrop($event)" 
+          (drop)="dropTask($event, 'todo')"
+        >
+          <article 
+            class="task-card" 
+            *ngFor="let task of todoTasks$ | async" 
+            draggable="true" 
+            (dragstart)="dragStart($event, task)"
+          >
+            <header>
+              <h3>{{ task.name }}</h3>
+              <span class="priority-badge priority-{{ task.priority }}">{{ task.priority }}</span>
+            </header>
+            <p *ngIf="task.description">{{ task.description }}</p>
+            <footer>
+              <time *ngIf="task.dueDate">Due: {{ task.dueDate | date }}</time>
+              <address *ngIf="task.assignee">Assigned to: {{ task.assignee }}</address>
+              <div class="task-actions">
+                <button (click)="openTaskForm(task)">Edit</button>
+              </div>
+            </footer>
+          </article>
+        </section>
+      </section>
+  
+      <!-- In Progress Column -->
+      <section class="column">
+        <header>
+          <h2>In Progress</h2>
+        </header>
+        <section 
+          class="task-list" 
+          (dragover)="allowDrop($event)" 
+          (drop)="dropTask($event, 'in-progress')"
+        >
+          <article 
+            class="task-card" 
+            *ngFor="let task of inProgressTasks$ | async" 
+            draggable="true" 
+            (dragstart)="dragStart($event, task)"
+          >
+            <header>
+              <h3>{{ task.name }}</h3>
+              <span class="priority-badge priority-{{ task.priority }}">{{ task.priority }}</span>
+            </header>
+            <p *ngIf="task.description">{{ task.description }}</p>
+            <footer>
+              <time *ngIf="task.dueDate">Due: {{ task.dueDate | date }}</time>
+              <address *ngIf="task.assignee">Assigned to: {{ task.assignee }}</address>
+              <div class="task-actions">
+                <button (click)="openTaskForm(task)">Edit</button>
+              </div>
+            </footer>
+          </article>
+        </section>
+      </section>
+  
+      <!-- Completed Column -->
+      <section class="column">
+        <header>
+          <h2>Completed</h2>
+        </header>
+        <section 
+          class="task-list" 
+          (dragover)="allowDrop($event)" 
+          (drop)="dropTask($event, 'completed')"
+        >
+          <article 
+            class="task-card" 
+            *ngFor="let task of completedTasks$ | async" 
+            draggable="true" 
+            (dragstart)="dragStart($event, task)"
+          >
+            <header>
+              <h3>{{ task.name }}</h3>
+              <span class="priority-badge priority-{{ task.priority }}">{{ task.priority }}</span>
+            </header>
+            <p *ngIf="task.description">{{ task.description }}</p>
+            <footer>
+              <time *ngIf="task.dueDate">Due: {{ task.dueDate | date }}</time>
+              <address *ngIf="task.assignee">Assigned to: {{ task.assignee }}</address>
+              <div class="task-actions">
+                <button (click)="openTaskForm(task)">Edit</button>
+              </div>
+            </footer>
+          </article>
+        </section>
+      </section>
+    </section>
+  
+    <!-- Task Form Dialog -->
+    <dialog [open]="showTaskForm">
+      <article>
+        <header>
+          <h2>{{ editingTask ? 'Edit Task' : 'Create New Task' }}</h2>
+        </header>
+        <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
+          <fieldset>
+            <legend>Task Details</legend>
+            
+            <label for="taskName">Task Name*</label>
+            <input type="text" id="taskName" formControlName="name" required>
+            
+            <label for="taskDescription">Description</label>
+            <textarea id="taskDescription" formControlName="description"></textarea>
+            
+            <label for="taskDueDate">Due Date</label>
+            <input type="date" id="taskDueDate" formControlName="dueDate">
+            
+            <label for="taskPriority">Priority</label>
+            <select id="taskPriority" formControlName="priority">
+              <option *ngFor="let priority of priorities" [value]="priority.value">
+                {{ priority.label }}
+              </option>
+            </select>
+            
+            <label for="taskAssignee">Assignee</label>
+            <input type="text" id="taskAssignee" formControlName="assignee">
+          </fieldset>
+          
+          <footer>
+            <button type="button" (click)="closeTaskForm()">Cancel</button>
+            <button type="submit" [disabled]="taskForm.invalid">Save</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+  </main>

@@ -1,28 +1,64 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs'
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Task } from '../models/task.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
-  private apiUrl = 'https://localhost:7151/api';
-
-  constructor(private http: HttpClient) { }
-
-  private getHeaders(): HttpHeaders {
-    const token = '';
-    return new HttpHeaders({
-      'content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    });
+  private tasks: Task[] = [
+    {
+      id: uuidv4(),
+      name: 'Example Task',
+      description: 'This is an example task',
+      dueDate: new Date(2025, 3, 30),
+      priority: 'medium',
+      assignee: 'John Doe',
+      status: 'unconfirmed',
+      acknowledged: false
+    }
+  ];
+  
+  private tasksSubject = new BehaviorSubject<Task[]>(this.tasks);
+  
+  getTasks(): Observable<Task[]> {
+    return this.tasksSubject.asObservable();
   }
-
-  fetchData(endpoint: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${endpoint}`, { headers: this.getHeaders() });
+  
+  addTask(task: Omit<Task, 'id' | 'status' | 'acknowledged'>): void {
+    const newTask: Task = {
+      ...task,
+      id: uuidv4(),
+      status: 'unconfirmed',
+      acknowledged: false
+    };
+    
+    this.tasks = [...this.tasks, newTask];
+    this.tasksSubject.next(this.tasks);
   }
-
-  postData(endpoint: string, data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${endpoint}`, data, { headers: this.getHeaders() });
+  
+  updateTask(updatedTask: Task): void {
+    this.tasks = this.tasks.map(task => 
+      task.id === updatedTask.id ? updatedTask : task
+    );
+    this.tasksSubject.next(this.tasks);
+  }
+  
+  acknowledgeTask(taskId: string): void {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.acknowledged = true;
+      task.status = 'todo';
+      this.tasksSubject.next(this.tasks);
+    }
+  }
+  
+  moveTask(taskId: string, newStatus: Task['status']): void {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.status = newStatus;
+      this.tasksSubject.next(this.tasks);
+    }
   }
 }
