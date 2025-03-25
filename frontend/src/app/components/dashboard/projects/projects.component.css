@@ -30,3 +30,10 @@
     font-size: 0.9rem;
     color: #666;
 }
+
+.page-header {
+    text-align: right;
+    margin-left: auto;
+    padding: 1rem;
+    width: fit-content;
+}
