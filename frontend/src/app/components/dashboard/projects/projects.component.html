@@ -1,1 +1,9 @@
-<p>projects works!</p>
+<section *ngIf="projects.length < 0; else noProjects">
+
+</section>
+
+<ng-template #noProjects>
+    <h1>Welcome to TickIt</h1>
+    <p>No Projects were found.</p>
+    <button>Create a Project</button>
+</ng-template>
