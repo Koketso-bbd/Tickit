@@ -18,6 +18,22 @@ public class AuthController : ControllerBase
         _context = context;
     }
 
+    private async Task<bool> IsFrontendRunning()
+    {
+        try
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync("http://localhost:4200");
+                return response.IsSuccessStatusCode;
+            }
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     [HttpGet("login")]
     public IActionResult Login()
     {
@@ -51,7 +67,15 @@ public class AuthController : ControllerBase
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
             }
-            
+
+            bool isFrontendRunning = await IsFrontendRunning();
+
+            if (isFrontendRunning)
+            {
+                var redirectUrl = $"http://localhost:4200/google-callback?token={idToken}";
+                return Redirect(redirectUrl);
+            }
+
             return Ok(new 
             { 
                 GoogleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
