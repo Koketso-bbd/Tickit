@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class ProfileComponent {
 
-  userName: string = localStorage.getItem('fullname') ?? '';
+  userName: string = localStorage.getItem('name') ?? '';
   email: string = localStorage.getItem('email') ?? '';
   userImage: string = localStorage.getItem('picture') ?? '';
 
@@ -19,7 +19,7 @@ export class ProfileComponent {
   logout() {
     localStorage.removeItem('jwt');
     localStorage.removeItem('email');
-    localStorage.removeItem('fullname');
+    localStorage.removeItem('name');
     localStorage.removeItem('picture');
     this.router.navigate(['/login']);
    }
