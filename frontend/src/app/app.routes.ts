@@ -5,6 +5,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ProjectsComponent } from './components/dashboard/projects/projects.component';
 import { TasksComponent } from './components/dashboard/tasks/tasks.component';
 import { NotificationsComponent } from './components/dashboard/notifications/notifications.component';
+import { LoginComponent } from './components/login/login.component';
+import { GoogleCallbackComponent } from './components/google-callback/google-callback.component';
 
 export const routes: Routes = [
     {path: '', component: LandingComponent},
@@ -13,5 +15,7 @@ export const routes: Routes = [
         {path: 'tasks', component: TasksComponent},
         {path: 'notifications', component: NotificationsComponent}
     ]},
+    {path: 'login', component: LoginComponent},
+    {path: 'google-callback', component: GoogleCallbackComponent},
     {path: '**', component: NotFoundComponent}
 ];
