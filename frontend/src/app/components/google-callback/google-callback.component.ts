@@ -26,7 +26,7 @@ export class GoogleCallbackComponent {
     }
 
     if (name) {
-      localStorage.setItem('fullname', name);
+      localStorage.setItem('name', name);
     } else {
       console.error('No name found in URL');
     }
