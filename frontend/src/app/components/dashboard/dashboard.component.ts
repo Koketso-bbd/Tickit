@@ -8,10 +8,16 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
+  userName: string = localStorage.getItem('fullname') ?? '';
+  userImage: string = localStorage.getItem('picture') ?? '';
+  
   constructor(private router: Router) { }
 
   logout() {
     localStorage.removeItem('jwt');
+    localStorage.removeItem('email');
+    localStorage.removeItem('fullname');
+    localStorage.removeItem('picture');
     this.router.navigate(['/']);
    }
 }
