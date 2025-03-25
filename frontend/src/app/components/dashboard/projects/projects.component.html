@@ -1,18 +1,12 @@
-<section *ngIf="projects.length > 0; else noProjects" class="project-container">
-    <article *ngFor="let project of projects" class="project-card">
-      <header>
-        <h2>{{ project.projectName }}</h2>
-      </header>
-      <p>{{ project.projectDescription }}</p>
-      <p>{{ project.owner.gitHubID }}</p>
-  
-      <section>
-        <h3>Assigned Users:</h3>
-        <p>{{ project.assignedUsers.length }}</p>
-      </section>
+<section *ngIf="projects.length > 0; else noProjects" class="projects">
+    <article *ngFor="let project of projects" class="project" onclick="openProject(1)">
+        <h3>{{ project.projectName }}</h3>
+        <p>{{ project.projectDescription }}</p>
+        <p><strong>Owner:</strong> DummyUser1</p>
+        <p><strong>Assigned Users:</strong> {{ project.assignedUsers.length }}</p>
     </article>
-  </section>
-  
+</section>
+
 <ng-template #noProjects>
     <h1>Welcome to TickIt</h1>
     <p>No Projects were found.</p>
