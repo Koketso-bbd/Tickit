@@ -23,4 +23,9 @@ export class ProjectService {
     const headers = this.setHeaders();
     return this.http.get<any[]>(`${this.apiUrl}`, { headers });
   }
+
+  getProjectById(id: number): Observable<any> {
+    const headers = this.setHeaders();
+    return this.http.get<any[]>(`${this.apiUrl}/${id}`, { headers });
+  }
 }
