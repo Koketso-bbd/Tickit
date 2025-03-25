@@ -119,11 +119,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowSpecificOrigins");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseCors("AllowSpecificOrigins");
 
 app.MapControllers();
 
