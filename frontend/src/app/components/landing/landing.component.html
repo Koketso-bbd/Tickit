@@ -21,7 +21,7 @@
                 <h1>Boost Your Productivity With Tick<span class="highlight">IT✨</span></h1>
                 <p>Let TickIT help you manage your projects, track your tasks, and achieve your goals!</p>
                 <section class="h-buttons">
-                    <a class="button primary" href="#get-started">Get Started</a>
+                    <a class="button primary" (click)="goToLogin()">Get Started</a>
                     <a class="button secondary" href="#get-started">Learn More</a>
                 </section>
             </article>
@@ -124,7 +124,7 @@
             <h2>Ready to Join Us?</h2>
             <p>Get on the waiting list to be one of the thousands of users who changed their productivity with TickIt.
             </p>
-            <a href="signup.html" class="button primary large">Join The Waiting List</a>
+            <a routerLink="/login" class="button primary large">Join The Waiting List</a>
         </section>
     </section>
 </main>
