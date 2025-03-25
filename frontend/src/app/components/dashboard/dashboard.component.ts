@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,7 +8,10 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
+  constructor(private router: Router) { }
+
   logout() {
-    throw new Error('Method not implemented.');
-    }
+    localStorage.removeItem('jwt');
+    this.router.navigate(['/']);
+   }
 }
