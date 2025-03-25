@@ -1,8 +1,12 @@
+<header class="page-header">
+    <h1>Projects</h1>
+</header>
+
 <section *ngIf="projects.length > 0; else noProjects" class="projects">
-    <article *ngFor="let project of projects" class="project" onclick="openProject(1)">
+    <article *ngFor="let project of projects" (click)="viewProject(project.id)" class="project">
         <h3>{{ project.projectName }}</h3>
         <p>{{ project.projectDescription }}</p>
-        <p><strong>Owner:</strong> DummyUser1</p>
+        <p><strong>Owner:</strong> {{ project.owner.gitHubID}}</p>
         <p><strong>Assigned Users:</strong> {{ project.assignedUsers.length }}</p>
     </article>
 </section>
@@ -10,5 +14,5 @@
 <ng-template #noProjects>
     <h1>Welcome to TickIt</h1>
     <p>No Projects were found.</p>
-    <button>Create a Project</button>
+    <button>Create a Project</button>`
 </ng-template>

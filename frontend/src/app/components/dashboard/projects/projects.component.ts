@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ProjectService } from '../../../services/project.service';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-projects',
@@ -11,7 +12,8 @@ import { CommonModule } from '@angular/common';
 
 export class ProjectsComponent {
   projects: any[] = [];
-  constructor(private projectService: ProjectService) { }
+  project: any = null;
+  constructor(private projectService: ProjectService, private router: Router) { }
 
   ngOnInit(): void {
     this.fetchProjects();
@@ -27,5 +29,9 @@ export class ProjectsComponent {
         console.error(error);
       }
     })
+  }
+
+  viewProject(projectId: number) {
+    this.router.navigate([`/dashboard/projects`, projectId]);
   }
 }
