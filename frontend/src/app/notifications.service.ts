@@ -15,7 +15,7 @@ export class NotificationsService {
 
 
   private getAuthHeaders(): HttpHeaders {
-    const token = "";
+    const token = localStorage.getItem('jwt');
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
     });
