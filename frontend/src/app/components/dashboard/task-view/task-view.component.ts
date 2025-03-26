@@ -8,6 +8,7 @@ import { switchMap, tap } from 'rxjs';
 import { UserService } from '../../../user.service';
 import { User } from '../../../user.interface';
 import { Priority } from '../../../enum/priority.enum';
+import { Status } from '../../../enum/status.enum';
 
 @Component({
   selector: 'app-task-view',
@@ -24,6 +25,7 @@ export class TaskViewComponent implements OnInit {
   assignee!: User;
   assigneeId!: number;
   priority!: string;
+  status!: string;
 
   constructor(
     private taskViewService: TaskViewService,
@@ -42,6 +44,7 @@ export class TaskViewComponent implements OnInit {
         this.projectId = task.projectId;
         this.assigneeId = task.assigneeId;
         this.priority = this.getPriority(task.priorityId);
+        this.status = this.getStatus(task.statusId);
         return this.projectService.getProjectById(this.projectId);
       }),
       switchMap((project: Project) => {
@@ -68,6 +71,10 @@ export class TaskViewComponent implements OnInit {
 
   getPriority(priorityId: number): string {
     return Priority[priorityId];
+  }
+
+  getStatus(statusId: number): string {
+    return Status[statusId];
   }
 
   closeTaskView(): void {
