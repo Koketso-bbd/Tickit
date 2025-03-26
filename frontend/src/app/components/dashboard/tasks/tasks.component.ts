@@ -194,6 +194,5 @@ export class TasksComponent implements OnInit {
   getPriorityLabel(priority: number): string {
     return TaskPriority[priority] || 'Unknown';
   }
-  
-  
+   
 }

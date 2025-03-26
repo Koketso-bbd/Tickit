@@ -16,7 +16,6 @@ export const routes: Routes = [
         {path: 'profile', component: ProfileComponent},
         {path: 'projects', component: ProjectsComponent},
         {path: 'tasks/:projectId', component: TasksComponent},
-        {path: 'tasks', component: TasksComponent},
         {path: 'notifications', component: NotificationsComponent}
     ]},
     {path: 'login', component: LoginComponent},
