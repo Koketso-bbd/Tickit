@@ -116,17 +116,17 @@ export class TaskService {
     return this.http.delete(`${this.apiUrl}/tasks/${taskId}`, { headers: this.getHeaders() });
   }
 
-    moveTask(taskId: number, newStatus: TaskStatus): void {
-      const currentTasks = this.tasksSubject.value;
-    
-      const updatedTasks = currentTasks.map(t =>
-        t.id === taskId ? { ...t, status: newStatus } : t
-      );
-    
-      this.tasksSubject.next(updatedTasks);
-   }
+  moveTask(taskId: number, newStatus: TaskStatus): void {
+    const currentTasks = this.tasksSubject.value;
+  
+    const updatedTasks = currentTasks.map(t =>
+      t.id === taskId ? { ...t, status: newStatus } : t
+    );
+  
+    this.tasksSubject.next(updatedTasks);
+  }
 
-   updateData(taskId: number, data: any): Observable<any> {
+  updateTaskStatus(taskId: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/tasks/${taskId}`, data, { headers: this.getHeaders() });
   }
   

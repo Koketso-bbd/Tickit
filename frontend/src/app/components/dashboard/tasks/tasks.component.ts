@@ -17,9 +17,9 @@ export class TasksComponent implements OnInit {
   response: any;
   TaskStatus = TaskStatus;
   tasks$: Observable<Task[]>;
-  unconfirmedTasks$: Observable<Task[]>;
   todoTasks$: Observable<Task[]>;
   inProgressTasks$: Observable<Task[]>;
+  inReviewTasks$: Observable<Task[]>;
   completedTasks$: Observable<Task[]>;
   
   assignedUsers: User[] = [];
@@ -41,9 +41,9 @@ export class TasksComponent implements OnInit {
   ) {
     this.tasks$ = this.taskService.tasks$;
     
-    this.unconfirmedTasks$ = this.taskService.getTasksByStatus(TaskStatus.Unconfirmed);
     this.todoTasks$ = this.taskService.getTasksByStatus(TaskStatus.ToDo);
     this.inProgressTasks$ = this.taskService.getTasksByStatus(TaskStatus.InProgress);
+    this.inReviewTasks$ = this.taskService.getTasksByStatus(TaskStatus.InReview);
     this.completedTasks$ = this.taskService.getTasksByStatus(TaskStatus.Completed);
     
     this.taskForm = this.fb.group({
@@ -103,7 +103,7 @@ export class TasksComponent implements OnInit {
       projectId: 29, 
       status: this.editingTask ? 
         this.editingTask.status : 
-        TaskStatus.Unconfirmed,
+        TaskStatus.ToDo,
       projectLabelIds: []
     };
     
@@ -143,7 +143,7 @@ export class TasksComponent implements OnInit {
 
     this.taskService.moveTask(task.id, newStatus);
 
-    this.taskService.updateData(task.id, { "statusId": newStatus }).subscribe({
+    this.taskService.updateTaskStatus(task.id, { "statusId": newStatus }).subscribe({
         next: (data) => {
             console.log("Task updated successfully", data);
         },
@@ -152,7 +152,7 @@ export class TasksComponent implements OnInit {
             task.id = previousStatus;
         }
     });
-}
+  }
   
   allowDrop(event: DragEvent): void {
     event.preventDefault();

@@ -7,16 +7,16 @@
     <section class="task-columns">
       <section class="column">
         <header>
-          <h2>Unconfirmed</h2>
+          <h2>To Do</h2>
         </header>
         <section 
           class="task-list" 
           (dragover)="allowDrop($event)" 
-          (drop)="dropTask($event, TaskStatus.Unconfirmed)"
+          (drop)="dropTask($event, TaskStatus.ToDo)"
         >
           <article 
             class="task-card" 
-            *ngFor="let task of unconfirmedTasks$ | async" 
+            *ngFor="let task of todoTasks$ | async" 
             draggable="true" 
             (dragstart)="dragStart($event, task)"
           >
@@ -41,7 +41,7 @@
   
       <section class="column">
         <header>
-          <h2>To Do</h2>
+          <h2>In Progress</h2>
         </header>
         <section 
           class="task-list" 
@@ -74,7 +74,7 @@
   
       <section class="column">
         <header>
-          <h2>In Progress</h2>
+          <h2>In Review</h2>
         </header>
         <section 
           class="task-list" 
