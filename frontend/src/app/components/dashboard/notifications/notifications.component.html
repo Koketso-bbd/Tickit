@@ -1,19 +1,19 @@
 <main class="notifications">
-    <h1>Notifications</h1>
-    <section>
-      <article *ngIf="notifications.length > 0; else noNotifications">
-        <article
-          class="notifications-list"
-          [ngClass]="{ unread: !notification.isRead, read: notification.isRead }"
-          *ngFor="let notification of notifications"
-          (click)="toggleReadStatus(notification)"
-        >
-          <strong>{{ notification.message }}</strong><br />
-          <small>{{ notification.createdAt | date: 'medium' }}</small>
-        </article>
+  <h1>Notifications</h1>
+  <section>
+    <article *ngIf="notifications.length > 0; else noNotifications">
+      <article
+        class="notifications-list"
+        [ngClass]="{ unread: !notification.isRead, read: notification.isRead }"
+        *ngFor="let notification of notifications"
+        (click)="toggleReadStatus(notification)"
+      >
+        <strong>{{ notification.message }}</strong><br />
+        <small>{{ notification.createdAt | date: 'medium' }}</small>
       </article>
-      <ng-template class="no-notifications" #noNotifications>
-        <p>No notifications available.</p>
-      </ng-template>
-    </section>
-  </main>
+    </article>
+    <ng-template class="no-notifications" #noNotifications>
+      <p>No notifications available.</p>
+    </ng-template>
+  </section>
+</main>

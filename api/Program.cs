@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +41,9 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("openid");
     options.Scope.Add("profile");
     options.Scope.Add("email");
-})
+    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+
+    })
 .AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false;
@@ -119,11 +123,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowSpecificOrigins");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseCors("AllowSpecificOrigins");
 
 app.MapControllers();
 

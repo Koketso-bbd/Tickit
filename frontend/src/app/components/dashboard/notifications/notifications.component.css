@@ -1,36 +1,36 @@
 main {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: left;
-    margin-top: 2em;
-    margin-left: 20em;
-  }
-  
-  .notifications-list {
-    max-width: 40%;
-    border: 1em solid transparent;
-    border-radius: 10%;
-    background-color: rgb(228, 223, 223);
-    padding: 1em;
-    margin: 1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  
-  .unread {
-    background-color: #d16b49;
-    color: #fff;
-  }
-  
-  .read {
-    background-color: #e3e3e3;
-    color: #5e5959;
-  }
-  
-  small {
-    display: block;
-    margin-top: 0.5em;
-    font-size: 0.85rem;
-    color: #302c2c;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: left;
+  margin-top: 2em;
+  margin-left: 20em;
+}
+
+.notifications-list {
+  max-width: 40%;
+  border: 1em solid transparent;
+  border-radius: 10%;
+  background-color: rgb(228, 223, 223);
+  padding: 1em;
+  margin: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.unread {
+  background-color: #d16b49;
+  color: #fff;
+}
+
+.read {
+  background-color: #e3e3e3;
+  color: #5e5959;
+}
+
+small {
+  display: block;
+  margin-top: 0.5em;
+  font-size: 0.85rem;
+  color: #302c2c;
+}

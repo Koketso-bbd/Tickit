@@ -1,0 +1,11 @@
+<section *ngIf="project; else loading">
+    <h1>{{ project.projectName }}</h1>
+    <p>{{ project.projectDescription }}</p>
+    <p><strong>Owner:</strong> {{ project.owner.gitHubID }}</p>
+    <p><strong>Assigned Users:</strong> {{ project.assignedUsers.length }}</p>
+    <button (click)="goBack()">Back to Projects</button>
+</section>
+
+<ng-template #loading>
+    <p>Loading project details...</p>
+</ng-template>
