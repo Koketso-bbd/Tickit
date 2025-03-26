@@ -1,0 +1,39 @@
+<article class="task-popup">
+  <button class="close-btn" (click)="closeTaskView()">×</button>
+  <section class="task-content">
+
+    <section class="task-main">
+      <h2 class="task-name">{{ task.taskName }} <mark>#{{ taskId }}</mark></h2>
+      <p class="task-description">{{ task.taskDescription }}</p>
+    </section>
+
+    <aside class="sidebar">
+      <section class="sidebar-item">
+        <p><strong>Project Name:</strong> {{ project.projectName }}</p>
+      </section>
+
+      <section class="sidebar-item">
+        <p><strong>Assignee:</strong> {{ task.assigneeId }}</p>
+      </section>
+
+      <section class="sidebar-item">
+        <p><strong>Due Date:</strong> {{ task.dueDate | date }}</p>
+      </section>
+
+      <section class="sidebar-item">
+        <p><strong>Priority:</strong> {{ task.priorityId }}</p>
+      </section>
+
+      <section class="sidebar-item">
+        <p><strong>Status:</strong> {{ task.statusId }}</p>
+      </section>
+
+      <section class="sidebar-item">
+        <strong>Task Labels:</strong>
+        <ul>
+          <li *ngFor="let label of task.projectLabelIds">{{ label }}</li>
+        </ul>
+      </section>
+    </aside>
+  </section>
+</article>
