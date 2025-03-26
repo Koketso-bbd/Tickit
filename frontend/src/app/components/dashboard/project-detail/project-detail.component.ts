@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 export class ProjectDetailComponent implements OnInit {
   
   project: any = null;
+  taskStatuses = ['To Do', 'In Progress', 'Done'];
   constructor(private route: ActivatedRoute, private projectService: ProjectService, private router: Router) {}
 
   ngOnInit(): void {

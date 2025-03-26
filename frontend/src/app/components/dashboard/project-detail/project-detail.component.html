@@ -1,5 +1,5 @@
 <section *ngIf="project; else loading">
-    <h2>{{ project.projectName }}</h2>
+    <h1>{{ project.projectName }}</h1>
     <p>{{ project.projectDescription }}</p>
     <p><strong>Owner:</strong> {{ project.owner.gitHubID }}</p>
     <p><strong>Assigned Users:</strong> {{ project.assignedUsers.length }}</p>
