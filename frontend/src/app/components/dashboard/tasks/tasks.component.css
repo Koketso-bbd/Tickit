@@ -230,3 +230,70 @@ dialog button:disabled {
     background: #30363d;
     cursor: not-allowed;
 }
+
+
+/* From Uiverse.io by vinodjangid07 */ 
+.button, .editButton {
+    width: 25px;
+    height: 25;
+    border-radius: 50%;
+    background-color: rgb(20, 20, 20);
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.164);
+    cursor: pointer;
+    transition-duration: .3s;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .svgIcon {
+    width: 12px;
+    transition-duration: .3s;
+  }
+  
+  .svgIcon path {
+    fill: white;
+  }
+  
+  .button:hover, .editButton:hover {
+    width: 40px;
+    border-radius: 15px;
+    transition-duration: .3s;
+    background-color: rgb(12, 1, 1);
+    align-items: center;
+  }
+  
+  .button:hover .svgIcon, .editButton:hover .svgIcon {
+    width: 50px;
+    transition-duration: .3s;
+    transform: translateY(60%);
+  }
+  
+  .button::before, .editButton::before {
+    position: absolute;
+    top: -20px;
+    content: "Delete";
+    color: white;
+    transition-duration: .3s;
+    font-size: 2px;
+  }
+
+ .editButton::before {
+    position: absolute;
+    top: -20px;
+    content: "Edit";
+    color: white;
+    transition-duration: .3s;
+    font-size: 2px;
+  }
+  
+  .button:hover::before, .editButton:hover::before {
+    font-size: 13px;
+    opacity: 1;
+    transform: translateY(30px);
+    transition-duration: .3s;
+  }
