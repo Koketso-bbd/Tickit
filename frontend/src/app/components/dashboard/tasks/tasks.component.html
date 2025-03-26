@@ -1,1 +1,2 @@
-<p>tasks works!</p>
+<button (click)="openTaskView()">View Task</button>
+<app-task-view *ngIf="taskViewVisible" (closePopup)="closeTaskView()" [taskId]="taskId"></app-task-view>
