@@ -1,6 +1,6 @@
 import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
-import { TaskViewComponent } from '../../task-view/task-view.component';
+import { TaskViewComponent } from '../task-view/task-view.component';
 
 @Component({
   selector: 'app-tasks',

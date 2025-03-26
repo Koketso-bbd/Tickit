@@ -1,10 +1,12 @@
 import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TaskViewService } from '../../task-view.service';
-import { Task } from '../../task.interface';
-import { Project } from '../../project.interface';
-import { ProjectsService } from '../../projects.service';
-import { switchMap } from 'rxjs';
+import { TaskViewService } from '../../../task-view.service';
+import { Task } from '../../../task.interface';
+import { Project } from '../../../project.interface';
+import { ProjectsService } from '../../../projects.service';
+import { switchMap, tap } from 'rxjs';
+import { UserService } from '../../../user.service';
+import { User } from '../../../user.interface';
 
 @Component({
   selector: 'app-task-view',
@@ -17,10 +19,14 @@ export class TaskViewComponent implements OnInit {
   @Output() closePopup = new EventEmitter<void>();
   task!: Task;
   project!: Project;
+  projectId!: number;
+  assignee!: User;
+  assigneeId!: number;
 
   constructor(
     private taskViewService: TaskViewService,
     private projectService: ProjectsService,
+    private userService: UserService,
   ) { }
 
   ngOnInit(): void {
@@ -31,22 +37,30 @@ export class TaskViewComponent implements OnInit {
     this.taskViewService.getTaskById(id).pipe(
       switchMap((task: Task) => {
         this.task = task;
-        return this.projectService.getProjectById(task.projectId);
-      })
-    ).subscribe(
-      (project: Project) => {
+        this.projectId = task.projectId;
+        this.assigneeId = task.assigneeId;
+        return this.projectService.getProjectById(this.projectId);
+      }),
+      switchMap((project: Project) => {
         this.project = project;
-        alert(JSON.stringify(this.project, null, 2));
-      });
+        return this.userService.getUsertById(this.assigneeId)
+      }),
+      tap((assignee: User) => {
+        this.assignee = assignee;
+      })
+    ).subscribe(() => {});
   }
 
   getProjectById(id: number) {
     this.projectService
       .getProjectById(id)
-      .subscribe((project) => {
-        this.project = project
-        alert('asd');
-      });
+      .subscribe(() => {});
+  }
+
+  getUserById(id: number) {
+    this.userService
+      .getUsertById(id)
+      .subscribe(() => { });
   }
 
   closeTaskView(): void {
