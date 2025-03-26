@@ -1,14 +1,14 @@
 import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TaskViewService } from '../../../task-view.service';
-import { Task } from '../../../task.interface';
-import { Project } from '../../../project.interface';
+import { Task } from '../../../interfaces/task.interface';
+import { Project } from '../../../interfaces/project.interface';
 import { ProjectsService } from '../../../projects.service';
 import { switchMap, tap } from 'rxjs';
 import { UserService } from '../../../user.service';
-import { User } from '../../../user.interface';
-import { Priority } from '../../../enum/priority.enum';
-import { Status } from '../../../enum/status.enum';
+import { User } from '../../../interfaces/user.interface';
+import { Priority } from '../../../enums/priority.enum';
+import { Status } from '../../../enums/status.enum';
 
 @Component({
   selector: 'app-task-view',
