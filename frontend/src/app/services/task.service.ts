@@ -112,14 +112,18 @@ export class TaskService {
     );
   }
 
+  deleteTask(taskId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/tasks/${taskId}`, { headers: this.getHeaders() });
+  }
+
     moveTask(taskId: number, newStatus: TaskStatus): void {
-    const currentTasks = this.tasksSubject.value;
-  
-    const updatedTasks = currentTasks.map(t =>
-      t.id === taskId ? { ...t, status: newStatus } : t
-    );
-  
-    this.tasksSubject.next(updatedTasks);
+      const currentTasks = this.tasksSubject.value;
+    
+      const updatedTasks = currentTasks.map(t =>
+        t.id === taskId ? { ...t, status: newStatus } : t
+      );
+    
+      this.tasksSubject.next(updatedTasks);
    }
 
    updateData(taskId: number, data: any): Observable<any> {

@@ -4,7 +4,7 @@ import { Task } from '../../../models/task.model';
 import { User } from '../../../models/project.model';
 import { TaskStatus, TaskPriority } from '../../../enums/task.enums';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -122,6 +122,21 @@ export class TasksComponent implements OnInit {
       });
     }
   }
+
+  deleteTask(taskId: number): void {
+    if (confirm("Are you sure you want to delete this task?")) {
+        this.taskService.deleteTask(taskId).subscribe({
+            next: () => {
+                this.tasks$ = this.tasks$.pipe(
+                    map(tasks => tasks.filter(task => task.id !== taskId))
+                );
+            },
+            error: (error) => {
+                console.error("Error deleting task:", error);
+            }
+        });
+    }
+}
 
   moveTask(task: Task, newStatus: TaskStatus): void {
     const previousStatus = task.id;

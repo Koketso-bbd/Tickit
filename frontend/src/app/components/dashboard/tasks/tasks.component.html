@@ -31,7 +31,8 @@
               </address>
               <div class="task-actions">
                 <button (click)="openTaskForm(task)">Edit</button>
-                <button (click)="acknowledgeTask(task.id)" class="acknowledge-btn">Acknowledge</button>
+                <button (click)="deleteTask(task.id)">🗑️ Delete</button>
+
               </div>
             </footer>
           </article>
@@ -64,6 +65,7 @@
               </address>
               <div class="task-actions">
                 <button (click)="openTaskForm(task)">Edit</button>
+                <button (click)="deleteTask(task.id)">🗑️ Delete</button>
               </div>
             </footer>
           </article>
@@ -96,6 +98,7 @@
               </address>
               <div class="task-actions">
                 <button (click)="openTaskForm(task)">Edit</button>
+                <button (click)="deleteTask(task.id)">🗑️ Delete</button>
               </div>
             </footer>
           </article>
@@ -128,6 +131,7 @@
               </address>
               <div class="task-actions">
                 <button (click)="openTaskForm(task)">Edit</button>
+                <button (click)="deleteTask(task.id)">🗑️ Delete</button>
               </div>
             </footer>
           </article>
