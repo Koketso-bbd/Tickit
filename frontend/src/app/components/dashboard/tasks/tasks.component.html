@@ -22,18 +22,19 @@
           >
             <header>
               <h3>{{ task.name }}</h3>
-              <span class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">{{ getPriorityLabel(task.priority) }}</span>
+              <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
+                {{ getPriorityLabel(task.priority) }}
+              </label>              
             </header>
             <footer>
               <time *ngIf="isValidDate(task.dueDate)">Due: {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
                 {{ getAssignedUserName(task.assigneeId) }}
               </address>
-              <div class="task-actions">
+              <section class="task-actions">
                 <button (click)="openTaskForm(task)">Edit</button>
                 <button (click)="deleteTask(task.id)">🗑️ Delete</button>
-
-              </div>
+              </section>
             </footer>
           </article>
         </section>
@@ -56,17 +57,19 @@
           >
             <header>
               <h3>{{ task.name }}</h3>
-              <span class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">{{ getPriorityLabel(task.priority) }}</span>
+              <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
+                {{ getPriorityLabel(task.priority) }}
+              </label>              
             </header>
             <footer>
                 <time *ngIf="isValidDate(task.dueDate)">Due: {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
                 {{ getAssignedUserName(task.assigneeId) }}
               </address>
-              <div class="task-actions">
+              <section class="task-actions">
                 <button (click)="openTaskForm(task)">Edit</button>
                 <button (click)="deleteTask(task.id)">🗑️ Delete</button>
-              </div>
+              </section>
             </footer>
           </article>
         </section>
@@ -89,17 +92,19 @@
           >
             <header>
               <h3>{{ task.name }}</h3>
-              <span class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">{{ getPriorityLabel(task.priority) }}</span>
+              <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
+                {{ getPriorityLabel(task.priority) }}
+              </label>              
             </header>
             <footer>
                 <time *ngIf="isValidDate(task.dueDate)">Due: {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
                 {{ getAssignedUserName(task.assigneeId) }}
               </address>
-              <div class="task-actions">
+              <section class="task-actions">
                 <button (click)="openTaskForm(task)">Edit</button>
                 <button (click)="deleteTask(task.id)">🗑️ Delete</button>
-              </div>
+              </section>
             </footer>
           </article>
         </section>
@@ -122,17 +127,19 @@
           >
             <header>
               <h3>{{ task.name }}</h3>
-              <span class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">{{ getPriorityLabel(task.priority) }}</span>
+              <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
+                {{ getPriorityLabel(task.priority) }}
+              </label>              
             </header>
             <footer>
                 <time *ngIf="isValidDate(task.dueDate)">Due: {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
                {{ getAssignedUserName(task.assigneeId) }}
               </address>
-              <div class="task-actions">
+              <section class="task-actions">
                 <button (click)="openTaskForm(task)">Edit</button>
                 <button (click)="deleteTask(task.id)">🗑️ Delete</button>
-              </div>
+              </section>
             </footer>
           </article>
         </section>
