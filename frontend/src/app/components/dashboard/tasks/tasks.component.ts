@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TaskService } from '../../../services/task.service';
+import { TaskService } from '../../../services/tasks/task.service';
 import { Task } from '../../../models/task.model';
 import { User } from '../../../models/project.model';
 import { TaskStatus, TaskPriority } from '../../../enums/task.enums';

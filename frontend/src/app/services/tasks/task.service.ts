@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { Project, User } from '../models/project.model';
-import { Task, BackendTask } from '../models/task.model';
-import { TaskStatus, TaskPriority } from '../enums/task.enums';
+import { Project, User } from '../../models/project.model';
+import { Task, BackendTask } from '../../models/task.model';
+import { TaskStatus, TaskPriority } from '../../enums/task.enums';
 
 @Injectable({
   providedIn: 'root'
