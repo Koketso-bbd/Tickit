@@ -8,6 +8,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: auto;
 }
 
 .task-content {
@@ -15,15 +16,21 @@
   background: white;
   padding: 20px;
   display: flex;
-  max-width: 800px;
-  min-width: 600px;
+  max-width: 90%;
+  min-width: 800px;
+  width: auto;
+  min-height: 50vh;
+  max-height: 90vh;
+  overflow-y: auto;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  flex-wrap: wrap;
 }
 
 .task-main {
   flex: 1;
   margin-right: 20px;
+  overflow-wrap: break-word;
 }
 
 .task-name {
@@ -34,21 +41,19 @@
 .task-description {
   font-size: 16px;
   margin-top: 10px;
+  overflow-wrap: break-word;
 }
 
 .sidebar {
-  width: 250px;
-  padding: 10px;
+  width: 40%;
+  padding: 20px;
   background: #f4f4f4;
   border-radius: 5px;
+  flex-shrink: 0;
 }
 
 .sidebar-item {
   margin-bottom: 10px;
-}
-
-.urgent {
-  color: red;
 }
 
 ul {
@@ -84,4 +89,21 @@ ul {
     color: #fff;
     border-color: #f00;
     background-color: #f00;
+  }
+
+.edit-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+  .edit-btn:hover {
+    background: #0056b3;
   }

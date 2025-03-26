@@ -9,7 +9,7 @@ import { TaskViewComponent } from '../task-view/task-view.component';
   styleUrl: './tasks.component.css'
 })
 export class TasksComponent {
-  taskId: number = 120;
+  taskId: number = 127;
   taskViewVisible = false;
 
   openTaskView(): void {
