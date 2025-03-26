@@ -2,17 +2,36 @@
     <h1>Projects</h1>
 </header>
 
+<button (click)="toggleForm()" class="create-project-btn">
+    {{ showForm ? 'Cancel' : 'Create Project' }}
+</button>
+
+<section *ngIf="showForm" class="create-project-form">
+    <input type="text" [(ngModel)]="newProject.projectName" placeholder="Project Name">
+    <textarea [(ngModel)]="newProject.projectDescription" placeholder="Project Description"></textarea>
+    <button (click)="createProject()">Create</button>
+</section>
+
 <section *ngIf="projects.length > 0; else noProjects" class="projects">
     <article *ngFor="let project of projects" (click)="viewProject(project.id)" class="project">
         <h3>{{ project.projectName }}</h3>
         <p>{{ project.projectDescription }}</p>
         <p><strong>Owner:</strong> {{ project.owner.gitHubID}}</p>
         <p><strong>Assigned Users:</strong> {{ project.assignedUsers.length }}</p>
+        <button (click)="openEditForm(project); $event.stopPropagation()">Edit</button>
+        <button (click)="deleteProject(project.id); $event.stopPropagation()">Delete Project</button>
     </article>
 </section>
+
+<div *ngIf="editingProject" class="edit-project-modal">
+    <h2>Edit Project</h2>
+    <input type="text" [(ngModel)]="editingProject.projectName" placeholder="Project Name">
+    <textarea [(ngModel)]="editingProject.projectDescription" placeholder="Project Description"></textarea>
+    <button (click)="updateProject()">Save Changes</button>
+    <button (click)="cancelEdit()">Cancel</button>
+</div>
 
 <ng-template #noProjects>
     <h1>Welcome to TickIt</h1>
     <p>No Projects were found.</p>
-    <button>Create a Project</button>`
 </ng-template>
