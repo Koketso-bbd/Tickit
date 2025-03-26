@@ -7,11 +7,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { map, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { NgIf } from '@angular/common';
-import { TaskViewComponent } from '../task-view/task-view.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-tasks',
-  imports: [TaskViewComponent, NgIf,CommonModule, ReactiveFormsModule],
+  imports: [NgIf ,CommonModule, ReactiveFormsModule],
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.css'],
 })
@@ -30,6 +30,7 @@ export class TasksComponent implements OnInit {
   taskForm: FormGroup;
   editingTask: Task | null = null;
   showTaskForm = false;
+  projectId: number | null = null;
   
   priorities = Object.entries(TaskPriority)
     .filter(([key]) => isNaN(Number(key)))
@@ -40,7 +41,8 @@ export class TasksComponent implements OnInit {
   
   constructor(
     private taskService: TaskService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private route: ActivatedRoute
   ) {
     this.tasks$ = this.taskService.tasks$;
     
@@ -59,7 +61,8 @@ export class TasksComponent implements OnInit {
   }
   
   ngOnInit(): void {
-    this.taskService.fetchProject(29).subscribe({
+    this.projectId = +this.route.snapshot.paramMap.get('projectId')!;
+    this.taskService.fetchProject(this.projectId).subscribe({
       next: () => {
         this.assignedUsers = this.taskService.getAssignedUsers();
       },
