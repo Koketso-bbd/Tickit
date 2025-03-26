@@ -96,6 +96,9 @@
             word-break: break-word;
             color: #f0f6fc;
         }
+        h3 a {
+            color: #007bff;
+        }
     }
     
     p {
@@ -125,31 +128,31 @@
 }
 
 .priority-badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    font-size: 0.60rem;
+    padding: 0.15rem 0.3rem;
+    border-radius: 0.15rem;
     text-transform: uppercase;
     font-weight: bold;
     display: inline-block;
 
     &.priority-low {
-        background-color: #116329;
-        color: #58a6ff;
+        background-color: green;
+        color: white;
     }
     
     &.priority-medium {
-        background-color: #1c3d5a;
-        color: #58a6ff;
+        background-color: rgba(255, 255, 0, 0.733);
+        color: white;
     }
     
     &.priority-high {
-        background-color: #633d19;
-        color: #ffa000;
+        background-color: orange;
+        color: white;
     }
     
     &.priority-urgent {
-        background-color: #4c0f0f;
-        color: #ff7b72;
+        background-color: red;
+        color: white;
     }
 }
 

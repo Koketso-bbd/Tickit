@@ -21,15 +21,15 @@
             (dragstart)="dragStart($event, task)"
           >
             <header>
-              <h3>{{ task.name }}</h3>
+              <h3><a href="#">{{ task.name}}</a></h3>
               <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
                 {{ getPriorityLabel(task.priority) }}
               </label>              
             </header>
             <footer>
-              <time *ngIf="isValidDate(task.dueDate)">Due: {{ task.dueDate | date }}</time>
+              <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
-                {{ getAssignedUserName(task.assigneeId) }}
+                📧 {{ getAssignedUserName(task.assigneeId) }}
               </address>
               <section class="task-actions">
                 <button (click)="openTaskForm(task)" class="editButton">
@@ -62,15 +62,15 @@
             (dragstart)="dragStart($event, task)"
           >
             <header>
-              <h3>{{ task.name }}</h3>
+              <h3><a href="#">{{ task.name}}</a></h3>
               <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
                 {{ getPriorityLabel(task.priority) }}
               </label>              
             </header>
             <footer>
-                <time *ngIf="isValidDate(task.dueDate)">Due: {{ task.dueDate | date }}</time>
+                <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
-                {{ getAssignedUserName(task.assigneeId) }}
+                📧 {{ getAssignedUserName(task.assigneeId) }}
               </address>
               <section class="task-actions">
                 <button (click)="openTaskForm(task)" class="editButton">
@@ -103,15 +103,15 @@
             (dragstart)="dragStart($event, task)"
           >
             <header>
-              <h3>{{ task.name }}</h3>
+              <h3><a href="#">{{ task.name}}</a></h3>
               <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
                 {{ getPriorityLabel(task.priority) }}
               </label>              
             </header>
             <footer>
-                <time *ngIf="isValidDate(task.dueDate)">Due: {{ task.dueDate | date }}</time>
+                <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
-                {{ getAssignedUserName(task.assigneeId) }}
+                📧 {{ getAssignedUserName(task.assigneeId) }}
               </address>
               <section class="task-actions">
                 <button (click)="openTaskForm(task)" class="editButton">
@@ -144,15 +144,15 @@
             (dragstart)="dragStart($event, task)"
           >
             <header>
-              <h3>{{ task.name }}</h3>
+              <h3><a href="#">{{ task.name}}</a></h3>
               <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
                 {{ getPriorityLabel(task.priority) }}
               </label>              
             </header>
             <footer>
-                <time *ngIf="isValidDate(task.dueDate)">Due: {{ task.dueDate | date }}</time>
+                <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
-               {{ getAssignedUserName(task.assigneeId) }}
+                📧 {{ getAssignedUserName(task.assigneeId) }}
               </address>
               <section class="task-actions">
                 <button (click)="openTaskForm(task)" class="editButton">
