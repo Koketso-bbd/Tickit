@@ -28,4 +28,14 @@ export class ProjectService {
     const headers = this.setHeaders();
     return this.http.get<any[]>(`${this.apiUrl}/${id}`, { headers });
   }
+
+  createProject(projectData: { projectName: string, projectDescription: string }): Observable<any> {
+    const headers = this.setHeaders();
+    return this.http.post<any[]>(`${this.apiUrl}`, projectData , { headers });
+  }
+
+  deleteProject(id: number): Observable<any> {
+    const headers = this.setHeaders();
+    return this.http.delete<any[]>(`${this.apiUrl}/${id}`, {headers});
+  }
 }
