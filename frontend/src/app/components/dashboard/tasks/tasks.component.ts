@@ -7,29 +7,14 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { map, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { NgIf } from '@angular/common';
-import { Component } from '@angular/core';
 import { TaskViewComponent } from '../task-view/task-view.component';
 
 @Component({
   selector: 'app-tasks',
-  imports: [TaskViewComponent, NgIf],
-  selector: 'app-task-board',
+  imports: [TaskViewComponent, NgIf,CommonModule, ReactiveFormsModule],
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.css'],
-  imports: [CommonModule, ReactiveFormsModule]
 })
-export class TasksComponent {
-  taskId: number = 120;
-  taskViewVisible = false;
-
-  openTaskView(): void {
-    this.taskViewVisible = true;  
-  }
-
-  closeTaskView(): void {
-    this.taskViewVisible = false;  
-  }
-}
 
 export class TasksComponent implements OnInit {
   response: any;
