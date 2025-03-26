@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { TaskService } from '../../../services/task.service';
 import { Task } from '../../../models/task.model';
+import { User } from '../../../models/project.model';
+import { TaskStatus, TaskPriority } from '../../../enums/task.enums';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { FormBuilder, ReactiveFormsModule , FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -13,55 +14,55 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, ReactiveFormsModule]
 })
 export class TasksComponent implements OnInit {
+  response: any;
+  TaskStatus = TaskStatus;
   tasks$: Observable<Task[]>;
   unconfirmedTasks$: Observable<Task[]>;
   todoTasks$: Observable<Task[]>;
   inProgressTasks$: Observable<Task[]>;
   completedTasks$: Observable<Task[]>;
   
+  assignedUsers: User[] = [];
+  
   taskForm: FormGroup;
   editingTask: Task | null = null;
   showTaskForm = false;
   
-  priorities = [
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-    { value: 'urgent', label: 'Urgent' }
-  ];
+  priorities = Object.entries(TaskPriority)
+    .filter(([key]) => isNaN(Number(key)))
+    .map(([key, value]) => ({ 
+      value: value, 
+      label: key 
+    }));
   
   constructor(
     private taskService: TaskService,
     private fb: FormBuilder
   ) {
-    this.tasks$ = this.taskService.getTasks();
+    this.tasks$ = this.taskService.tasks$;
     
-    this.unconfirmedTasks$ = this.tasks$.pipe(
-      map(tasks => tasks.filter(task => task.status === 'unconfirmed'))
-    );
-    
-    this.todoTasks$ = this.tasks$.pipe(
-      map(tasks => tasks.filter(task => task.status === 'todo'))
-    );
-    
-    this.inProgressTasks$ = this.tasks$.pipe(
-      map(tasks => tasks.filter(task => task.status === 'in-progress'))
-    );
-    
-    this.completedTasks$ = this.tasks$.pipe(
-      map(tasks => tasks.filter(task => task.status === 'completed'))
-    );
+    this.unconfirmedTasks$ = this.taskService.getTasksByStatus(TaskStatus.Unconfirmed);
+    this.todoTasks$ = this.taskService.getTasksByStatus(TaskStatus.ToDo);
+    this.inProgressTasks$ = this.taskService.getTasksByStatus(TaskStatus.InProgress);
+    this.completedTasks$ = this.taskService.getTasksByStatus(TaskStatus.Completed);
     
     this.taskForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
       dueDate: [null],
-      priority: ['medium'],
-      assignee: ['John Doe'] 
+      priority: [TaskPriority.Low],
+      assigneeId: [null]
     });
   }
   
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.taskService.fetchProject(29).subscribe({
+      next: () => {
+        this.assignedUsers = this.taskService.getAssignedUsers();
+      },
+      error: (err) => console.error('Error loading project', err)
+    });
+  }
   
   openTaskForm(task?: Task): void {
     if (task) {
@@ -70,14 +71,14 @@ export class TasksComponent implements OnInit {
         name: task.name,
         description: task.description || '',
         dueDate: task.dueDate,
-        priority: task.priority || 'medium',
-        assignee: task.assignee || 'John Doe'
+        priority: task.priority,
+        assigneeId: task.assigneeId
       });
     } else {
       this.editingTask = null;
       this.taskForm.reset({
-        priority: 'medium',
-        assignee: 'John Doe'
+        priority: TaskPriority.Medium,
+        assigneeId: null
       });
     }
     this.showTaskForm = true;
@@ -93,38 +94,50 @@ export class TasksComponent implements OnInit {
     
     const formValue = this.taskForm.value;
     
+    const taskData: Omit<Task, 'id'> = {
+      name: formValue.name,
+      description: formValue.description,
+      dueDate: formValue.dueDate,
+      priority: formValue.priority,
+      assigneeId: formValue.assigneeId,
+      projectId: 29, 
+      status: this.editingTask ? 
+        this.editingTask.status : 
+        TaskStatus.Unconfirmed,
+      projectLabelIds: []
+    };
+    
     if (this.editingTask) {
-      // Update existing task
-      const updatedTask: Task = {
-        ...this.editingTask,
-        name: formValue.name,
-        description: formValue.description,
-        dueDate: formValue.dueDate,
-        priority: formValue.priority,
-        assignee: formValue.assignee
-      };
-      this.taskService.updateTask(updatedTask);
+      this.taskService.updateTask({
+        ...taskData,
+        id: this.editingTask.id
+      }).subscribe({
+        next: () => this.closeTaskForm(),
+        error: (err) => console.error('Error updating task', err)
+      });
     } else {
-      // Create new task
-      this.taskService.addTask({
-        name: formValue.name,
-        description: formValue.description,
-        dueDate: formValue.dueDate,
-        priority: formValue.priority,
-        assignee: formValue.assignee
+      this.taskService.addTask(taskData).subscribe({
+        next: () => this.closeTaskForm(),
+        error: (err) => console.error('Error creating task', err)
       });
     }
-    
-    this.closeTaskForm();
   }
-  
-  acknowledgeTask(taskId: string): void {
-    this.taskService.acknowledgeTask(taskId);
-  }
-  
-  moveTask(task: Task, newStatus: Task['status']): void {
+
+  moveTask(task: Task, newStatus: TaskStatus): void {
+    const previousStatus = task.id;
+
     this.taskService.moveTask(task.id, newStatus);
-  }
+
+    this.taskService.updateData(task.id, { "statusId": newStatus }).subscribe({
+        next: (data) => {
+            console.log("Task updated successfully", data);
+        },
+        error: (error) => {
+            console.error("Error updating task status", error);
+            task.id = previousStatus;
+        }
+    });
+}
   
   allowDrop(event: DragEvent): void {
     event.preventDefault();
@@ -132,15 +145,34 @@ export class TasksComponent implements OnInit {
   
   dragStart(event: DragEvent, task: Task): void {
     if (event.dataTransfer) {
-      event.dataTransfer.setData('taskId', task.id);
+      event.dataTransfer.setData('taskId', task.id.toString());
     }
   }
   
-  dropTask(event: DragEvent, status: Task['status']): void {
+  dropTask(event: DragEvent, status: TaskStatus): void {
     event.preventDefault();
     if (event.dataTransfer) {
-      const taskId = event.dataTransfer.getData('taskId');
-      this.taskService.moveTask(taskId, status);
+      const taskId = parseInt(event.dataTransfer.getData('taskId'), 10);
+      this.moveTask({ id: taskId } as Task, status);
     }
   }
+
+  acknowledgeTask(taskId: number): void {
+    this.taskService.acknowledgeTask(taskId);
+  }
+
+  getAssignedUserName(assigneeId: number): string {
+    const user = this.assignedUsers.find(user => user.id === assigneeId);
+    return user ? user.gitHubID : 'Unassigned';
+  }
+
+  isValidDate(date: any): boolean {
+    return date && !isNaN(new Date(date).getTime());
+  } 
+  
+  getPriorityLabel(priority: number): string {
+    return TaskPriority[priority] || 'Unknown';
+  }
+  
+  
 }

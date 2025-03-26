@@ -1,16 +1,19 @@
 import { Component } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-dashboard',
-  imports: [RouterOutlet, RouterLink],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  selector: 'app-profile',
+  imports: [],
+  templateUrl: './profile.component.html',
+  styleUrl: './profile.component.css'
 })
-export class DashboardComponent {
+export class ProfileComponent {
+
   userName: string = localStorage.getItem('name') ?? '';
+  email: string = localStorage.getItem('email') ?? '';
   userImage: string = localStorage.getItem('picture') ?? '';
-  
+
+
   constructor(private router: Router) { }
 
   logout() {
@@ -18,6 +21,6 @@ export class DashboardComponent {
     localStorage.removeItem('email');
     localStorage.removeItem('name');
     localStorage.removeItem('picture');
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
    }
 }

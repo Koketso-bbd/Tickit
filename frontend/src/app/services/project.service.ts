@@ -9,7 +9,7 @@ import { TaskStatus, TaskPriority } from '../enums/task.enums';
 @Injectable({
   providedIn: 'root'
 })
-export class TaskService {
+export class ProjectService {
   private apiUrl = 'https://localhost:7151/api'; 
   
   private projectSubject = new BehaviorSubject<Project | null>(null);
