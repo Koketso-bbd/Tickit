@@ -62,7 +62,7 @@ export class TaskService {
       assigneeId: task.assigneeId,
       taskName: task.name,
       taskDescription: task.description,
-      dueDate: task.dueDate.toString(),
+      dueDate: task.dueDate,
       priorityId: task.priority,
       projectId: task.projectId,
       projectLabelIds: task.projectLabelIds || [],

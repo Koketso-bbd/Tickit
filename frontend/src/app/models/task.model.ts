@@ -5,7 +5,7 @@ export interface BackendTask {
     assigneeId: number;
     taskName: string;
     taskDescription?: string;
-    dueDate: string;
+    dueDate: Date;
     priorityId: number;
     projectId: number;
     projectLabelIds: number[];
