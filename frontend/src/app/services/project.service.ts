@@ -38,4 +38,9 @@ export class ProjectService {
     const headers = this.setHeaders();
     return this.http.delete<any[]>(`${this.apiUrl}/${id}`, {headers});
   }
+
+  updateProject(id: number, projectData: { projectName: string, projectDescription: string }): Observable<any> {
+    const headers = this.setHeaders();
+    return this.http.patch<any>(`${this.apiUrl}/${id}`, projectData, { headers });
+  }
 }
