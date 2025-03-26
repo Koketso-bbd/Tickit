@@ -26,7 +26,6 @@ export class ProjectDetailComponent implements OnInit {
     this.projectService.getProjectById(projectId).subscribe({
       next: (data) => {
         this.project = data;
-        console.log('Project Details:', this.project);
       },
       error: (error) => {
         console.error('Error fetching project:', error);
