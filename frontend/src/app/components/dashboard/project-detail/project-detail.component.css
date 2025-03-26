@@ -1,0 +1,40 @@
+.project-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.project-sidebar {
+    width: 25%;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #ddd;
+}
+
+/* Kanban Board */
+.kanban-board {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.kanban-columns {
+    display: flex;
+    gap: 15px;
+}
+
+.kanban-column {
+    flex: 1;
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.kanban-task {
+    background: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
