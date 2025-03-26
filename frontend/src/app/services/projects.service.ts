@@ -1,15 +1,15 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Task } from './task.interface';
+import { Project } from '../interfaces/project.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class TaskViewService {
-  private task!: Task ;
+export class ProjectsService {
+  private project!: Project;
 
-  private taskUrl = 'https://localhost:7151/api/tasks';
+  private projectUrl = 'https://localhost:7151/api/projects';
 
   constructor(
     private http: HttpClient
@@ -29,7 +29,7 @@ export class TaskViewService {
     return headers;
   }
 
-  getTaskById(taskId: number): Observable<Task> { 
-    return this.http.get<Task>(`${this.taskUrl}/${ taskId }`, { headers: this.getAuthHeaders() });
+  getProjectById(projectId: number): Observable<Project> {
+    return this.http.get<Project>(`${this.projectUrl}/${projectId}`, { headers: this.getAuthHeaders() });
   }
 }

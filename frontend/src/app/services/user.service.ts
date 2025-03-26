@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Project } from './project.interface';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { User } from '../interfaces/user.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ProjectsService {
-  private project!: Project;
+export class UserService {
+  private user!: User;
 
-  private projectUrl = 'https://localhost:7151/api/projects';
+  private userUrl = 'https://localhost:7151/api/users';
 
   constructor(
     private http: HttpClient
@@ -29,7 +29,7 @@ export class ProjectsService {
     return headers;
   }
 
-  getProjectById(projectId: number): Observable<Project> {
-    return this.http.get<Project>(`${this.projectUrl}/${projectId}`, { headers: this.getAuthHeaders() });
+  getUsertById(userId: number): Observable<User> {
+    return this.http.get<User>(`${this.userUrl}/${userId}`, { headers: this.getAuthHeaders() });
   }
 }

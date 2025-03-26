@@ -1,11 +1,11 @@
 import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TaskViewService } from '../../../task-view.service';
+import { TaskViewService } from '../../../services/task-view.service';
 import { Task } from '../../../interfaces/task.interface';
 import { Project } from '../../../interfaces/project.interface';
-import { ProjectsService } from '../../../projects.service';
+import { ProjectsService } from '../../../services/projects.service';
 import { switchMap, tap } from 'rxjs';
-import { UserService } from '../../../user.service';
+import { UserService } from '../../../services/user.service';
 import { User } from '../../../interfaces/user.interface';
 import { Priority } from '../../../enums/priority.enum';
 import { Status } from '../../../enums/status.enum';

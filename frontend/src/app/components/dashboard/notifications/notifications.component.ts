@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe, NgFor, CommonModule } from '@angular/common';
-import { NotificationsService } from '../../../notifications.service';
+import { NotificationsService } from '../../../services/notifications.service';
 
 @Component({
   selector: 'app-notifications',

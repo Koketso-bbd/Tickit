@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap ,catchError, of, map} from 'rxjs';
+import { Notification } from '../interfaces/notifications.interface';
 
 @Injectable({
   providedIn: 'root'
