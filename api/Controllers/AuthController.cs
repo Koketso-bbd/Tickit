@@ -54,6 +54,8 @@ public class AuthController : ControllerBase
         var email = User.FindFirst(ClaimTypes.Email)?.Value;
         var googleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var idToken = tokens?.FirstOrDefault(t => t.Name == "id_token")?.Value;
+        var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+        var picture = User.FindFirst("picture")?.Value;
 
         if (string.IsNullOrEmpty(googleId)) return BadRequest(new { message = "Invalid Google ID" });
 
@@ -72,7 +74,7 @@ public class AuthController : ControllerBase
 
             if (isFrontendRunning)
             {
-                var redirectUrl = $"http://localhost:4200/google-callback?token={idToken}";
+                var redirectUrl = $"http://localhost:4200/google-callback?token={idToken}&email={email}&name={userName}&picture={picture}";
                 return Redirect(redirectUrl);
             }
 
@@ -80,7 +82,7 @@ public class AuthController : ControllerBase
             { 
                 GoogleId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
                 Email = User.FindFirst(ClaimTypes.Email)?.Value,
-                IdToken = idToken
+                IdToken = idToken,
             });
         }
         catch (Exception ex)

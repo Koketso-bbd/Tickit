@@ -8,10 +8,12 @@ import { NotificationsComponent } from './components/dashboard/notifications/not
 import { LoginComponent } from './components/login/login.component';
 import { GoogleCallbackComponent } from './components/google-callback/google-callback.component';
 import { ProjectDetailComponent } from './components/dashboard/project-detail/project-detail.component';
+import { ProfileComponent } from './components/dashboard/profile/profile.component';
 
 export const routes: Routes = [
     {path: '', component: LandingComponent},
     {path: 'dashboard', component: DashboardComponent, children: [
+        {path: 'profile', component: ProfileComponent},
         {path: 'projects', component: ProjectsComponent},
         {path: 'projects/:id', component: ProjectDetailComponent},
         {path: 'tasks', component: TasksComponent},

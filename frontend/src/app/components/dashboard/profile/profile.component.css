@@ -1,0 +1,96 @@
+main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 6em;
+}
+
+.userImage{
+    margin: 2em 0 1em 0;
+    max-width: 80%;
+    max-height: 50%;
+    border-radius: 50%;
+}
+
+.profile{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: none;
+    border-radius: 10%;
+    background-color: rgb(248, 246, 241);
+    padding: 2em 10em 5em;
+}
+
+.personalInfo{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1em 3em ;
+    padding: 2.4em;
+    border: none;
+    border-radius: 10%;
+    background-color: rgb(242, 242, 242);
+    box-shadow: 0.5em 1em 1em 0.5em rgba(0, 0, 0, 0.2);
+}
+
+
+button{
+    margin-top: 2em;
+    padding: 1em 2em;
+    border: none;
+    border-radius: 10%;
+    background-color: rgb(205, 204, 200);
+    color: black;
+    font-size: 1.2em;
+    box-shadow: 0.1em 1em 1em 0.1em rgba(0, 0, 0, 0.2);
+}
+
+button:hover{
+    background-color: rgb(235, 234, 232);
+    cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+    main{
+        padding:0;
+        margin: 0;
+    }
+    .profile{
+        padding: 1em 2em 2em;
+        margin: 1em;
+        border-width: 20%;
+    }
+    .personalInfo{
+        
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0.2em;
+        justify-content: left;
+        padding: 0.4em;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    main{
+        padding:0;
+        margin: 0;
+        font-size: 1em;
+    }
+    .profile{
+        padding: 0;
+        margin: 0;
+        border-width: 20%;
+        font-size: 1em;
+    }
+    .personalInfo{
+        
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0.2em;
+        justify-content: left;
+        padding: 0.4em;
+    }
+}
