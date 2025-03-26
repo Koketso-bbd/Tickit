@@ -32,8 +32,8 @@
 }
 
 .page-header {
-    text-align: right;
-    margin-left: auto;
+    text-align: left;
+    margin-right: auto;
     padding: 1rem;
     width: fit-content;
 }
