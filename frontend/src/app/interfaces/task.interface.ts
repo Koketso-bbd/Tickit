@@ -1,5 +1,4 @@
 export interface Task {
-  //id: string;
   assigneeId: number;
   taskName: string;
   taskDescription: string;
@@ -8,4 +7,13 @@ export interface Task {
   priorityId: number;
   dueDate: Date;
   projectLabelIds: string [];
+}
+
+export interface UpdateTask {
+  assigneeId: number;
+  taskName: string;
+  taskDescription: string;
+  statusId: number;
+  priorityId: number;
+  dueDate: Date;
 }

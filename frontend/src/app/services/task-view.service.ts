@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Task } from '../interfaces/task.interface';
+import { Task, UpdateTask } from '../interfaces/task.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -31,5 +31,9 @@ export class TaskViewService {
 
   getTaskById(taskId: number): Observable<Task> { 
     return this.http.get<Task>(`${this.taskUrl}/${ taskId }`, { headers: this.getAuthHeaders() });
+  }
+
+  updateTask(taskId: number, task: UpdateTask): Observable<UpdateTask> {
+    return this.http.put<Task>(`${this.taskUrl}/${taskId}`, task, { headers: this.getAuthHeaders() });
   }
 }
