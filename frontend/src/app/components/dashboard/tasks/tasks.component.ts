@@ -75,26 +75,37 @@ export class TasksComponent implements OnInit {
   }
   
   openTaskForm(task?: Task): void {
-    if (task) {
+    if (task && task.name) {
       this.editingTask = task;
-      const formattedDate = task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '';
+  
+      const formattedDate = this.isValidDate(task.dueDate) ? new Date(task.dueDate).toISOString().split('T')[0] : null;
+  
       this.taskForm.patchValue({
         name: task.name,
-        description: task.description || '',
-        dueDate: formattedDate,   
-        priority: task.priority,
-        assigneeId: task.assigneeId
+        description: task.description || '',  
+        dueDate: formattedDate,
+        priority: task.priority || Priority.Medium,
+        assigneeId: task.assigneeId || null  
       });
+  
+      this.taskForm.get('name')?.setValidators([Validators.required]);
+  
     } else {
       this.editingTask = null;
       this.taskForm.reset({
+        name: '',  
+        description: '',  
+        dueDate: '',
         priority: Priority.Medium,
         assigneeId: null
       });
+  
+      this.taskForm.get('name')?.clearValidators();
     }
+  
     this.showTaskForm = true;
-}
-
+  }
+  
   closeTaskForm(): void {
     this.showTaskForm = false;
     this.editingTask = null;
@@ -201,5 +212,4 @@ export class TasksComponent implements OnInit {
       map(tasks => tasks.filter(task => task.status === status).length)
     );
   }  
-   
 }
