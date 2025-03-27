@@ -107,3 +107,20 @@ ul {
   .edit-btn:hover {
     background: #0056b3;
   }
+
+.cancel-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 120px; 
+  padding: 10px 20px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+  .cancel-btn:hover {
+    background: #c82333;
+  }

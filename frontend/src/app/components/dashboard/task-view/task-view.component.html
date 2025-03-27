@@ -1,10 +1,16 @@
 <article class="task-popup">
   <button class="close-btn" (click)="closeTaskView()">×</button>
   <section class="task-content">
-
     <section class="task-main">
-      <h2 class="task-name">{{ task.taskName }} <mark>#{{ taskId }}</mark></h2>
-      <p class="task-description">{{ task.taskDescription }}</p>
+      <h2 class="task-name">
+        <span *ngIf="!isEditMode">{{ task.taskName }}</span>
+        <input *ngIf="isEditMode" [(ngModel)]="task.taskName" placeholder="Task Name" />
+        <mark>#{{ taskId }}</mark>
+      </h2>
+      <p class="task-description">
+        <span *ngIf="!isEditMode">{{ task.taskDescription }}</span>
+        <textarea *ngIf="isEditMode" [(ngModel)]="task.taskDescription" placeholder="Task Description"></textarea>
+      </p>
     </section>
 
     <aside class="sidebar">
@@ -17,15 +23,31 @@
       </section>
 
       <section class="sidebar-item">
-        <p><strong>Due Date:</strong> {{ task.dueDate | date }}</p>
+        <p>
+          <strong>Due Date:</strong>
+          <span *ngIf="!isEditMode">{{ task.dueDate | date }}</span>
+          <input *ngIf="isEditMode" type="date" [(ngModel)]="task.dueDate" />
+        </p>
       </section>
 
       <section class="sidebar-item">
-        <p><strong>Priority:</strong> {{ priority }}</p>
+        <p>
+          <strong>Priority: </strong>
+          <span *ngIf="!isEditMode">{{ priority }}</span>
+          <select *ngIf="isEditMode" [(ngModel)]="priorityId">
+            <option *ngFor="let option of getPriorityOptions()" [value]="option.value">{{option.label}}</option>
+          </select>
+        </p>
       </section>
 
       <section class="sidebar-item">
-        <p><strong>Status:</strong> {{ status }}</p>
+        <p>
+          <strong>Status: </strong>
+          <span *ngIf="!isEditMode">{{ status }}</span>
+          <select *ngIf="isEditMode" [(ngModel)]="statusId">
+            <option *ngFor="let option of getStatusOptions()" [value]="option.value">{{option.label}}</option>
+          </select>
+        </p>
       </section>
 
       <section class="sidebar-item">
@@ -35,5 +57,12 @@
         </ul>
       </section>
     </aside>
+
+    <button class="edit-btn" (click)="toggleEditMode()">
+      {{ isEditMode ? 'Save' : 'Edit' }}
+    </button>
+    <button *ngIf="isEditMode" class="cancel-btn" type="button" (click)="cancelEdit()">
+      Cancel
+    </button>
   </section>
 </article>
