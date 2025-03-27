@@ -50,14 +50,6 @@
         </p>
       </section>
 
-      <section class="sidebar-item">
-        <strong>Task Labels:</strong>
-        <ul>
-          <li *ngFor="let label of task.projectLabelIds">{{ label }}</li>
-        </ul>
-      </section>
-    </aside>
-
     <button class="edit-btn" (click)="toggleEditMode()">
       {{ isEditMode ? 'Save' : 'Edit' }}
     </button>
