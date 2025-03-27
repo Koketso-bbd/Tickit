@@ -30,7 +30,7 @@ export class TasksComponent implements OnInit {
   taskForm: FormGroup;
   editingTask: Task | null = null;
   showTaskForm = false;
-  projectId: number | null = null;
+  projectId: number = 1;
   
   priorities = Object.entries(TaskPriority)
     .filter(([key]) => isNaN(Number(key)))
@@ -73,10 +73,11 @@ export class TasksComponent implements OnInit {
   openTaskForm(task?: Task): void {
     if (task) {
       this.editingTask = task;
+      const formattedDate = task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '';
       this.taskForm.patchValue({
         name: task.name,
         description: task.description || '',
-        dueDate: task.dueDate,
+        dueDate: formattedDate,   
         priority: task.priority,
         assigneeId: task.assigneeId
       });
@@ -88,7 +89,8 @@ export class TasksComponent implements OnInit {
       });
     }
     this.showTaskForm = true;
-  }
+}
+
   
   closeTaskForm(): void {
     this.showTaskForm = false;
@@ -106,7 +108,7 @@ export class TasksComponent implements OnInit {
       dueDate: formValue.dueDate,
       priority: formValue.priority,
       assigneeId: formValue.assigneeId,
-      projectId: 29, 
+      projectId: this.projectId, 
       status: this.editingTask ? 
         this.editingTask.status : 
         TaskStatus.ToDo,
@@ -184,7 +186,7 @@ export class TasksComponent implements OnInit {
 
   getAssignedUserName(assigneeId: number): string {
     const user = this.assignedUsers.find(user => user.id === assigneeId);
-    return user ? user.gitHubID : 'Unassigned';
+    return user ? user.gitHubID : 'No one';
   }
 
   isValidDate(date: any): boolean {

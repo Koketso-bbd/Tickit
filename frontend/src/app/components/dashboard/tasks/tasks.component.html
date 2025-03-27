@@ -19,7 +19,7 @@
     <section class="task-columns">
       <section class="column">
         <header>
-          <h2>To Do</h2>
+          <h2>🟣 To Do</h2>
         </header>
         <section 
           class="task-list" 
@@ -41,7 +41,7 @@
             <footer>
               <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
-                📧 {{ getAssignedUserName(task.assigneeId) }}
+                👤 {{ getAssignedUserName(task.assigneeId) }}
               </address>
               <section class="task-actions">
                 <button (click)="openTaskForm(task)" class="editButton">
@@ -60,7 +60,7 @@
   
       <section class="column">
         <header>
-          <h2>In Progress</h2>
+          <h2>🟡 In Progress</h2>
         </header>
         <section 
           class="task-list" 
@@ -82,7 +82,7 @@
             <footer>
                 <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
-                📧 {{ getAssignedUserName(task.assigneeId) }}
+                👤 {{ getAssignedUserName(task.assigneeId) }}
               </address>
               <section class="task-actions">
                 <button (click)="openTaskForm(task)" class="editButton">
@@ -101,7 +101,7 @@
   
       <section class="column">
         <header>
-          <h2>In Review</h2>
+          <h2>🔴 In Review</h2>
         </header>
         <section 
           class="task-list" 
@@ -123,7 +123,7 @@
             <footer>
                 <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
-                📧 {{ getAssignedUserName(task.assigneeId) }}
+                👤 {{ getAssignedUserName(task.assigneeId) }}
               </address>
               <section class="task-actions">
                 <button (click)="openTaskForm(task)" class="editButton">
@@ -142,7 +142,7 @@
   
       <section class="column">
         <header>
-          <h2>Completed</h2>
+          <h2>🟢 Completed</h2>
         </header>
         <section 
           class="task-list" 
@@ -164,7 +164,7 @@
             <footer>
                 <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
               <address *ngIf="task.assigneeId">
-                📧 {{ getAssignedUserName(task.assigneeId) }}
+                👤 {{ getAssignedUserName(task.assigneeId) }}
               </address>
               <section class="task-actions">
                 <button (click)="openTaskForm(task)" class="editButton">
