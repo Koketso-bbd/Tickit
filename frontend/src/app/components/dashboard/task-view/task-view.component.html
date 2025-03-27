@@ -3,7 +3,7 @@
   <section class="task-content">
     <section class="task-main">
       <h2 class="task-name">
-        <span *ngIf="!isEditMode">{{ task.taskName }}</span>
+        <span *ngIf="!isEditMode">{{ task.taskName }} </span>
         <input *ngIf="isEditMode" [(ngModel)]="task.taskName" placeholder="Task Name" />
         <mark>#{{ taskId }}</mark>
       </h2>
@@ -48,13 +48,6 @@
             <option *ngFor="let option of getStatusOptions()" [value]="option.value">{{option.label}}</option>
           </select>
         </p>
-      </section>
-
-      <section class="sidebar-item">
-        <strong>Task Labels:</strong>
-        <ul>
-          <li *ngFor="let label of task.projectLabelIds">{{ label }}</li>
-        </ul>
       </section>
     </aside>
 

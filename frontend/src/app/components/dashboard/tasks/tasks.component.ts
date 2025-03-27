@@ -9,10 +9,11 @@ import { NgIf } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Status } from '../../../enums/status.enum';
 import { Priority } from '../../../enums/priority.enum';
+import { TaskViewComponent } from '../task-view/task-view.component';
 
 @Component({
   selector: 'app-tasks',
-  imports: [NgIf ,CommonModule, ReactiveFormsModule],
+  imports: [NgIf, CommonModule, ReactiveFormsModule, TaskViewComponent],
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.css'],
 })
@@ -31,6 +32,8 @@ export class TasksComponent implements OnInit {
   editingTask: Task | null = null;
   showTaskForm = false;
   projectId: number = 1;
+  taskViewVisible = false;
+  selectedTaskId: number = 0;
   
   priorities = Object.entries(Priority)
     .filter(([key]) => isNaN(Number(key)))
@@ -211,5 +214,15 @@ export class TasksComponent implements OnInit {
     return this.tasks$.pipe(
       map(tasks => tasks.filter(task => task.status === status).length)
     );
-  }  
+  }
+
+  openTaskView(taskId: number): void {
+    this.selectedTaskId = taskId;
+    this.taskViewVisible = true;
+  }
+
+  closeTaskView(): void {
+    this.taskViewVisible = false;
+    this.selectedTaskId = 0;
+  }
 }
