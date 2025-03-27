@@ -130,9 +130,9 @@ export class TaskViewComponent implements OnInit {
 
   getStatusOptions(): { value: number, label: string }[] {
     return [
-      { value: Status.Unconfirmed, label: 'Unconfirmed' },
       { value: Status.ToDo, label: 'To Do' },
       { value: Status.InProgress, label: 'In Progress' },
+      { value: Status.InReview, label: 'InReview' },
       { value: Status.Completed, label: 'Completed' }
     ];
   }
