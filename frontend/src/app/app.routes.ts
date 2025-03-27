@@ -16,9 +16,8 @@ export const routes: Routes = [
     {path: 'dashboard', component: DashboardComponent, children: [
         {path: 'profile', component: ProfileComponent},
         {path: 'projects', component: ProjectsComponent},
-        {path: 'projects/:id', component: ProjectDetailComponent},
         {path:'task-filter', component: TasksFilterComponent},
-        {path: 'tasks', component: TasksComponent},
+        {path: 'projects/:projectId', component: TasksComponent},
         {path: 'notifications', component: NotificationsComponent}
     ]},
     {path: 'login', component: LoginComponent},

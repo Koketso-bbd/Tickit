@@ -1,0 +1,343 @@
+.task-board {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #0d1117; 
+    color: #c9d1d9; 
+    
+    > header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background-color: #161b22; 
+        border-bottom: 1px solid #30363d;
+        
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #f0f6fc;
+        }
+    }
+}
+
+.task-columns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    height: calc(100vh - 80px); 
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    background-color: #161b22; /* Dark column background */
+    border: 1px solid #30363d;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    height: 100%; 
+    
+    > header {
+        padding: 1rem;
+        background-color: #21262d;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+        position: relative;
+        top: 0;
+        /* z-index: 10; */
+        
+        h2 {
+            margin: 0;
+            font-size: 1rem;
+            text-transform: uppercase;
+            color: #f0f6fc;
+        }
+    }
+}
+
+.task-list {
+    padding: 1rem;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 500px;
+    min-height: 200px;
+}
+
+
+.task-card {
+    background-color: #0d1117;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #30363d;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    > header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+        
+        h3 {
+            margin: 0;
+            font-size: 1rem;
+            word-break: break-word;
+            color: #f0f6fc;
+        }
+        h3 a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        h3 a:hover {
+            text-decoration: underline;
+        }
+        
+    }
+    
+    p {
+        margin: 0.5rem 0;
+        color: #8b949e;
+        font-size: 0.875rem;
+    }
+    
+    footer {
+        font-size: 0.75rem;
+        color: #8b949e;
+        margin-top: 0.5rem;
+        
+        time, address {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-style: normal;
+        }
+        
+        .task-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+    }
+}
+
+.priority-badge {
+    font-size: 0.60rem;
+    padding: 0.15rem 0.3rem;
+    border-radius: 0.15rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: inline-block;
+
+    &.priority-low {
+        background-color: green;
+        color: white;
+    }
+    
+    &.priority-medium {
+        background-color: rgba(255, 255, 0, 0.733);
+        color: white;
+    }
+    
+    &.priority-high {
+        background-color: orange;
+        color: white;
+    }
+    
+    &.priority-urgent {
+        background-color: red;
+        color: white;
+    }
+}
+
+dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background: #21262d;
+    color: #f0f6fc;
+    border: 1px solid #30363d;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+dialog article {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+dialog header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 0.5rem;
+}
+
+dialog form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+dialog label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+}
+
+input, textarea, select {
+    background: #161b22;
+    color: #f0f6fc;
+    border: 1px solid #30363d;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+}
+
+dialog footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 1rem;
+}
+
+
+dialog button {
+    background: #238636;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+dialog button[type="button"] {
+    background: #6e7681;
+}
+
+dialog button:disabled {
+    background: #30363d;
+    cursor: not-allowed;
+}
+
+
+/* From Uiverse.io by vinodjangid07 */ 
+.button, .editButton {
+    width: 25px;
+    height: 25;
+    border-radius: 50%;
+    background-color: rgb(20, 20, 20);
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.164);
+    cursor: pointer;
+    transition-duration: .3s;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .svgIcon {
+    width: 12px;
+    transition-duration: .3s;
+  }
+  
+  .svgIcon path {
+    fill: white;
+  }
+  
+  .button:hover, .editButton:hover {
+    width: 40px;
+    border-radius: 15px;
+    transition-duration: .3s;
+    background-color: rgb(12, 1, 1);
+    align-items: center;
+  }
+  
+  .button:hover .svgIcon, .editButton:hover .svgIcon {
+    width: 50px;
+    transition-duration: .3s;
+    transform: translateY(60%);
+  }
+  
+  .button::before, .editButton::before {
+    position: absolute;
+    top: -20px;
+    content: "Delete";
+    color: white;
+    transition-duration: .3s;
+    font-size: 2px;
+  }
+
+ .editButton::before {
+    position: absolute;
+    top: -20px;
+    content: "Edit";
+    color: white;
+    transition-duration: .3s;
+    font-size: 2px;
+  }
+  
+  .button:hover::before, .editButton:hover::before {
+    font-size: 13px;
+    opacity: 1;
+    transform: translateY(30px);
+    transition-duration: .3s;
+  }
+
+  /* From Uiverse.io by adamgiebl */ 
+.cssbuttons-io-button {
+    display: flex;
+    align-items: center;
+    font-family: inherit;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 16px;
+    padding: 0.7em 1.4em 0.7em 1.1em;
+    color: white;
+    background: #ad5389;
+    background: linear-gradient(
+      0deg,
+      rgba(20, 167, 62, 1) 0%,
+      rgba(102, 247, 113, 1) 100%
+    );
+    border: none;
+    box-shadow: 0 0.7em 1.5em -0.5em #14a73e98;
+    letter-spacing: 0.05em;
+    border-radius: 20em;
+  }
+  
+  .cssbuttons-io-button svg {
+    margin-right: 6px;
+  }
+  
+  .cssbuttons-io-button:hover {
+    box-shadow: 0 0.5em 1.5em -0.5em #14a73e98;
+  }
+  
+  .cssbuttons-io-button:active {
+    box-shadow: 0 0.3em 1em -0.5em #14a73e98;
+  }  
+

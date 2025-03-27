@@ -6,10 +6,16 @@
     {{ showForm ? 'Cancel' : 'Create Project' }}
 </button>
 
-<section *ngIf="showForm" class="create-project-form">
-    <input type="text" [(ngModel)]="newProject.projectName" placeholder="Project Name">
-    <textarea [(ngModel)]="newProject.projectDescription" placeholder="Project Description"></textarea>
-    <button (click)="createProject()">Create</button>
+<section *ngIf="showForm" class="create-project-form modal">
+    <div class="modal-content">
+        <h2>Create New Project</h2>
+        <input type="text" [(ngModel)]="newProject.projectName" placeholder="Project Name">
+        <textarea [(ngModel)]="newProject.projectDescription" placeholder="Project Description"></textarea>
+        <div class="button-group">
+            <button (click)="createProject()">Create</button>
+            <button (click)="toggleForm()">Cancel</button>
+        </div>
+    </div>
 </section>
 
 <section *ngIf="projects.length > 0; else noProjects" class="projects">
@@ -18,17 +24,62 @@
         <p>{{ project.projectDescription }}</p>
         <p><strong>Owner:</strong> {{ project.owner.gitHubID}}</p>
         <p><strong>Assigned Users:</strong> {{ project.assignedUsers.length }}</p>
-        <button (click)="openEditForm(project); $event.stopPropagation()">Edit</button>
-        <button (click)="deleteProject(project.id); $event.stopPropagation()">Delete Project</button>
+        
+        <div class="project-actions" (click)="$event.stopPropagation()">
+            <button (click)="openEditForm(project)">Edit</button>
+            <button (click)="deleteProject(project.id)">Delete Project</button>
+            <button (click)="openAddUserForm(project)">Add User</button>
+            <button (click)="openRemoveUserForm(project)">Remove User</button>
+            <button (click)="openUpdateRoleForm(project)">Update Role</button>
+        </div>
     </article>
 </section>
 
-<section *ngIf="editingProject" class="edit-project-modal">
-    <h2>Edit Project</h2>
-    <input type="text" [(ngModel)]="editingProject.projectName" placeholder="Project Name">
-    <textarea [(ngModel)]="editingProject.projectDescription" placeholder="Project Description"></textarea>
-    <button (click)="updateProject()">Save Changes</button>
-    <button (click)="cancelEdit()">Cancel</button>
+<section *ngIf="editingProject" class="edit-project-modal modal">
+    <div class="modal-content">
+        <h2>Edit Project</h2>
+        <input type="text" [(ngModel)]="editingProject.projectName" placeholder="Project Name">
+        <textarea [(ngModel)]="editingProject.projectDescription" placeholder="Project Description"></textarea>
+        <div class="button-group">
+            <button (click)="updateProject()">Save Changes</button>
+            <button (click)="cancelEdit()">Cancel</button>
+        </div>
+    </div>
+</section>
+
+<section *ngIf="showAddUserForm" class="user-management-modal modal">
+    <div class="modal-content">
+        <h2>Add User to Project</h2>
+        <input type="number" [(ngModel)]="userToAdd.userId" placeholder="User ID">
+        <input type="number" [(ngModel)]="userToAdd.roleId" placeholder="Role ID">
+        <div class="button-group">
+            <button (click)="addUserToProject()">Add User</button>
+            <button (click)="closeAddUserForm()">Cancel</button>
+        </div>
+    </div>
+</section>
+
+<section *ngIf="showRemoveUserForm" class="user-management-modal modal">
+    <div class="modal-content">
+        <h2>Remove User from Project</h2>
+        <input type="number" [(ngModel)]="userToRemove.userId" placeholder="User ID">
+        <div class="button-group">
+            <button (click)="removeUserFromProject()">Remove User</button>
+            <button (click)="closeRemoveUserForm()">Cancel</button>
+        </div>
+    </div>
+</section>
+
+<section *ngIf="showUpdateRoleForm" class="user-management-modal modal">
+    <div class="modal-content">
+        <h2>Update User Role</h2>
+        <input type="number" [(ngModel)]="userRoleUpdate.userId" placeholder="User ID">
+        <input type="number" [(ngModel)]="userRoleUpdate.newRoleId" placeholder="New Role ID">
+        <div class="button-group">
+            <button (click)="updateUserRole()">Update Role</button>
+            <button (click)="closeUpdateRoleForm()">Cancel</button>
+        </div>
+    </div>
 </section>
 
 <ng-template #noProjects>
