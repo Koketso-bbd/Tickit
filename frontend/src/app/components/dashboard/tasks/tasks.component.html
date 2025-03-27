@@ -65,11 +65,11 @@
         <section 
           class="task-list" 
           (dragover)="allowDrop($event)" 
-          (drop)="dropTask($event, Status.ToDo)"
+          (drop)="dropTask($event, Status.InProgress)"
         >
           <article 
             class="task-card" 
-            *ngFor="let task of todoTasks$ | async" 
+            *ngFor="let task of inProgressTasks$ | async" 
             draggable="true" 
             (dragstart)="dragStart($event, task)"
           >
@@ -106,11 +106,11 @@
         <section 
           class="task-list" 
           (dragover)="allowDrop($event)" 
-          (drop)="dropTask($event, Status.InProgress)"
+          (drop)="dropTask($event, Status.InReview)"
         >
           <article 
             class="task-card" 
-            *ngFor="let task of inProgressTasks$ | async" 
+            *ngFor="let task of inReviewTasks$ | async" 
             draggable="true" 
             (dragstart)="dragStart($event, task)"
           >
