@@ -14,6 +14,7 @@ import { TasksFilterComponent } from './components/dashboard/task-filter/task-fi
 export const routes: Routes = [
     {path: '', component: LandingComponent},
     {path: 'dashboard', component: DashboardComponent, children: [
+        {path: '', component: ProjectsComponent},
         {path: 'profile', component: ProfileComponent},
         {path: 'projects', component: ProjectsComponent},
         {path:'task-filter', component: TasksFilterComponent},
