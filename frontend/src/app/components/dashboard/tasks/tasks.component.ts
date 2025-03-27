@@ -84,7 +84,7 @@ export class TasksComponent implements OnInit {
         name: task.name,
         description: task.description || '',  
         dueDate: formattedDate,
-        priority: task.priority || Priority.Medium,
+        priority: task.priority,
         assigneeId: task.assigneeId || null  
       });
   
@@ -161,7 +161,7 @@ export class TasksComponent implements OnInit {
 }
 
   moveTask(task: Task, newStatus: Status): void {
-    const previousStatus = task.id;
+    const previousStatus = task.status;
 
     this.taskService.moveTask(task.id, newStatus);
 
@@ -171,7 +171,6 @@ export class TasksComponent implements OnInit {
         },
         error: (error) => {
             console.error("Error updating task status", error);
-            task.id = previousStatus;
         }
     });
   }
@@ -203,9 +202,10 @@ export class TasksComponent implements OnInit {
     return date && !isNaN(new Date(date).getTime());
   } 
   
-  getPriorityLabel(priority: number): string {
-    return Priority[priority] || 'Unknown';
-  }
+  getPriorityLabel(priority: any): string {
+    return Priority[Number(priority)] ?? 'Unknown';
+ }
+
 
   getTaskCount(status: Status): Observable<number> {
     return this.tasks$.pipe(
