@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NotificationsComponent } from './notifications.component';
+import { TaskFilterComponent } from './task-filter.component';
 
-describe('NotificationsComponent', () => {
-  let component: NotificationsComponent;
-  let fixture: ComponentFixture<NotificationsComponent>;
+describe('TaskFilterComponent', () => {
+  let component: TaskFilterComponent;
+  let fixture: ComponentFixture<TaskFilterComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NotificationsComponent]
+      imports: [TaskFilterComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(NotificationsComponent);
+    fixture = TestBed.createComponent(TaskFilterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

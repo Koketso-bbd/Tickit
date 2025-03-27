@@ -92,6 +92,7 @@ namespace api.Controllers
                                 PriorityId = t.PriorityId,
                                 ProjectId = t.ProjectId,
                                 TaskDescription = t.TaskDescription,
+                                StatusId = t.StatusId,
                                 DueDate = t.DueDate,
                                 ProjectLabelIds = t.TaskLabels
                                     .Select(tl => tl.Id)
