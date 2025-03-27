@@ -1,36 +1,67 @@
-main {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: left;
-  margin-top: 2em;
-  margin-left: 20em;
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f5f7fa;
+}
+
+.notifications {
+  padding: 2em;
+  max-width: 50em;
+  margin: 0 auto;
+}
+
+.notifications h1 {
+  font-size: 2em;
+  color: #4e54c8;
+  text-align: center;
+  margin-bottom: 1.5em;
+}
+
+.notifications section {
+  background: #fff;
+  border-radius: 0.5em;
+  box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.1);
+  padding: 1.5em;
 }
 
 .notifications-list {
-  max-width: 40%;
-  border: 1em solid transparent;
-  border-radius: 10%;
-  background-color: rgb(228, 223, 223);
-  padding: 1em;
-  margin: 1em;
+  border-bottom: 0.05em solid #e0e0e0;
+  padding: 1em 0;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
-.unread {
-  background-color: #d16b49;
-  color: #fff;
+.notifications-list:last-child {
+  border-bottom: none;
 }
 
-.read {
-  background-color: #e3e3e3;
-  color: #5e5959;
+.notifications-list strong {
+  font-size: 1.2em;
+  color: #333;
 }
 
-small {
-  display: block;
-  margin-top: 0.5em;
-  font-size: 0.85rem;
-  color: #302c2c;
+.notifications-list small {
+  font-size: 0.9em;
+  color: #6b6363;
+}
+
+.notifications-list.unread {
+  background-color: #aaade2;
+  color: white;
+}
+
+.notifications-list.read {
+  background-color: #e7dfdf;
+}
+
+.notifications-list:hover {
+  background-color: #e6ecff;
+}
+
+.no-notifications {
+  text-align: center;
+  color: #888;
+  font-size: 1.1em;
+  margin-top: 1.5em;
 }

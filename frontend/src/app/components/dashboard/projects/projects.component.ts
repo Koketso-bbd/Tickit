@@ -44,7 +44,7 @@ export class ProjectsComponent {
   }
 
   viewProject(projectId: number) {
-    this.router.navigate([`/dashboard/tasks`, projectId]);
+    this.router.navigate([`/dashboard/projects`, projectId]);
   }
 
   deleteProject(projectId: number) {

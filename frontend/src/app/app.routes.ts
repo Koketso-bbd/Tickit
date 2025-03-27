@@ -9,13 +9,15 @@ import { LoginComponent } from './components/login/login.component';
 import { GoogleCallbackComponent } from './components/google-callback/google-callback.component';
 import { ProjectDetailComponent } from './components/dashboard/project-detail/project-detail.component';
 import { ProfileComponent } from './components/dashboard/profile/profile.component';
+import { TasksFilterComponent } from './components/dashboard/task-filter/task-filter.component';
 
 export const routes: Routes = [
     {path: '', component: LandingComponent},
     {path: 'dashboard', component: DashboardComponent, children: [
         {path: 'profile', component: ProfileComponent},
         {path: 'projects', component: ProjectsComponent},
-        {path: 'tasks/:projectId', component: TasksComponent},
+        {path:'task-filter', component: TasksFilterComponent},
+        {path: 'projects/:projectId', component: TasksComponent},
         {path: 'notifications', component: NotificationsComponent}
     ]},
     {path: 'login', component: LoginComponent},
