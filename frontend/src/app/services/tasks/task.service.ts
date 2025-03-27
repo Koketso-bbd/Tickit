@@ -29,7 +29,7 @@ export class TaskService {
     };
   }
 
-  fetchProject(projectId: number): Observable<Project> {
+  fetchTasksForProject(projectId: number): Observable<Project> {
     return this.http.get<Project>(`${this.apiUrl}/projects/${projectId}`, { 
       headers: this.getHeaders() 
     }).pipe(
@@ -40,7 +40,7 @@ export class TaskService {
         this.tasksSubject.next(convertedTasks);
       })
     );
-  }
+}
 
   private mapBackendToFrontendTask(backendTask: BackendTask): Task {
     console.log(backendTask.statusId);
@@ -78,42 +78,43 @@ export class TaskService {
   }
 
   addTask(task: Omit<Task, 'id'>): Observable<Task> {
-    const backendTask = this.mapFrontendToBackendTask({
-      ...task,
-      id: 0
-    });
+    const backendTask = this.mapFrontendToBackendTask({ ...task, id: 0 });
 
-    return this.http.post<BackendTask>(`${this.apiUrl}/tasks`, backendTask, { 
+    return this.http.post<BackendTask>(`${this.apiUrl}/tasks`, backendTask, {
       headers: this.getHeaders() 
-    }).pipe(
-      map(createdTask => {
-        const mappedTask = this.mapBackendToFrontendTask(createdTask);
-        const currentTasks = this.tasksSubject.value;
-        this.tasksSubject.next([...currentTasks, mappedTask]);
-        return mappedTask;
-      })
-    );
+    })
+      .pipe(
+        map(createdTask => {
+          const mappedTask = this.mapBackendToFrontendTask(createdTask);
+          const currentTasks = this.tasksSubject.value;
+          this.tasksSubject.next([...currentTasks, mappedTask]);
+          return mappedTask;
+        })
+      );
   }
-
+  
   updateTask(task: Task): Observable<Task> {
     const backendTask = this.mapFrontendToBackendTask(task);
 
-    return this.http.put<BackendTask>(`${this.apiUrl}/tasks/${task.id}`, backendTask, { 
+    return this.http.put<BackendTask>(`${this.apiUrl}/tasks/${task.id}`, backendTask, {
       headers: this.getHeaders() 
-    }).pipe(
-      map(updatedTask => {
-        const mappedTask = this.mapBackendToFrontendTask(updatedTask);
-        const currentTasks = this.tasksSubject.value;
-        const updatedTasks = currentTasks.map(t => 
-          t.id === mappedTask.id ? mappedTask : t
-        );
-        this.tasksSubject.next(updatedTasks);
-        return mappedTask;
-      })
-    );
+    })
+      .pipe(
+        map(updatedTask => {
+          const mappedTask = this.mapBackendToFrontendTask(updatedTask);
+          const currentTasks = this.tasksSubject.value;
+          const updatedTasks = currentTasks.map(t => t.id === mappedTask.id ? mappedTask : t);
+          this.tasksSubject.next(updatedTasks);
+          return mappedTask;
+        })
+      );
   }
 
   deleteTask(taskId: number): Observable<any> {
+    const currentTasks = this.tasksSubject.value;
+
+    const updatedTasks = currentTasks.filter(t => t.id !== taskId);
+    this.tasksSubject.next(updatedTasks);
     return this.http.delete(`${this.apiUrl}/tasks/${taskId}`, { headers: this.getHeaders() });
   }
 
@@ -129,15 +130,6 @@ export class TaskService {
 
   updateTaskStatus(taskId: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/tasks/${taskId}`, data, { headers: this.getHeaders() });
-  }
-  
-  acknowledgeTask(taskId: number): void {
-    const tasks = this.tasksSubject.getValue(); 
-    const updatedTasks = tasks.map(task =>
-      task.id === taskId ? { ...task, acknowledged: true, status: Status.ToDo } : task
-    );
-  
-    this.tasksSubject.next(updatedTasks); 
   }
   
     getAssignedUsers(): User[] {

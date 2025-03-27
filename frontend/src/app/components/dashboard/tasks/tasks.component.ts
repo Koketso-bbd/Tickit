@@ -18,7 +18,6 @@ import { Priority } from '../../../enums/priority.enum';
 })
 
 export class TasksComponent implements OnInit {
-  response: any;
   Status = Status;
   tasks$: Observable<Task[]>;
   todoTasks$: Observable<Task[]>;
@@ -64,11 +63,14 @@ export class TasksComponent implements OnInit {
   
   ngOnInit(): void {
     this.projectId = +this.route.snapshot.paramMap.get('projectId')!;
-    this.taskService.fetchProject(this.projectId).subscribe({
+  
+    this.taskService.fetchTasksForProject(this.projectId).subscribe({
       next: () => {
-        this.assignedUsers = this.taskService.getAssignedUsers();
+        this.assignedUsers = this.taskService.getAssignedUsers(); 
       },
-      error: (err) => console.error('Error loading project', err)
+      error: (err) => {
+        console.error('Error loading tasks for project', err);
+      }
     });
   }
   
@@ -93,7 +95,6 @@ export class TasksComponent implements OnInit {
     this.showTaskForm = true;
 }
 
-  
   closeTaskForm(): void {
     this.showTaskForm = false;
     this.editingTask = null;
@@ -180,10 +181,6 @@ export class TasksComponent implements OnInit {
       const taskId = parseInt(event.dataTransfer.getData('taskId'), 10);
       this.moveTask({ id: taskId } as Task, status);
     }
-  }
-
-  acknowledgeTask(taskId: number): void {
-    this.taskService.acknowledgeTask(taskId);
   }
 
   getAssignedUserName(assigneeId: number): string {
