@@ -3,7 +3,7 @@
   <section class="task-content">
     <section class="task-main">
       <h2 class="task-name">
-        <span *ngIf="!isEditMode">{{ task.taskName }}</span>
+        <span *ngIf="!isEditMode">{{ task.taskName }} </span>
         <input *ngIf="isEditMode" [(ngModel)]="task.taskName" placeholder="Task Name" />
         <mark>#{{ taskId }}</mark>
       </h2>
@@ -49,6 +49,7 @@
           </select>
         </p>
       </section>
+    </aside>
 
     <button class="edit-btn" (click)="toggleEditMode()">
       {{ isEditMode ? 'Save' : 'Edit' }}
