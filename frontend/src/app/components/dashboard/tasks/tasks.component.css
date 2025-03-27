@@ -98,7 +98,13 @@
         }
         h3 a {
             color: #007bff;
+            text-decoration: none;
         }
+
+        h3 a:hover {
+            text-decoration: underline;
+        }
+        
     }
     
     p {
