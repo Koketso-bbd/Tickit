@@ -4,7 +4,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { Project, User } from '../../models/project.model';
 import { Task, BackendTask } from '../../models/task.model';
-import { TaskStatus, TaskPriority } from '../../enums/task.enums';
+import { Status } from '../../enums/status.enum';
+import { Priority } from '../../enums/priority.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -48,9 +49,9 @@ export class TaskService {
       name: backendTask.taskName,
       description: backendTask.taskDescription,
       dueDate: new Date(backendTask.dueDate),
-      priority: backendTask.priorityId as TaskPriority,
+      priority: backendTask.priorityId as Priority,
       assigneeId: backendTask.assigneeId,
-      status: backendTask.statusId as TaskStatus,
+      status: backendTask.statusId as Status,
       projectId: backendTask.projectId,
       projectLabelIds: backendTask.projectLabelIds || []
     };
@@ -70,7 +71,7 @@ export class TaskService {
     };
   }
 
-  getTasksByStatus(status: TaskStatus): Observable<Task[]> {
+  getTasksByStatus(status: Status): Observable<Task[]> {
     return this.tasks$.pipe(
       map(tasks => tasks.filter(task => task.status === status))
     );
@@ -116,7 +117,7 @@ export class TaskService {
     return this.http.delete(`${this.apiUrl}/tasks/${taskId}`, { headers: this.getHeaders() });
   }
 
-  moveTask(taskId: number, newStatus: TaskStatus): void {
+  moveTask(taskId: number, newStatus: Status): void {
     const currentTasks = this.tasksSubject.value;
   
     const updatedTasks = currentTasks.map(t =>
@@ -133,7 +134,7 @@ export class TaskService {
   acknowledgeTask(taskId: number): void {
     const tasks = this.tasksSubject.getValue(); 
     const updatedTasks = tasks.map(task =>
-      task.id === taskId ? { ...task, acknowledged: true, status: TaskStatus.ToDo } : task
+      task.id === taskId ? { ...task, acknowledged: true, status: Status.ToDo } : task
     );
   
     this.tasksSubject.next(updatedTasks); 
@@ -142,4 +143,7 @@ export class TaskService {
     getAssignedUsers(): User[] {
     return this.projectSubject.value?.assignedUsers || [];
   }
+
+  
+  
 }

@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { TaskService } from '../../../services/tasks/task.service';
 import { Task } from '../../../models/task.model';
 import { User } from '../../../models/project.model';
-import { TaskStatus, TaskPriority } from '../../../enums/task.enums';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { NgIf } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { Status } from '../../../enums/status.enum';
+import { Priority } from '../../../enums/priority.enum';
 
 @Component({
   selector: 'app-tasks',
@@ -18,7 +19,7 @@ import { ActivatedRoute } from '@angular/router';
 
 export class TasksComponent implements OnInit {
   response: any;
-  TaskStatus = TaskStatus;
+  Status = Status;
   tasks$: Observable<Task[]>;
   todoTasks$: Observable<Task[]>;
   inProgressTasks$: Observable<Task[]>;
@@ -32,7 +33,7 @@ export class TasksComponent implements OnInit {
   showTaskForm = false;
   projectId: number = 1;
   
-  priorities = Object.entries(TaskPriority)
+  priorities = Object.entries(Priority)
     .filter(([key]) => isNaN(Number(key)))
     .map(([key, value]) => ({ 
       value: value, 
@@ -46,16 +47,17 @@ export class TasksComponent implements OnInit {
   ) {
     this.tasks$ = this.taskService.tasks$;
     
-    this.todoTasks$ = this.taskService.getTasksByStatus(TaskStatus.ToDo);
-    this.inProgressTasks$ = this.taskService.getTasksByStatus(TaskStatus.InProgress);
-    this.inReviewTasks$ = this.taskService.getTasksByStatus(TaskStatus.InReview);
-    this.completedTasks$ = this.taskService.getTasksByStatus(TaskStatus.Completed);
+    this.todoTasks$ = this.taskService.getTasksByStatus(Status.ToDo);
+    this.inProgressTasks$ = this.taskService.getTasksByStatus(Status.InProgress);
+    this.inReviewTasks$ = this.taskService.getTasksByStatus(Status.InReview);
+    this.completedTasks$ = this.taskService.getTasksByStatus(Status.Completed);
+    
     
     this.taskForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
       dueDate: [null],
-      priority: [TaskPriority.Low],
+      priority: [Priority.Low],
       assigneeId: [null]
     });
   }
@@ -84,7 +86,7 @@ export class TasksComponent implements OnInit {
     } else {
       this.editingTask = null;
       this.taskForm.reset({
-        priority: TaskPriority.Medium,
+        priority: Priority.Medium,
         assigneeId: null
       });
     }
@@ -111,7 +113,7 @@ export class TasksComponent implements OnInit {
       projectId: this.projectId, 
       status: this.editingTask ? 
         this.editingTask.status : 
-        TaskStatus.ToDo,
+        Status.ToDo,
       projectLabelIds: []
     };
     
@@ -146,7 +148,7 @@ export class TasksComponent implements OnInit {
     }
 }
 
-  moveTask(task: Task, newStatus: TaskStatus): void {
+  moveTask(task: Task, newStatus: Status): void {
     const previousStatus = task.id;
 
     this.taskService.moveTask(task.id, newStatus);
@@ -172,7 +174,7 @@ export class TasksComponent implements OnInit {
     }
   }
   
-  dropTask(event: DragEvent, status: TaskStatus): void {
+  dropTask(event: DragEvent, status: Status): void {
     event.preventDefault();
     if (event.dataTransfer) {
       const taskId = parseInt(event.dataTransfer.getData('taskId'), 10);
@@ -194,7 +196,13 @@ export class TasksComponent implements OnInit {
   } 
   
   getPriorityLabel(priority: number): string {
-    return TaskPriority[priority] || 'Unknown';
+    return Priority[priority] || 'Unknown';
   }
+
+  getTaskCount(status: Status): Observable<number> {
+    return this.tasks$.pipe(
+      map(tasks => tasks.filter(task => task.status === status).length)
+    );
+  }  
    
 }

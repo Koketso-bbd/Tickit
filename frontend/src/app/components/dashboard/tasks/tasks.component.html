@@ -11,7 +11,7 @@
           <path d="M0 0h24v24H0z" fill="none"></path>
           <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" fill="currentColor"></path>
         </svg>
-        <span>Add</span>
+        <label>Add</label>
       </button>
 
     </header>
@@ -19,12 +19,12 @@
     <section class="task-columns">
       <section class="column">
         <header>
-          <h2>🟣 To Do</h2>
+          <h2>🟣 To Do ({{ getTaskCount(Status.ToDo) | async }})</h2>
         </header>
         <section 
           class="task-list" 
           (dragover)="allowDrop($event)" 
-          (drop)="dropTask($event, TaskStatus.ToDo)"
+          (drop)="dropTask($event, Status.ToDo)"
         >
           <article 
             class="task-card" 
@@ -60,12 +60,12 @@
   
       <section class="column">
         <header>
-          <h2>🟡 In Progress</h2>
+          <h2>🟡 In Progress ({{ getTaskCount(Status.InProgress) | async }})</h2>
         </header>
         <section 
           class="task-list" 
           (dragover)="allowDrop($event)" 
-          (drop)="dropTask($event, TaskStatus.ToDo)"
+          (drop)="dropTask($event, Status.ToDo)"
         >
           <article 
             class="task-card" 
@@ -101,12 +101,12 @@
   
       <section class="column">
         <header>
-          <h2>🔴 In Review</h2>
+          <h2>🔴 In Review ({{ getTaskCount(Status.InReview) | async }})</h2>
         </header>
         <section 
           class="task-list" 
           (dragover)="allowDrop($event)" 
-          (drop)="dropTask($event, TaskStatus.InProgress)"
+          (drop)="dropTask($event, Status.InProgress)"
         >
           <article 
             class="task-card" 
@@ -142,12 +142,12 @@
   
       <section class="column">
         <header>
-          <h2>🟢 Completed</h2>
+          <h2>🟢 Completed ({{ getTaskCount(Status.Completed) | async }})</h2>
         </header>
         <section 
           class="task-list" 
           (dragover)="allowDrop($event)" 
-          (drop)="dropTask($event, TaskStatus.Completed)"
+          (drop)="dropTask($event, Status.Completed)"
         >
           <article 
             class="task-card" 

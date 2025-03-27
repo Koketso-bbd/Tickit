@@ -1,4 +1,5 @@
-import { TaskStatus, TaskPriority } from '../enums/task.enums';
+import { Priority } from '../enums/priority.enum';
+import { Status } from '../enums/status.enum';
 
 export interface BackendTask {
     taskId: number;
@@ -17,9 +18,9 @@ export interface BackendTask {
     name: string;
     description?: string;
     dueDate: Date;
-    priority: TaskPriority;
+    priority: Priority;
     assigneeId: number;
-    status: TaskStatus;
+    status: Status;
     projectId: number;
     projectLabelIds: number[];
   }
