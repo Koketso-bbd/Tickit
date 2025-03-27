@@ -65,7 +65,8 @@
         <article class="task-card"
                  *ngFor="let task of inProgressTasks$ | async"
                  draggable="true"
-                 (dragstart)="dragStart($event, task)">
+                 (dragstart)="dragStart($event, task)"
+                 (click)="openTaskView(task.id)">
           <header>
             <h3><a href="#">{{ task.name}}</a></h3>
             <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
@@ -102,7 +103,8 @@
         <article class="task-card"
                  *ngFor="let task of inReviewTasks$ | async"
                  draggable="true"
-                 (dragstart)="dragStart($event, task)">
+                 (dragstart)="dragStart($event, task)"
+                 (click)="openTaskView(task.id)">
           <header>
             <h3><a href="#">{{ task.name}}</a></h3>
             <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
@@ -139,7 +141,8 @@
         <article class="task-card"
                  *ngFor="let task of completedTasks$ | async"
                  draggable="true"
-                 (dragstart)="dragStart($event, task)">
+                 (dragstart)="dragStart($event, task)"
+                 (click)="openTaskView(task.id)">
           <header>
             <h3><a href="#">{{ task.name}}</a></h3>
             <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
