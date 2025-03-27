@@ -135,7 +135,4 @@ export class TaskService {
     getAssignedUsers(): User[] {
     return this.projectSubject.value?.assignedUsers || [];
   }
-
-  
-  
 }

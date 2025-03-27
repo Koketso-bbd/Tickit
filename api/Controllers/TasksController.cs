@@ -221,10 +221,6 @@ public class TasksController : ControllerBase
 
                 existingTask.PriorityId = taskDto.PriorityId.Value==null ? null : taskDto.PriorityId.Value;
             }
-            else
-            {
-                existingTask.PriorityId = (int)TaskPriority.Low;
-            }
 
             if (taskDto.AssigneeId.HasValue) 
                 if (taskDto.AssigneeId <= 0)
