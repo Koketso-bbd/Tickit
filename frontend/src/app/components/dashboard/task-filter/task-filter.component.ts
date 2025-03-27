@@ -29,14 +29,12 @@ export class TasksFilterComponent implements OnInit {
   closedTasks: Task[] = [];
   filteredTasks: Task[] = [];
   selectedDate: Date | null = null;
-  selectedProjectId: number | null = null;
   visibleSection: string = 'taskList'; 
-  taskId: number = 120;
   taskViewVisible = false;
-
-
+  
+  
   constructor(private taskService: TaskFilterService, private projectService: ProjectService) {}
-
+  
   ngOnInit(): void {
     this.loadTasks();
   }
@@ -60,18 +58,27 @@ export class TasksFilterComponent implements OnInit {
       })
     ).subscribe(() => {});
   }
-
+  
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
   filterByDate(date: Date | null): void {
     if (date !== null) {
-      const dateOnly = new Date(date).toISOString().split('T')[0];
+      const dateOnly = this.formatDate(new Date(date));
       this.filteredTasks = this.tasks.filter((task) => {
-        const taskDateOnly = new Date(task.dueDate).toISOString().split('T')[0];
+        const taskDateOnly = this.formatDate(new Date(task.dueDate));
         return taskDateOnly === dateOnly;
       });
     } else {
       this.filteredTasks = [...this.tasks];
     }
   }
+  
+  
 
   filterByProjectName(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
@@ -82,7 +89,7 @@ export class TasksFilterComponent implements OnInit {
     }
   
     this.projectService.getProjects().subscribe({
-      next: (projects: any[]) => {
+      next: (projects: Project[]) => {
         const project = projects.find((p) => p.projectName.toLowerCase() === projectName.toLowerCase());
         if (project) {
           this.filteredTasks = this.tasks.filter((task) => task.projectId === +project.id);
@@ -98,7 +105,6 @@ export class TasksFilterComponent implements OnInit {
   clearFilters(): void {
     this.filteredTasks = [...this.tasks];
     this.selectedDate = null;
-    this.selectedProjectId = null;
     this.visibleSection = 'taskList'; 
   }
 
