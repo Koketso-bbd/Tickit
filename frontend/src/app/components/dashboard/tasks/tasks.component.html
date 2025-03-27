@@ -1,2 +1,223 @@
-<button (click)="openTaskView()">View Task</button>
-<app-task-view *ngIf="taskViewVisible" (closePopup)="closeTaskView()" [taskId]="taskId"></app-task-view>
+<main class="task-board">
+    <header>
+      <h1>Task Board</h1>
+      <button class="cssbuttons-io-button" (click)="openTaskForm()">
+        <svg
+          height="24"
+          width="24"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" fill="currentColor"></path>
+        </svg>
+        <label>Add</label>
+      </button>
+
+    </header>
+  
+    <section class="task-columns">
+      <section class="column">
+        <header>
+          <h2>🟣 To Do ({{ getTaskCount(Status.ToDo) | async }})</h2>
+        </header>
+        <section 
+          class="task-list" 
+          (dragover)="allowDrop($event)" 
+          (drop)="dropTask($event, Status.ToDo)"
+        >
+          <article 
+            class="task-card" 
+            *ngFor="let task of todoTasks$ | async" 
+            draggable="true" 
+            (dragstart)="dragStart($event, task)"
+          >
+            <header>
+              <h3><a href="#">{{ task.name}}</a></h3>
+              <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
+                {{ getPriorityLabel(task.priority) }}
+              </label>              
+            </header>
+            <footer>
+              <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
+              <address *ngIf="task.assigneeId">
+                👤 {{ getAssignedUserName(task.assigneeId) }}
+              </address>
+              <section class="task-actions">
+                <button (click)="openTaskForm(task)" class="editButton">
+                  <svg viewBox="0 0 512 512" class="svgIcon">
+                    <path d="M362.7 19.3l36.7 36.7c12.5 12.5 12.5 32.8 0 45.3L172.3 328.3l-52.7 9.4c-5.5 1-10.6-3.9-9.6-9.4l9.4-52.7L317.3 19.3c12.5-12.5 32.8-12.5 45.3 0zM142.6 349.5l38.8-6.9-31.9-31.9-6.9 38.8zm271.5-248.6c6.3 6.3 6.3 16.4 0 22.6L317.3 219.7 292.3 194.7l96.9-96.9c6.3-6.3 16.4-6.3 22.6 0zM80 480c-8.8 0-16-7.2-16-16V384h32v80h80v32H80z"/>
+                  </svg>
+                </button> 
+                <button (click)="deleteTask(task.id)" class="button">
+                  <svg viewBox="0 0 448 512" class="svgIcon"><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
+                </button>
+              </section>
+            </footer>
+          </article>
+        </section>
+      </section>
+  
+      <section class="column">
+        <header>
+          <h2>🟡 In Progress ({{ getTaskCount(Status.InProgress) | async }})</h2>
+        </header>
+        <section 
+          class="task-list" 
+          (dragover)="allowDrop($event)" 
+          (drop)="dropTask($event, Status.InProgress)"
+        >
+          <article 
+            class="task-card" 
+            *ngFor="let task of inProgressTasks$ | async" 
+            draggable="true" 
+            (dragstart)="dragStart($event, task)"
+          >
+            <header>
+              <h3><a href="#">{{ task.name}}</a></h3>
+              <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
+                {{ getPriorityLabel(task.priority) }}
+              </label>              
+            </header>
+            <footer>
+                <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
+              <address *ngIf="task.assigneeId">
+                👤 {{ getAssignedUserName(task.assigneeId) }}
+              </address>
+              <section class="task-actions">
+                <button (click)="openTaskForm(task)" class="editButton">
+                  <svg viewBox="0 0 512 512" class="svgIcon">
+                    <path d="M362.7 19.3l36.7 36.7c12.5 12.5 12.5 32.8 0 45.3L172.3 328.3l-52.7 9.4c-5.5 1-10.6-3.9-9.6-9.4l9.4-52.7L317.3 19.3c12.5-12.5 32.8-12.5 45.3 0zM142.6 349.5l38.8-6.9-31.9-31.9-6.9 38.8zm271.5-248.6c6.3 6.3 6.3 16.4 0 22.6L317.3 219.7 292.3 194.7l96.9-96.9c6.3-6.3 16.4-6.3 22.6 0zM80 480c-8.8 0-16-7.2-16-16V384h32v80h80v32H80z"/>
+                  </svg>
+                </button> 
+              <button (click)="deleteTask(task.id)" class="button">
+                <svg viewBox="0 0 448 512" class="svgIcon"><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
+              </button>
+              </section>
+            </footer>
+          </article>
+        </section>
+      </section>
+  
+      <section class="column">
+        <header>
+          <h2>🔴 In Review ({{ getTaskCount(Status.InReview) | async }})</h2>
+        </header>
+        <section 
+          class="task-list" 
+          (dragover)="allowDrop($event)" 
+          (drop)="dropTask($event, Status.InReview)"
+        >
+          <article 
+            class="task-card" 
+            *ngFor="let task of inReviewTasks$ | async" 
+            draggable="true" 
+            (dragstart)="dragStart($event, task)"
+          >
+            <header>
+              <h3><a href="#">{{ task.name}}</a></h3>
+              <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
+                {{ getPriorityLabel(task.priority) }}
+              </label>              
+            </header>
+            <footer>
+                <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
+              <address *ngIf="task.assigneeId">
+                👤 {{ getAssignedUserName(task.assigneeId) }}
+              </address>
+              <section class="task-actions">
+                <button (click)="openTaskForm(task)" class="editButton">
+                  <svg viewBox="0 0 512 512" class="svgIcon">
+                    <path d="M362.7 19.3l36.7 36.7c12.5 12.5 12.5 32.8 0 45.3L172.3 328.3l-52.7 9.4c-5.5 1-10.6-3.9-9.6-9.4l9.4-52.7L317.3 19.3c12.5-12.5 32.8-12.5 45.3 0zM142.6 349.5l38.8-6.9-31.9-31.9-6.9 38.8zm271.5-248.6c6.3 6.3 6.3 16.4 0 22.6L317.3 219.7 292.3 194.7l96.9-96.9c6.3-6.3 16.4-6.3 22.6 0zM80 480c-8.8 0-16-7.2-16-16V384h32v80h80v32H80z"/>
+                  </svg>
+                </button> 
+                <button (click)="deleteTask(task.id)" class="button">
+                  <svg viewBox="0 0 448 512" class="svgIcon"><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
+                </button>
+              </section>
+            </footer>
+          </article>
+        </section>
+      </section>
+  
+      <section class="column">
+        <header>
+          <h2>🟢 Completed ({{ getTaskCount(Status.Completed) | async }})</h2>
+        </header>
+        <section 
+          class="task-list" 
+          (dragover)="allowDrop($event)" 
+          (drop)="dropTask($event, Status.Completed)"
+        >
+          <article 
+            class="task-card" 
+            *ngFor="let task of completedTasks$ | async" 
+            draggable="true" 
+            (dragstart)="dragStart($event, task)"
+          >
+            <header>
+              <h3><a href="#">{{ task.name}}</a></h3>
+              <label class="priority-badge priority-{{ getPriorityLabel(task.priority).toLocaleLowerCase() }}">
+                {{ getPriorityLabel(task.priority) }}
+              </label>              
+            </header>
+            <footer>
+                <time *ngIf="isValidDate(task.dueDate)">📅 {{ task.dueDate | date }}</time>
+              <address *ngIf="task.assigneeId">
+                👤 {{ getAssignedUserName(task.assigneeId) }}
+              </address>
+              <section class="task-actions">
+                <button (click)="openTaskForm(task)" class="editButton">
+                  <svg viewBox="0 0 512 512" class="svgIcon">
+                    <path d="M362.7 19.3l36.7 36.7c12.5 12.5 12.5 32.8 0 45.3L172.3 328.3l-52.7 9.4c-5.5 1-10.6-3.9-9.6-9.4l9.4-52.7L317.3 19.3c12.5-12.5 32.8-12.5 45.3 0zM142.6 349.5l38.8-6.9-31.9-31.9-6.9 38.8zm271.5-248.6c6.3 6.3 6.3 16.4 0 22.6L317.3 219.7 292.3 194.7l96.9-96.9c6.3-6.3 16.4-6.3 22.6 0zM80 480c-8.8 0-16-7.2-16-16V384h32v80h80v32H80z"/>
+                  </svg>
+                </button>                
+                <button (click)="deleteTask(task.id)" class="button">
+                  <svg viewBox="0 0 448 512" class="svgIcon"><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
+                </button>
+              </section>
+            </footer>
+          </article>
+        </section>
+      </section>
+    </section>
+  
+    <dialog [open]="showTaskForm">
+      <article>
+        <header>
+          <h2>{{ editingTask ? 'Edit Task' : 'Create New Task' }}</h2>
+        </header>
+        <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
+          <label>
+            Name:
+            <input type="text" formControlName="name">
+          </label>
+          <label>
+            Description:
+            <textarea formControlName="description"></textarea>
+          </label>
+          <label>
+            Due Date:
+            <input type="date" formControlName="dueDate">
+          </label>
+          <label>
+            Priority:
+            <select formControlName="priority">
+              <option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</option>
+            </select>
+          </label>
+          <label>
+            Assignee:
+            <select formControlName="assigneeId">
+              <option *ngFor="let user of assignedUsers" [value]="user.id">{{ user.gitHubID }}</option>
+            </select>
+          </label>
+          <footer>
+            <button type="submit" [disabled]="taskForm.invalid">Save</button>
+            <button type="button" (click)="closeTaskForm()">Cancel</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+  </main>
+  

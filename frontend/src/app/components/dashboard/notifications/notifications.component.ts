@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { DatePipe, NgFor, CommonModule } from '@angular/common';
 import { NotificationsService } from '../../../services/notifications.service';
 
@@ -8,6 +8,8 @@ import { NotificationsService } from '../../../services/notifications.service';
   templateUrl: './notifications.component.html',
   styleUrls: ['./notifications.component.css'],
 })
+
+
 export class NotificationsComponent implements OnInit {
   notifications: any[] = [];
 
