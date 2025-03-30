@@ -157,6 +157,7 @@ export class TasksComponent implements OnInit {
                 map(tasks => tasks.filter(task => task.id !== taskId))
             );
             this.closeModal();
+            
         },
         error: (error) => {
             console.error("Error deleting task:", error);
@@ -247,4 +248,5 @@ export class TasksComponent implements OnInit {
   getProjectName(): string {
     return this.taskService.getProjectName();
   }
+
 }
