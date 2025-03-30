@@ -11,6 +11,10 @@
   padding: 20px;
 }
 
+img{
+  width: 100%;
+}
+
 .login-container h1 {
   font-size: 2.5rem;
   margin-bottom: 10px;
@@ -37,3 +41,4 @@
   background-color: #f7f7f7;
   transform: scale(1.05);
 }
+
