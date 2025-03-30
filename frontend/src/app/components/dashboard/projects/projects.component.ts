@@ -264,4 +264,15 @@ export class ProjectsComponent {
       }
     });
   }
+
+  fetchProjectDetails(projectId: number) {
+    this.projectService.getProjectById(projectId).subscribe({
+      next: (data) => {
+        this.selectedProject = data;
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
 }
