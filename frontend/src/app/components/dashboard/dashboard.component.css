@@ -83,6 +83,8 @@ main {
     padding: 1.25rem;
 }
 
+
+
 @media screen and (max-width: 768px) {
     .side-nav {
         width: 12.5rem;
