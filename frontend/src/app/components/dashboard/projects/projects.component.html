@@ -95,10 +95,23 @@
 <section *ngIf="showUpdateRoleForm" class="user-management-modal modal">
     <section class="modal-content">
         <h2>Update User Role</h2>
-        <input type="number" [(ngModel)]="userRoleUpdate.userId" placeholder="User ID">
-        <p *ngIf="!userRoleUpdate.userId && formSubmitted" class="error-message">User ID is required.</p>
-        <input type="number" [(ngModel)]="userRoleUpdate.newRoleId" placeholder="New Role ID">
-        <p *ngIf="!userRoleUpdate.newRoleId && formSubmitted" class="error-message">New Role ID is required.</p>
+
+        <label for="userId">Select User:</label>
+        <select [(ngModel)]="userRoleUpdate.userId" id="userId" name="userId">
+            <option *ngFor="let user of selectedProject?.assignedUsers" [value]="user.id">
+                {{ user.gitHubID }}
+            </option>
+        </select>
+        <p *ngIf="!userRoleUpdate.userId && formSubmitted" class="error-message">User is required.</p>
+
+        <label for="newRoleId">Select Role:</label>
+        <select [(ngModel)]="userRoleUpdate.newRoleId" id="newRoleId" name="newRoleId">
+            <option *ngFor="let r of roleNames" [value]="r.value">
+                {{ r.key }}
+            </option>
+        </select>
+        <p *ngIf="!userRoleUpdate.newRoleId && formSubmitted" class="error-message">New Role is required.</p>
+
         <section class="button-group">
             <button (click)="updateUserRole()">Update Role</button>
             <button (click)="closeUpdateRoleForm()">Cancel</button>
