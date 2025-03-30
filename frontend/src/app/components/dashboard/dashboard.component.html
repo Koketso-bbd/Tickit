@@ -1,4 +1,10 @@
-<aside class="side-nav">
+<button class="burger-button" (click)="toggleMenu()">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<aside class="burger-menu-container" [ngClass]="{'show': showMenu, 'hide': !showMenu}">
     <section class="user-info">
         <img routerLink="profile" src="{{userImage}}" alt="">
         <p routerLink="profile">{{userName}}</p>

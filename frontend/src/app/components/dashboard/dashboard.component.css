@@ -5,20 +5,71 @@
     font-family: 'Inter', sans-serif;
 }
 
-.side-nav {
-    width: 15.625rem;
-    height: 100vh; 
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: #4e54c8;
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1.25rem;
-    gap: 1.25rem;
+.burger-button {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1;
 }
+
+  .burger-button span {
+    display: block;
+    width: 2rem;
+    height: 0.25rem;
+    background-color: #000;
+    margin: 0.25rem 0;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+    /* X Icon (Default State) */
+    .burger-button span:nth-child(1) {
+      transform: translateY(0.5rem) rotate(45deg);
+    }
+
+    .burger-button span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .burger-button span:nth-child(3) {
+      transform: translateY(-0.5rem) rotate(-45deg);
+    }
+
+    /* Burger Icon (When Menu is Hidden) */
+    .burger-button.active span:nth-child(1) {
+      transform: translateY(0) rotate(0);
+    }
+
+    .burger-button.active span:nth-child(2) {
+      opacity: 1;
+    }
+
+    .burger-button.active span:nth-child(3) {
+      transform: translateY(0) rotate(0);
+    }
+
+.burger-menu-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 15.625rem;
+  height: 100vh;
+  background-color: #4e54c8;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem;
+  gap: 1.25rem;
+  transform: translateX(0);
+  transition: transform 0.5s;
+}
+
+  .burger-menu-container.hide {
+    transform: translateX(-100%);
+  }
 
 .user-info {
     text-align: center;
@@ -38,31 +89,39 @@
     font-size: 1rem;
 }
 
-nav ul {
-    list-style: none;
-    width: 100%;
+.burger-menu-container nav ul {
+  list-style: none;
+  width: 100%;
 }
 
-nav ul li {
+  .burger-menu-container nav ul li {
     width: 100%;
     margin: 0.625rem 0;
+  }
+
+    .burger-menu-container nav ul li a {
+      display: block;
+      padding: 0.75rem 1.25rem;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 0.313rem;
+      transition: background 0.3s;
+    }
+
+      .burger-menu-container nav ul li a:hover {
+        background-color: #007bff;
+      }
+
+      .burger-menu-container nav ul li a.active {
+        background-color: #007bff;
+      }
+
+.show {
+  transform: translateX(0);
 }
 
-nav ul li a {
-    display: block;
-    padding: 0.75rem 1.25rem;
-    color: #ffffff;
-    text-decoration: none;
-    border-radius: 0.313rem;
-    transition: background 0.3s;
-}
-
-nav ul li a:hover {
-    background-color: #007bff;
-}
-
-nav ul li a.active {
-  background-color: #007bff;
+.hide {
+  transform: translateX(-100%);
 }
 
 .logout-button {
