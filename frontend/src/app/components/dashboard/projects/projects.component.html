@@ -7,15 +7,16 @@
 </button>
 
 <section *ngIf="showForm" class="create-project-form modal">
-    <div class="modal-content">
+    <section class="modal-content">
         <h2>Create New Project</h2>
         <input type="text" [(ngModel)]="newProject.projectName" placeholder="Project Name">
+        <p *ngIf="!newProject.projectName && formSubmitted" class="error-message">Project Name is required.</p>
         <textarea [(ngModel)]="newProject.projectDescription" placeholder="Project Description"></textarea>
-        <div class="button-group">
+        <section class="button-group">
             <button (click)="createProject()">Create</button>
             <button (click)="toggleForm()">Cancel</button>
-        </div>
-    </div>
+        </section>
+    </section>
 </section>
 
 <section *ngIf="projects.length > 0; else noProjects" class="projects">
@@ -39,6 +40,7 @@
     <section class="modal-content">
         <h2>Edit Project</h2>
         <input type="text" [(ngModel)]="editingProject.projectName" placeholder="Project Name">
+        <p *ngIf="!editingProject.projectName && formSubmitted" class="error-message">Project Name is required.</p>
         <textarea [(ngModel)]="editingProject.projectDescription" placeholder="Project Description"></textarea>
         <section class="button-group">
             <button (click)="updateProject()">Save Changes</button>
@@ -51,7 +53,9 @@
     <section class="modal-content">
         <h2>Add User to Project</h2>
         <input type="number" [(ngModel)]="userToAdd.userId" placeholder="User ID">
+        <p *ngIf="!userToAdd.userId && formSubmitted" class="error-message">User ID is required.</p>
         <input type="number" [(ngModel)]="userToAdd.roleId" placeholder="Role ID">
+        <p *ngIf="!userToAdd.roleId && formSubmitted" class="error-message">Role ID is required.</p>
         <section class="button-group">
             <button (click)="addUserToProject()">Add User</button>
             <button (click)="closeAddUserForm()">Cancel</button>
@@ -63,6 +67,7 @@
     <section class="modal-content">
         <h2>Remove User from Project</h2>
         <input type="number" [(ngModel)]="userToRemove.userId" placeholder="User ID">
+        <p *ngIf="!userToRemove.userId && formSubmitted" class="error-message">User ID is required.</p>
         <section class="button-group">
             <button (click)="removeUserFromProject()">Remove User</button>
             <button (click)="closeRemoveUserForm()">Cancel</button>
@@ -74,7 +79,9 @@
     <section class="modal-content">
         <h2>Update User Role</h2>
         <input type="number" [(ngModel)]="userRoleUpdate.userId" placeholder="User ID">
-        <input type="number" [(ngModel)]="userRoleUpdate.newRoleId" placeholder="New Ro le ID">
+        <p *ngIf="!userRoleUpdate.userId && formSubmitted" class="error-message">User ID is required.</p>
+        <input type="number" [(ngModel)]="userRoleUpdate.newRoleId" placeholder="New Role ID">
+        <p *ngIf="!userRoleUpdate.newRoleId && formSubmitted" class="error-message">New Role ID is required.</p>
         <section class="button-group">
             <button (click)="updateUserRole()">Update Role</button>
             <button (click)="closeUpdateRoleForm()">Cancel</button>
