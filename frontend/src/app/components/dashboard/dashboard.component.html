@@ -1,7 +1,9 @@
-<aside class="side-nav">
+<button class="toggle-btn" (click)="toggleSidebar()">☰</button>
+
+<aside class="side-nav" [class.closed]="!isSidebarOpen">
     <section class="user-info">
-        <img routerLink="profile" src="{{userImage}}" alt="">
-        <p routerLink="profile">{{userName}}</p>
+        <img routerLink="profile" [src]="userImage" alt="User Image" />
+        <p routerLink="profile">{{ userName }}</p>
     </section>
 
     <nav>
@@ -15,6 +17,6 @@
     <button class="logout-button" (click)="logout()">Logout</button>
 </aside>
 
-<main>
-    <router-outlet/>
+<main [class.shifted]="isSidebarOpen">
+    <router-outlet></router-outlet>
 </main>
