@@ -10,7 +10,8 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
 export class DashboardComponent {
   userName: string = localStorage.getItem('name') ?? '';
   userImage: string = localStorage.getItem('picture') ?? '';
-  
+  isSidebarOpen: boolean = true;
+
   constructor(private router: Router) { }
 
   logout() {
@@ -20,4 +21,8 @@ export class DashboardComponent {
     localStorage.removeItem('picture');
     this.router.navigate(['/']);
    }
+
+   toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
 }
