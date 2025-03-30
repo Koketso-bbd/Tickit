@@ -3,7 +3,9 @@ export interface Task {
   taskName: string;
   taskDescription: string;
   projectId: number;
+  projectName?: string; 
   statusId: number;
+  statusName?: string;
   priorityId: number;
   dueDate: Date;
   projectLabelIds: string [];
