@@ -225,4 +225,8 @@ export class TasksComponent implements OnInit {
     this.taskViewVisible = false;
     this.selectedTaskId = 0;
   }
+
+  getProjectName(): string {
+    return this.taskService.getProjectName();
+  }
 }
