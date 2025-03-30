@@ -61,6 +61,10 @@ nav ul li a:hover {
     background-color: #007bff;
 }
 
+nav ul li a.active {
+  background-color: #007bff;
+}
+
 .logout-button {
     margin-top: auto;
     width: 100%;
