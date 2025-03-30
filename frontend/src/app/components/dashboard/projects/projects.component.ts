@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { role } from '../../../enums/role.enum';
 
 @Component({
   selector: 'app-projects',
@@ -14,6 +15,7 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
   styleUrl: './projects.component.css'
 })
 export class ProjectsComponent {
+  users: any = [];
   projects: any[] = [];
   project: any = null;
   newProject = { projectName: '', projectDescription: '' };
@@ -25,11 +27,16 @@ export class ProjectsComponent {
   showUpdateRoleForm = false;
 
   selectedProject: any = null;
-  userToAdd = { userId: null as number | null, roleId: null as number | null };
+  userToAdd = { userId: null as number | null, roleId: null as role | null };
   userToRemove = { userId: null as number | null };
   userRoleUpdate = { userId: null as number | null, newRoleId: null as number | null };
 
   formSubmitted: boolean = false;
+  Role = role;
+  roleNames = Object.keys(role).filter(key => isNaN(Number(key))).map(key => ({
+    key,
+    value: role[key as keyof typeof role]
+  }));
 
   constructor(
     private projectService: ProjectService,
@@ -40,6 +47,7 @@ export class ProjectsComponent {
 
   ngOnInit(): void {
     this.fetchProjects();
+    this.fetchUsers();
   }
 
   fetchProjects() {
@@ -242,6 +250,17 @@ export class ProjectsComponent {
       error: (error) => {
         console.error(error);
         this.snackBar.open('Failed to update user role.', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  fetchUsers() {
+    this.projectService.getUsers().subscribe({
+      next: (data) => {
+        this.users = data;
+      },
+      error: (error) => {
+        console.error(error);
       }
     });
   }
