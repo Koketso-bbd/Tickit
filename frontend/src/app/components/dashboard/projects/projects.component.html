@@ -52,10 +52,21 @@
 <section *ngIf="showAddUserForm" class="user-management-modal modal">
     <section class="modal-content">
         <h2>Add User to Project</h2>
-        <input type="number" [(ngModel)]="userToAdd.userId" placeholder="User ID">
-        <p *ngIf="!userToAdd.userId && formSubmitted" class="error-message">User ID is required.</p>
-        <input type="number" [(ngModel)]="userToAdd.roleId" placeholder="Role ID">
-        <p *ngIf="!userToAdd.roleId && formSubmitted" class="error-message">Role ID is required.</p>
+
+        <select [(ngModel)]="userToAdd.userId">
+            <option *ngFor="let user of users" [value]="user.id">
+                {{ user.gitHubID }} ({{ user.name }})
+            </option>
+        </select>
+        <p *ngIf="!userToAdd.userId && formSubmitted" class="error-message">User is required.</p>
+
+        <select [(ngModel)]="userToAdd.roleId">
+            <option *ngFor="let r of roleNames" [value]="r.value">
+                {{ r.key }}
+            </option>
+        </select>
+        <p *ngIf="!userToAdd.roleId && formSubmitted" class="error-message">Role is required.</p>
+
         <section class="button-group">
             <button (click)="addUserToProject()">Add User</button>
             <button (click)="closeAddUserForm()">Cancel</button>
