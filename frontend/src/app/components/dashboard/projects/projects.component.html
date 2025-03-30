@@ -77,8 +77,14 @@
 <section *ngIf="showRemoveUserForm" class="user-management-modal modal">
     <section class="modal-content">
         <h2>Remove User from Project</h2>
-        <input type="number" [(ngModel)]="userToRemove.userId" placeholder="User ID">
-        <p *ngIf="!userToRemove.userId && formSubmitted" class="error-message">User ID is required.</p>
+
+        <select [(ngModel)]="userToRemove.userId">
+            <option *ngFor="let user of selectedProject?.assignedUsers" [value]="user.id">
+                {{ user.gitHubID }}
+            </option>
+        </select>
+        <p *ngIf="!userToRemove.userId && formSubmitted" class="error-message">User is required.</p>
+
         <section class="button-group">
             <button (click)="removeUserFromProject()">Remove User</button>
             <button (click)="closeRemoveUserForm()">Cancel</button>
