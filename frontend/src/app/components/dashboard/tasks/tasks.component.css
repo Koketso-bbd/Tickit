@@ -317,3 +317,92 @@ dialog button:disabled {
     transition-duration: .3s;
   } 
 
+
+
+dialog #confirmationModal{
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  background-color: #0d1117;
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+dialog header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+dialog #modalTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #f0f6fc;
+}
+
+header .del-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #f0f6fc;
+}
+
+dialog section {
+  padding: 24px 16px;
+  text-align: center;
+}
+
+figure {
+  margin: 0 0 16px 0;
+}
+
+dialog p {
+  margin: 0;
+  color: #f0f6fc;
+}
+
+dialog footer {
+  border-top: 1px solid #eee;
+  padding: 16px;
+}
+
+menu {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+menu li {
+  list-style: none;
+}
+
+ .del-btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+menu li:first-child button {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  color: #161b22;
+  font-weight: bold;
+}
+
+menu li:last-child button {
+  background-color: #ff3b30;
+  border: none;
+  color: #161b22;
+  font-weight: bold;
+}

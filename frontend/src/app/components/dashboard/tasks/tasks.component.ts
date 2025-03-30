@@ -41,6 +41,8 @@ export class TasksComponent implements OnInit {
       value: value, 
       label: key 
     }));
+
+    isOpen = false;
   
   constructor(
     private taskService: TaskService,
@@ -149,22 +151,38 @@ export class TasksComponent implements OnInit {
   }
 
   deleteTask(taskId: number): void {
-    if (confirm("Are you sure you want to delete this task?")) {
-        this.taskService.deleteTask(taskId).subscribe({
-            next: () => {
-                this.tasks$ = this.tasks$.pipe(
-                    map(tasks => tasks.filter(task => task.id !== taskId))
-                );
-            },
-            error: (error) => {
-                console.error("Error deleting task:", error);
-            }
-        });
-    }
+    this.taskService.deleteTask(taskId).subscribe({
+        next: () => {
+            this.tasks$ = this.tasks$.pipe(
+                map(tasks => tasks.filter(task => task.id !== taskId))
+            );
+            this.closeModal();
+        },
+        error: (error) => {
+            console.error("Error deleting task:", error);
+            this.closeModal();
+        }
+    });
 }
 
+  confirmDelete(taskId: number): void {
+    this.deleteTask(taskId)
+    this.closeModal();
+  }
+
+  openModal(): void {
+    this.isOpen = true;
+    const modal = document.getElementById('confirmationModal') as HTMLDialogElement;
+    modal.showModal();
+  }
+
+  closeModal(): void {
+    this.isOpen = false;
+    const modal = document.getElementById('confirmationModal') as HTMLDialogElement;
+    modal.close();
+  }
+
   moveTask(task: Task, newStatus: Status): void {
-    const previousStatus = task.status;
 
     this.taskService.moveTask(task.id, newStatus);
 
