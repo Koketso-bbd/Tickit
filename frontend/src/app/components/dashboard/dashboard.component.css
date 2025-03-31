@@ -146,6 +146,8 @@ main {
     padding: 1.25rem;
 }
 
+
+
 @media screen and (max-width: 768px) {
   .burger-menu-container {
     width: 13.625rem;
