@@ -171,13 +171,15 @@ export class TasksComponent implements OnInit {
     this.closeModal();
   }
 
-  openModal(): void {
+  openModal(taskId: number): void {
+    this.selectedTaskId = taskId;
     this.isOpen = true;
     const modal = document.getElementById('confirmationModal') as HTMLDialogElement;
     modal.showModal();
   }
 
   closeModal(): void {
+    this.selectedTaskId = 0;
     this.isOpen = false;
     const modal = document.getElementById('confirmationModal') as HTMLDialogElement;
     modal.close();
