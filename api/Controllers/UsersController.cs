@@ -89,5 +89,29 @@ namespace api.Controllers
                 return StatusCode(statusCode, new { message = errorMessage });
             }
         }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [SwaggerOperation(Summary = "Gets a list of all users")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var users = await _context.Users
+                    .Select(u => new UserDTO
+                    {
+                        ID = u.Id,
+                        GitHubID = u.GitHubId
+                    })
+                    .ToListAsync();
+
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                var (statusCode, errorMessage) = HttpResponseHelper.InternalServerError("retrieving users", _logger, ex);
+                return StatusCode(statusCode, new { message = errorMessage });
+            }
+        }
     }
 }

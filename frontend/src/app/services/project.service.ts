@@ -10,6 +10,7 @@ export class ProjectService {
   private token: string | null = localStorage.getItem('jwt');
   private apiUrl: string = "https://localhost:7151/api/projects";
   private apiUserProject: string = "https://localhost:7151/api/userprojects"
+  private userUrl: string = "https://localhost:7151/api/users";
   
   constructor(private http: HttpClient) { }
 
@@ -72,5 +73,10 @@ export class ProjectService {
     .set('newRoleId', newRoleId);
 
     return this.http.put(`${this.apiUserProject}`, null, {headers, params})
+  }
+
+  getUsers() {
+    const headers = this.setHeaders();
+    return this.http.get(this.userUrl, { headers });
   }
 }
