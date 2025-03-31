@@ -1,66 +1,56 @@
 <main>
-    <section class="filter-section">
-        <h3>View by</h3>
-        <article>
-          <label for="date">Due Date:</label>
-          <input
-            type="date"
-            id="date"
-            [(ngModel)]="selectedDate"
-            (change)="filterByDate(selectedDate)"
-          />
-        </article>
-    
-        <article>
-          <label for="project">Project Name:</label>
-          <input
-            type="text"
-            placeholder="Filter by project name"
-            (input)="filterByProjectName($event)"
-          />
-        </article>
-    
-        <button (click)="clearFilters()">Clear Filters</button>
-      </section>
-      
-    
-      <section class="open-close-section">
-        <nav class="filter-nav">
-          <a (click)="showSection('taskList')" [class.active]="visibleSection === 'taskList'">
-            Open</a>
-          <a (click)="showSection('closed')" [class.active]="visibleSection === 'closed'">Closed</a>
-        </nav>
-      </section>
-      
-      <section
-        class="task-list"
-        [style.visibility]="visibleSection === 'taskList' ? 'visible' : 'hidden'"
-      >
-        <article *ngIf="filteredTasks.length === 0">No tasks available.</article>
-        <article class="task-list-open">
-          <ul>
-            <li class="lists" *ngFor="let task of filteredTasks">
-              <strong>{{ task.taskName }}</strong><br />
-              Due Date: {{ task.dueDate }}<br />
-              Task Description: {{ task.taskDescription }}<br/>
-              Project Name: {{ project.projectName }}
-            </li>
-          </ul>
-        </article>
-      </section>
-      <section
-        class="task-list"
-        [style.visibility]="visibleSection === 'closed' ? 'visible' : 'hidden'"
-      >
-        <article id="no-task-closed" *ngIf="filteredTasks.length === 0">No closed tasks available.</article>
-        <ul>
-          <li class="lists" *ngFor="let task of filteredTasks">
-            <strong>{{ task.taskName }}</strong><br />
-            <p>  Due Date: {{ task.dueDate }}<br />
-            Task Description: {{ task.taskDescription }}<br/>
-            Project Name: {{ project.projectName }}</p>
-          </li>
-        </ul>
-      </section>
-      
-  </main>
+  <section class="filter-section">
+    <h3>View by</h3>
+    <article>
+      <label for="date">Due Date:</label>
+      <input
+        type="date"
+        id="date"
+        [(ngModel)]="selectedDate"
+        (change)="filterByDate(selectedDate)"
+      />
+    </article>
+
+    <article>
+      <label for="project">Project Name:</label>
+      <input
+        type="text"
+        placeholder="Filter by project name"
+        (input)="filterByProjectName($event)"
+      />
+    </article>
+
+    <button (click)="clearFilters()">Clear Filters</button>
+  </section>
+
+  <section>
+    <article *ngIf="filteredTasks.length === 0">No tasks available.</article>
+    <article class="task-list-open">
+      <ul>
+        <li
+          class="lists"
+          *ngFor="let task of filteredTasks"
+          (click)="showTaskDetails(task)"
+        >
+          <h1><strong>{{ task.taskName }}</strong></h1>
+          Due Date : {{ task.dueDate | date: 'yyyy-MM-dd' }}<br />
+          Task Description : {{ task.taskDescription }}<br />
+          Project Name : {{ task.projectName }} <br />
+          Status : {{ task.statusName}}
+        </li>
+      </ul>
+    </article>
+  </section>
+
+  
+  <section *ngIf="taskViewVisible" class="popup">
+    <article class="popup-content">
+      <h2>{{ selectedTask?.taskName }}</h2>
+      <p><strong>Due Date :</strong> {{ selectedTask?.dueDate | date: 'yyyy-MM-dd' }}</p>
+      <p><strong>Description :</strong> {{ selectedTask?.taskDescription }}</p>
+      <p><strong>Project :</strong> {{ selectedTask?.projectName }}</p>
+      <p><strong>Status :</strong> {{ selectedTask?.statusName }}</p>
+      <button (click)="closeTaskView()">Close</button>
+    </article>
+  </section>
+</main>
