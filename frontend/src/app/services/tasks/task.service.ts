@@ -42,6 +42,10 @@ export class TaskService {
     );
 }
 
+  refreshTasks(projectId: number): void {
+    this.fetchTasksForProject(projectId).subscribe();
+  }
+
   private mapBackendToFrontendTask(backendTask: BackendTask): Task {
     console.log(backendTask.statusId);
     return {
@@ -89,7 +93,8 @@ export class TaskService {
           const currentTasks = this.tasksSubject.value;
           this.tasksSubject.next([...currentTasks, mappedTask]);
           return mappedTask;
-        })
+        }),
+        tap(() => this.refreshTasks(task.projectId))
       );
   }
   
@@ -106,7 +111,8 @@ export class TaskService {
           const updatedTasks = currentTasks.map(t => t.id === mappedTask.id ? mappedTask : t);
           this.tasksSubject.next(updatedTasks);
           return mappedTask;
-        })
+        }),
+        tap(() => this.refreshTasks(task.projectId))
       );
   }
 
@@ -134,5 +140,9 @@ export class TaskService {
   
     getAssignedUsers(): User[] {
     return this.projectSubject.value?.assignedUsers || [];
+  }
+
+  getProjectName(): string {
+    return this.projectSubject.value?.projectName || "";
   }
 }
