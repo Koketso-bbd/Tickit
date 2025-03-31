@@ -60,3 +60,59 @@
   font-size: 1.1em;
   margin-top: 1.5em;
 }
+
+/* Tablet screens (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .notifications-list {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+}
+
+/* Small tablet and mobile screens (max-width: 768px) */
+@media (max-width: 768px) {
+  .notifications-list {
+    padding: 1em;
+    max-width: 20em;
+    margin: 1em auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+}
+
+/* Mobile screens (max-width: 480px) */
+@media (max-width: 480px) {
+  .notifications {
+    padding: 1em;
+  }
+
+  .notifications h1 {
+    font-size: 1.5em;
+    margin-bottom: 1em;
+  }
+
+  .notifications-list {
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+    margin: 1em 0;
+    border-radius: 1em;
+  }
+
+  .notifications-list strong {
+    font-size: 1em;
+  }
+
+  .notifications-list small {
+    font-size: 0.8em;
+  }
+
+  .no-notifications {
+    font-size: 1em;
+    margin-top: 1em;
+  }
+}
