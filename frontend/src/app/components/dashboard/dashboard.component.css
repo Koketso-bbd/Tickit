@@ -55,7 +55,7 @@
   top: 0;
   left: 0;
   width: 13.625rem;
-  height:70vh;
+  height:100vh;
   background-color: #151517;
   color: #ffffff;
   display: flex;
@@ -125,7 +125,7 @@
 }
 
 .logout-button {
-    margin-top: 2em;
+    margin-top: auto;
     width: 100%;
     padding: 1em;
     background-color: #bba2a2;
@@ -149,15 +149,12 @@ main {
 @media screen and (max-width: 768px) {
   .burger-menu-container {
     width: 13.625rem;
-    height:70vh;
-  
   }
 }
 
 @media screen and (max-width: 480px) {
   .burger-menu-container {
     width: 11.625rem;
-    height:70vh;
   }
 
   .user-info img{
@@ -178,7 +175,6 @@ main {
   }
 
   .logout-button {
-    margin-top: 0;
     width: 100%;
     padding: 0.4em;
 }
@@ -188,7 +184,6 @@ main {
 @media screen and (max-width: 1024px) {
   .burger-menu-container {
     width: 11.625rem;
-    height:50vh;
   }
 
   .user-info{
