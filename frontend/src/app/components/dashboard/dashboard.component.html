@@ -1,4 +1,10 @@
-<aside class="side-nav">
+<button class="burger-button" (click)="toggleMenu()">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<aside class="burger-menu-container" [ngClass]="{'show': showMenu, 'hide': !showMenu}">
     <section class="user-info">
         <img routerLink="profile" src="{{userImage}}" alt="">
         <p routerLink="profile">{{userName}}</p>
@@ -6,9 +12,9 @@
 
     <nav>
         <ul>
-            <li><a routerLink="projects">Projects</a></li>
-            <li><a routerLink="task-filter">Tasks</a></li>
-            <li><a routerLink="notifications">Notifications</a></li>
+            <li><a routerLink="projects" routerLinkActive="active">Projects</a></li>
+            <li><a routerLink="task-filter" routerLinkActive="active">Tasks</a></li>
+            <li><a routerLink="notifications" routerLinkActive="active">Notifications</a></li>
         </ul>
     </nav>
 
