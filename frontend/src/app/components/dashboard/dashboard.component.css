@@ -19,7 +19,7 @@
     display: block;
     width: 2rem;
     height: 0.25rem;
-    background-color: #000;
+    background-color: #e22929;
     margin: 0.25rem 0;
     transition: transform 0.3s, opacity 0.3s;
   }
@@ -54,9 +54,9 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 15.625rem;
-  height: 100vh;
-  background-color: #4e54c8;
+  width: 13.625rem;
+  height:70vh;
+  background-color: #151517;
   color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -109,11 +109,11 @@
     }
 
       .burger-menu-container nav ul li a:hover {
-        background-color: #007bff;
+        background-color: #e61f1f;
       }
 
       .burger-menu-container nav ul li a.active {
-        background-color: #007bff;
+        background-color: #d11f1f;
       }
 
 .show {
@@ -125,9 +125,9 @@
 }
 
 .logout-button {
-    margin-top: auto;
+    margin-top: 2em;
     width: 100%;
-    padding: 10px;
+    padding: 1em;
     background-color: #bba2a2;
     border: none;
     color: white;
@@ -147,32 +147,51 @@ main {
 }
 
 @media screen and (max-width: 768px) {
-    .side-nav {
-        width: 12.5rem;
-    }
-
-    main {
-        margin-left: 12.5rem;
-    }
+  .burger-menu-container {
+    width: 13.625rem;
+    height:70vh;
+  
+  }
 }
 
 @media screen and (max-width: 480px) {
-    .side-nav {
-        width: 6.25rem;
-        align-items: center;
-    }
+  .burger-menu-container {
+    width: 11.625rem;
+    height:70vh;
+  }
 
-    .user-info p {
-        display: none;
-    }
+  .user-info img{
+    width: 40%;
+    height: 60%;
+  }
+}
 
-    nav ul li a {
-        text-align: center;
-        padding: 0.625rem;
-        font-size: 0.875rem;
-    }
+@media screen and (max-width: 400px) {
+  .burger-menu-container {
+    width: 18.625rem;
+    padding: 1em;
+  }
 
-    main {
-        margin-left: 6.25rem;
-    }
+  .user-info img{
+    width: 30%;
+    height: 40%;
+  }
+
+  .logout-button {
+    margin-top: 0;
+    width: 100%;
+    padding: 0.4em;
+}
+
+}
+
+@media screen and (max-width: 1024px) {
+  .burger-menu-container {
+    width: 11.625rem;
+    height:50vh;
+  }
+
+  .user-info{
+    margin-top: 2em;
+  }
 }
